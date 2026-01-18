@@ -1,6 +1,7 @@
 ---
 title: "샌프란시스코 & 실리콘밸리 테크 투어"
 date: 2025-03-15
+endDate: 2025-03-21
 country: "미국"
 tripType: ["sightseeing", "nature", "business"]
 locations:
@@ -8,6 +9,7 @@ locations:
   - name: "샌프란시스코 국제공항 (SFO)"
     lat: 37.6213
     lng: -122.3790
+    visitDate: "3/15"
     type: airport
     order: 1
     note: "인천에서 직항 10시간"
@@ -15,6 +17,7 @@ locations:
   - name: "피셔맨스워프 호텔"
     lat: 37.8080
     lng: -122.4177
+    visitDate: "3/15"
     type: hotel
     order: 2
     note: "알카트라즈 페리 터미널 도보 10분"
@@ -22,6 +25,7 @@ locations:
   - name: "피어 39"
     lat: 37.8087
     lng: -122.4098
+    visitDate: "3/15"
     type: attraction
     order: 3
     note: "바다사자 서식지, 클램차우더 필수"
@@ -35,6 +39,7 @@ locations:
   - name: "알카트라즈 섬"
     lat: 37.8267
     lng: -122.4230
+    visitDate: "3/16"
     type: attraction
     order: 4
     note: "악명 높은 감옥섬, 오디오 투어 강추"
@@ -47,6 +52,7 @@ locations:
   - name: "금문교 (골든게이트 브릿지)"
     lat: 37.8199
     lng: -122.4783
+    visitDate: "3/16"
     type: viewpoint
     order: 5
     note: "SF의 상징, 걸어서 건너기 가능"
@@ -59,6 +65,7 @@ locations:
   - name: "게리 거리 (Ghirardelli Square)"
     lat: 37.8059
     lng: -122.4228
+    visitDate: "3/16"
     type: shopping
     order: 6
     note: "기라델리 초콜릿 본점, 핫초코 맛집"
@@ -67,6 +74,7 @@ locations:
   - name: "샌프란시스코 칼트레인역"
     lat: 37.7764
     lng: -122.3947
+    visitDate: "3/17"
     type: transport
     order: 7
     note: "실리콘밸리행 Caltrain 탑승"
@@ -74,6 +82,7 @@ locations:
   - name: "구글플렉스 (Googleplex)"
     lat: 37.4220
     lng: -122.0841
+    visitDate: "3/17"
     type: attraction
     order: 8
     note: "구글 본사, Android 동상과 자전거"
@@ -86,6 +95,7 @@ locations:
   - name: "컴퓨터 역사 박물관"
     lat: 37.4144
     lng: -122.0771
+    visitDate: "3/17"
     type: museum
     order: 9
     note: "컴퓨터 역사의 모든 것, 개발자 필수 코스"
@@ -98,6 +108,7 @@ locations:
   - name: "애플 파크 방문자 센터"
     lat: 37.3327
     lng: -122.0053
+    visitDate: "3/17"
     type: shopping
     order: 10
     note: "애플 굿즈 구매 가능, AR로 애플파크 체험"
@@ -110,6 +121,7 @@ locations:
   - name: "스탠포드 대학교"
     lat: 37.4275
     lng: -122.1697
+    visitDate: "3/17"
     type: attraction
     order: 11
     note: "구글·야후·인스타그램 창업자들의 모교"
@@ -122,6 +134,7 @@ locations:
   - name: "마이크로소프트 실리콘밸리 캠퍼스"
     lat: 37.4100
     lng: -122.0700
+    visitDate: "3/17"
     type: attraction
     order: 12
     note: "MS 실리콘밸리 오피스"
@@ -130,6 +143,7 @@ locations:
   - name: "요세미티 국립공원 (투어 버스)"
     lat: 37.8651
     lng: -119.5383
+    visitDate: "3/18"
     type: nature
     order: 13
     note: "SF에서 당일 패키지 투어 (새벽 출발)"
@@ -142,6 +156,7 @@ locations:
   - name: "터널 뷰"
     lat: 37.7156
     lng: -119.6779
+    visitDate: "3/18"
     type: viewpoint
     order: 14
     note: "요세미티 대표 뷰포인트, 엘캐피탄+하프돔+폭포"
@@ -149,6 +164,7 @@ locations:
   - name: "하프돔 뷰포인트"
     lat: 37.7459
     lng: -119.5332
+    visitDate: "3/19"
     type: viewpoint
     order: 15
     note: "글레이셔 포인트에서 보는 하프돔"
@@ -157,6 +173,7 @@ locations:
   - name: "케이블카 (파월-하이드)"
     lat: 37.7849
     lng: -122.4084
+    visitDate: "3/20"
     type: transport
     order: 16
     note: "SF 명물 케이블카, 롬바드 스트릿까지"
@@ -164,6 +181,7 @@ locations:
   - name: "롬바드 스트릿"
     lat: 37.8021
     lng: -122.4187
+    visitDate: "3/20"
     type: attraction
     order: 17
     note: "세계에서 가장 구불구불한 길"
@@ -171,6 +189,7 @@ locations:
   - name: "차이나타운"
     lat: 37.7941
     lng: -122.4078
+    visitDate: "3/20"
     type: market
     order: 18
     note: "미국 최대·최고 차이나타운, 딤섬 맛집"
@@ -178,6 +197,7 @@ locations:
   - name: "Tartine Bakery"
     lat: 37.7614
     lng: -122.4242
+    visitDate: "3/21"
     type: cafe
     order: 19
     note: "SF 최고의 베이커리, 모닝번 필수"

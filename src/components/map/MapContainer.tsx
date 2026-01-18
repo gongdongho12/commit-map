@@ -231,8 +231,14 @@ export function MapContainer({
               <div className="marker-popup">
                 <div className="popup-type">{getTypeIcon(location.type)}</div>
                 <div className="popup-order" style={{ background: color }}>{location.order ?? index + 1}</div>
+                {location.visitDate && <div className="popup-date">📅 {location.visitDate}</div>}
                 <strong>{location.name}</strong>
                 {location.note && <p className="popup-note">{location.note}</p>}
+                {location.link && (
+                  <a href={location.link} target="_blank" rel="noopener noreferrer">
+                    📍 지도에서 보기 →
+                  </a>
+                )}
                 {location.slug && (
                   <a href={`/posts/${location.slug}/`}>자세히 보기 →</a>
                 )}
@@ -243,26 +249,37 @@ export function MapContainer({
       })}
 
       {/* 단일 루트 마커 */}
-      {!filteredRoutes && locations.map((location, index) => (
-        <Marker 
-          key={`${location.lat}-${location.lng}-${index}`}
-          position={[location.lat, location.lng]}
-          icon={createTypedIcon(location, index)}
-        >
-          <Popup>
-            <div className="marker-popup">
-              <div className="popup-type">{getTypeIcon(location.type)}</div>
-              <div className="popup-order">{location.order ?? index + 1}</div>
-              <strong>{location.name}</strong>
-              {location.note && <p className="popup-note">{location.note}</p>}
-              {location.excerpt && <p>{location.excerpt}</p>}
-              {location.slug && (
-                <a href={`/posts/${location.slug}/`}>자세히 보기 →</a>
-              )}
-            </div>
-          </Popup>
-        </Marker>
-      ))}
+      {!filteredRoutes && locations.map((location, index) => {
+        // 🔍 디버깅: link, visitDate 파싱 확인
+        console.log(`[MapContainer] Location "${location.name}" - link:`, location.link, '| visitDate:', location.visitDate, '| slug:', location.slug);
+        
+        return (
+          <Marker 
+            key={`${location.lat}-${location.lng}-${index}`}
+            position={[location.lat, location.lng]}
+            icon={createTypedIcon(location, index)}
+          >
+            <Popup>
+              <div className="marker-popup">
+                <div className="popup-type">{getTypeIcon(location.type)}</div>
+                <div className="popup-order">{location.order ?? index + 1}</div>
+                {location.visitDate && <div className="popup-date">📅 {location.visitDate}</div>}
+                <strong>{location.name}</strong>
+                {location.note && <p className="popup-note">{location.note}</p>}
+                {location.excerpt && <p>{location.excerpt}</p>}
+                {location.link && (
+                  <a href={location.link} target="_blank" rel="noopener noreferrer">
+                    📍 지도에서 보기 →
+                  </a>
+                )}
+                {location.slug && (
+                  <a href={`/posts/${location.slug}/`}>자세히 보기 →</a>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
     </LeafletMap>
   );
 }

@@ -35,6 +35,8 @@ const locationSchema = z.object({
   type: locationTypeSchema,
   order: z.number().optional(),
   note: z.string().optional(),
+  link: z.string().optional(),           // 외부 링크 (Google Maps 등)
+  visitDate: z.string().optional(),      // 방문 날짜
   contents: z.array(contentSectionSchema).optional(),
   images: z.array(z.object({
     src: z.string(),
@@ -49,6 +51,7 @@ const postsCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
+    endDate: z.coerce.date().optional(),  // 여행 종료일
     locations: z.array(locationSchema),
     // 새로운 필드들
     country: z.string(),                          // 나라 (필수)

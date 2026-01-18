@@ -1,18 +1,22 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
+import Comments from '../../components/Comments.astro';
 import { MapContainer } from '../../components/map/MapContainer';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
   return posts.map(post => ({
-    params: { slug: post.id },
+    params: { slug: post.id.replace(/\.md$/, '') },
     props: { post },
   }));
 }
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+
+// 🔍 서버사이드 디버그: raw location 데이터 확인
+console.log('[DEBUG] First location raw:', JSON.stringify(post.data.locations[0], null, 2));
 
 const locations = post.data.locations.map((loc, index) => ({
   lat: loc.lat,
@@ -21,26 +25,55 @@ const locations = post.data.locations.map((loc, index) => ({
   order: loc.order ?? index + 1,
   note: loc.note,
   type: loc.type,
+  link: loc.link,
+  visitDate: loc.visitDate,
   contents: loc.contents,
   images: loc.images,
 }));
 
 const mapLocations = locations.map(l => ({
-  lat: l.lat, lng: l.lng, name: l.name, order: l.order, note: l.note, type: l.type
+  lat: l.lat, lng: l.lng, name: l.name, order: l.order, note: l.note, type: l.type,
+  link: l.link, visitDate: l.visitDate,
 }));
+// 여행 기간 계산
+const startDate = post.data.date;
+const endDate = post.data.endDate || startDate;
+const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+const nights = days - 1;
+const durationText = nights > 0 ? `${nights}박 ${days}일` : '당일치기';
+
+// D-day 계산
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const dDay = Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+const isFuture = dDay >= 0;
+const dDayText = dDay === 0 ? 'D-Day!' : `D-${dDay}`;
+
+// visitDate별 그룹핑
+const groupedByDate = locations.reduce((acc, loc) => {
+  const date = loc.visitDate || '날짜 미정';
+  if (!acc[date]) acc[date] = [];
+  acc[date].push(loc);
+  return acc;
+}, {} as Record<string, typeof locations>);
+
+const dateGroups = Object.entries(groupedByDate);
 ---
 
 <BaseLayout title={post.data.title} description={post.data.excerpt}>
   <article class="post">
     <header class="post-header">
       <a href="/" class="back-link">← 목록으로</a>
-      <time datetime={post.data.date.toISOString()}>
-        {post.data.date.toLocaleDateString('ko-KR', { 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        })}
-      </time>
+      <div class="date-info">
+        <time datetime={post.data.date.toISOString()}>
+          {post.data.date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+          {post.data.endDate && post.data.endDate.getTime() !== post.data.date.getTime() 
+            ? ` ~ ${post.data.endDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}` 
+            : ''}
+        </time>
+        <span class="duration-badge">{durationText}</span>
+        {isFuture && <span class="dday-badge">{dDayText}</span>}
+      </div>
       <h1>{post.data.title}</h1>
       {post.data.tags && (
         <div class="tags">
@@ -60,12 +93,31 @@ const mapLocations = locations.map(l => ({
 
     <section class="route-details">
       <h2>📍 방문 장소</h2>
-      {locations.map((loc) => (
-        <div class="location-card" id={`location-${loc.order}`}>
-          <div class="location-header">
-            <span class="location-number">{loc.order}</span>
-            <div class="location-title">
-              <h3>{loc.name}</h3>
+      {dateGroups.map(([date, locs]) => {
+        return (
+          <div class="date-group">
+            <div class="date-header">
+              <span class="date-icon">📅</span>
+              <span class="date-label">{date}</span>
+            </div>
+            {locs.map((loc) => (
+              <div class="location-card" id={`location-${loc.order}`}>
+                <div class="location-header">
+                  <span class="location-number">{loc.order}</span>
+                  <div class="location-title">
+                    <h3>
+                      {loc.link !== undefined ? (
+                        <a href={loc.link === '' ? `https://www.google.com/maps/search/?api=1&query=${loc.lat},${loc.lng}` : loc.link} 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="location-link">
+                          {loc.name}
+                          <span class="link-icon">↗</span>
+                        </a>
+                      ) : (
+                        loc.name
+                      )}
+              </h3>
               {loc.note && <p class="location-note">{loc.note}</p>}
             </div>
           </div>
@@ -93,6 +145,9 @@ const mapLocations = locations.map(l => ({
           )}
         </div>
       ))}
+        </div>
+      );
+    })}
     </section>
 
     <section class="post-content">
@@ -101,9 +156,7 @@ const mapLocations = locations.map(l => ({
 
     <section class="comments-section">
       <h2>💬 댓글</h2>
-      <p class="giscus-note">
-        ⚠️ 댓글을 활성화하려면 <a href="https://giscus.app" target="_blank">Giscus</a>를 설정하세요.
-      </p>
+      <Comments />
     </section>
   </article>
 </BaseLayout>
@@ -134,7 +187,73 @@ const mapLocations = locations.map(l => ({
     display: block;
     color: var(--color-text-muted);
     font-size: 0.875rem;
+  }
+
+  .date-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     margin-bottom: 0.5rem;
+  }
+
+  .duration-badge {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .dday-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    animation: pulse 2s infinite;
+  }
+
+  .dday-badge-small {
+    background: #fef3c7;
+    color: #d97706;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .date-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .date-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #4361ee15, #7b2cbf15);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--color-primary);
+  }
+
+  .date-icon {
+    font-size: 1.25rem;
+  }
+
+  .date-label {
+    font-weight: 600;
+    color: var(--color-primary);
+    font-size: 1rem;
   }
 
   .post-header h1 {
@@ -310,5 +429,29 @@ const mapLocations = locations.map(l => ({
 
   .giscus-note a {
     color: var(--color-primary);
+  }
+
+  .location-link {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .location-link:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  .link-icon {
+    font-size: 0.8em;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+  }
+
+  .location-link:hover .link-icon {
+    opacity: 1;
   }
 </style>

@@ -1,6 +1,7 @@
 ---
 title: "2026 새해 일본여행: 미에-나라-오사카"
 date: 2026-01-01
+endDate: 2026-01-05
 country: "일본"
 tripType: ["sightseeing", "food", "culture"]
 locations:
@@ -8,6 +9,7 @@ locations:
   - name: "주부국제공항 (센트레아)"
     lat: 34.8584
     lng: 136.8124
+    visitDate: "1/1"
     type: airport
     order: 1
     note: "2026년 새해 첫날 일본 도착!"
@@ -15,6 +17,7 @@ locations:
   - name: "이세신궁 (내궁)"
     lat: 34.4550
     lng: 136.7257
+    visitDate: "1/1"
     type: temple
     order: 2
     note: "일본에서 가장 신성한 신사, 새해 첫 참배"
@@ -27,6 +30,7 @@ locations:
   - name: "오카게요코초"
     lat: 34.4560
     lng: 136.7240
+    visitDate: "1/1"
     type: market
     order: 3
     note: "이세신궁 앞 전통 상점가, 아카후쿠모찌 필수"
@@ -37,6 +41,7 @@ locations:
   - name: "부부바위 (메오토이와)"
     lat: 34.5048
     lng: 136.7883
+    visitDate: "1/2"
     type: nature
     order: 4
     note: "금줄로 연결된 부부 바위, 일출 명소"
@@ -44,6 +49,7 @@ locations:
   - name: "Comfort Hotel Ise"
     lat: 34.4870
     lng: 136.7050
+    visitDate: "1/1"
     type: hotel
     order: 5
     note: "이세 시내 숨박, 이세신궁 근처"
@@ -52,6 +58,7 @@ locations:
   - name: "나라공원"
     lat: 34.6851
     lng: 135.8430
+    visitDate: "1/3"
     type: nature
     order: 6
     note: "사슴과 함께하는 산책"
@@ -62,6 +69,7 @@ locations:
   - name: "도다이지 (동대사)"
     lat: 34.6890
     lng: 135.8398
+    visitDate: "1/3"
     type: temple
     order: 7
     note: "세계 최대 목조 건물, 거대한 대불"
@@ -72,6 +80,7 @@ locations:
   - name: "카스가타이샤"
     lat: 34.6810
     lng: 135.8490
+    visitDate: "1/4"
     type: temple
     order: 8
     note: "수천 개의 석등과 청동등이 인상적인 신사"
@@ -79,6 +88,7 @@ locations:
   - name: "나라마치"
     lat: 34.6780
     lng: 135.8320
+    visitDate: "1/4"
     type: shopping
     order: 9
     note: "전통 마치야(마을집) 거리, 카페와 잡화점"
@@ -86,6 +96,7 @@ locations:
   - name: "노보텔 나라"
     lat: 34.6850
     lng: 135.8320
+    visitDate: "1/3"
     type: hotel
     order: 10
     note: "나라공원 근처 프리미엄 호텔"
@@ -94,6 +105,7 @@ locations:
   - name: "난바역"
     lat: 34.6654
     lng: 135.5013
+    visitDate: "1/5"
     type: transport
     order: 11
     note: "나라에서 난바로 이동"
@@ -101,6 +113,7 @@ locations:
   - name: "도톤보리"
     lat: 34.6687
     lng: 135.5013
+    visitDate: "1/5"
     type: shopping
     order: 12
     note: "오사카의 상징, 글리코 간판과 먹거리 천국"
@@ -111,6 +124,7 @@ locations:
   - name: "이치란 라멘 난바점"
     lat: 34.6680
     lng: 135.5020
+    visitDate: "1/5"
     type: restaurant
     order: 13
     note: "마지막 식사는 이치란에서"
@@ -118,6 +132,7 @@ locations:
   - name: "간사이 국제공항"
     lat: 34.4320
     lng: 135.2304
+    visitDate: "1/5"
     type: airport
     order: 14
     note: "1월 5일 귀국, 안녕 일본!"

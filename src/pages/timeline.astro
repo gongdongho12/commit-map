@@ -11,12 +11,12 @@ const allPosts = [...posts].sort((a, b) =>
 
 // 나라별 통계
 const countryCounts = posts.reduce((acc, post) => {
-  const country = post.data.country;
-  if (country) {
-    acc[country] = (acc[country] || 0) + 1;
-  }
-  post.data.countries?.forEach(c => {
-    if (c !== country) acc[c] = (acc[c] || 0) + 1;
+  const targetCountries = (post.data.countries && post.data.countries.length > 0)
+    ? post.data.countries
+    : [post.data.country];
+
+  targetCountries.forEach(c => {
+    if (c) acc[c] = (acc[c] || 0) + 1;
   });
   return acc;
 }, {} as Record<string, number>);
@@ -102,42 +102,63 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
       <h1>🗓️ 여행 타임라인</h1>
       
       <div id="posts-container">
-        {allPosts.map(post => {
+        {allPosts.map((post, index) => {
           const year = new Date(post.data.date).getFullYear();
+          const prevYear = index > 0 ? new Date(allPosts[index - 1].data.date).getFullYear() : null;
+          const showYear = year !== prevYear;
+
           const month = new Date(post.data.date).getMonth();
-          const countries = [post.data.country, ...(post.data.countries || [])].filter(Boolean);
+          const countries = (post.data.countries && post.data.countries.length > 0) 
+            ? post.data.countries 
+            : (post.data.country ? [post.data.country] : []);
           const types = post.data.tripType || [];
           
+          // D-day 계산
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const postDate = new Date(post.data.date);
+          const dDay = Math.ceil((postDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          const isFuture = dDay >= 0;
+          const dDayText = dDay === 0 ? 'D-Day!' : `D-${dDay}`;
+          
           return (
-            <a href={`/posts/${post.id}/`} 
-               class="timeline-card" 
-               data-year={year}
-               data-countries={countries.join(',')}
-               data-types={types.join(',')}>
-              <div class="timeline-date">
-                <span class="year">{year}</span>
-                <span class="month">{months[month]}</span>
-                <span class="day">{new Date(post.data.date).getDate()}</span>
-              </div>
-              <div class="timeline-content">
-                <div class="timeline-header">
-                  <span class="country-badge">{post.data.country}</span>
-                  {post.data.tripType?.map(type => (
-                    <span class="type-badge">
-                      {tripTypes[type]?.icon}
-                    </span>
-                  ))}
+            <>
+              {showYear && (
+                <div class="timeline-year-divider">
+                  <h2>{year}</h2>
                 </div>
-                <h3>{post.data.title}</h3>
-                <p>{post.data.excerpt}</p>
-                <div class="timeline-meta">
-                  <span>📍 {post.data.locations.length}개 장소</span>
-                  {post.data.tags?.slice(0, 3).map(tag => (
-                    <span class="mini-tag">#{tag}</span>
-                  ))}
+              )}
+              <a href={`/posts/${post.id.replace(/\.md$/, '')}/`} 
+                 class={`timeline-card ${isFuture ? 'future-plan' : ''}`}
+                 data-year={year}
+                 data-countries={countries.join(',')}
+                 data-types={types.join(',')}>
+                <div class="timeline-date">
+                  <span class="month">{months[month]}</span>
+                  <span class="day">{new Date(post.data.date).getDate()}</span>
                 </div>
-              </div>
-            </a>
+                <div class="timeline-content">
+                  <div class="timeline-header">
+                    <span class="country-badge">{post.data.country}</span>
+                    {isFuture && <span class="dday-badge">{dDayText}</span>}
+                    {post.data.tripType?.map(type => (
+                      <span class="type-badge">
+                        {tripTypes[type]?.icon}
+                      </span>
+                    ))}
+                  </div>
+                  <h3>{post.data.title}</h3>
+                  <p>{post.data.excerpt}</p>
+                  <div class="timeline-meta">
+                    <span>🗓️ {post.data.date.toLocaleDateString('ko-KR')}{post.data.endDate ? ` ~ ${post.data.endDate.toLocaleDateString('ko-KR')}` : ''}</span>
+                    <span>📍 {post.data.locations.length}개 장소</span>
+                    {post.data.tags?.slice(0, 3).map(tag => (
+                      <span class="mini-tag">#{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </a>
+            </>
           );
         })}
       </div>
@@ -473,6 +494,26 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
     font-weight: 500;
   }
 
+  .dday-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    animation: pulse 2s infinite;
+  }
+
+  .timeline-card.future-plan {
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(to right, rgba(254, 243, 199, 0.3), var(--color-bg-secondary));
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
   .type-badge {
     font-size: 1rem;
   }
@@ -504,5 +545,40 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
     text-align: center;
     padding: 2rem;
     color: var(--color-text-muted);
+  }
+
+  .timeline-year-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin: 3rem 0 0.5rem;
+    padding: 0;
+  }
+
+  #posts-container > .timeline-year-divider:first-child {
+    margin-top: 0;
+  }
+
+  .timeline-year-divider::before,
+  .timeline-year-divider::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: var(--color-border);
+    border-radius: 2px;
+  }
+
+  .timeline-year-divider h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin: 0;
+    opacity: 1;
+    font-family: var(--font-sans);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 </style>

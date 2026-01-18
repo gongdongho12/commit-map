@@ -3,6 +3,8 @@ export interface Location {
   lng: number;
   name: string;
   slug?: string;
+  link?: string;  // 외부 링크 (Google Maps 등)
+  visitDate?: string;  // 방문 날짜 (예: "2025-10-01" 또는 "10/1")
   order?: number;
   note?: string;
   type?: string;

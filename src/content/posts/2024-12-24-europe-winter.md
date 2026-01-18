@@ -1,7 +1,8 @@
 ---
 title: "유럽 연말연시 여행: 영국-비엔나-밀라노"
 date: 2024-12-24
-country: "영국"
+endDate: 2025-01-04
+country: "유럽"
 countries: ["영국", "오스트리아", "이탈리아"]
 tripType: ["sightseeing", "culture", "healing"]
 locations:
@@ -9,6 +10,7 @@ locations:
   - name: "히드로 공항"
     lat: 51.4700
     lng: -0.4543
+    visitDate: "12/24"
     type: airport
     order: 1
     country: "영국"
@@ -17,6 +19,7 @@ locations:
   - name: "런던 호텔 (킹스크로스)"
     lat: 51.5308
     lng: -0.1238
+    visitDate: "12/24"
     type: hotel
     order: 2
     country: "영국"
@@ -25,6 +28,7 @@ locations:
   - name: "대영박물관"
     lat: 51.5194
     lng: -0.1270
+    visitDate: "12/25"
     type: museum
     order: 3
     country: "영국"
@@ -38,6 +42,7 @@ locations:
   - name: "버킹엄 궁전"
     lat: 51.5014
     lng: -0.1419
+    visitDate: "12/25"
     type: palace
     order: 4
     country: "영국"
@@ -49,6 +54,7 @@ locations:
   - name: "런던아이"
     lat: 51.5033
     lng: -0.1196
+    visitDate: "12/26"
     type: viewpoint
     order: 5
     country: "영국"
@@ -57,6 +63,7 @@ locations:
   - name: "버로우 마켓"
     lat: 51.5055
     lng: -0.0910
+    visitDate: "12/26"
     type: market
     order: 6
     country: "영국"
@@ -65,6 +72,7 @@ locations:
   - name: "세인트폴 대성당"
     lat: 51.5138
     lng: -0.0984
+    visitDate: "12/26"
     type: temple
     order: 7
     country: "영국"
@@ -74,6 +82,7 @@ locations:
   - name: "비엔나 공항"
     lat: 48.1103
     lng: 16.5697
+    visitDate: "12/27"
     type: airport
     order: 8
     country: "오스트리아"
@@ -82,6 +91,7 @@ locations:
   - name: "비엔나 호텔 (슈테판광장)"
     lat: 48.2082
     lng: 16.3738
+    visitDate: "12/27"
     type: hotel
     order: 9
     country: "오스트리아"
@@ -90,6 +100,7 @@ locations:
   - name: "슈테판대성당"
     lat: 48.2085
     lng: 16.3731
+    visitDate: "12/28"
     type: temple
     order: 10
     country: "오스트리아"
@@ -101,6 +112,7 @@ locations:
   - name: "쇤브룬 궁전"
     lat: 48.1845
     lng: 16.3122
+    visitDate: "12/28"
     type: palace
     order: 11
     country: "오스트리아"
@@ -114,6 +126,7 @@ locations:
   - name: "쇤브룬 동물원"
     lat: 48.1825
     lng: 16.3030
+    visitDate: "12/29"
     type: zoo
     order: 12
     country: "오스트리아"
@@ -125,6 +138,7 @@ locations:
   - name: "빈 국립오페라"
     lat: 48.2028
     lng: 16.3689
+    visitDate: "12/31"
     type: theater
     order: 13
     country: "오스트리아"
@@ -136,6 +150,7 @@ locations:
   - name: "나슈마르크트"
     lat: 48.1990
     lng: 16.3630
+    visitDate: "12/30"
     type: market
     order: 14
     country: "오스트리아"
@@ -144,6 +159,7 @@ locations:
   - name: "카페 센트럴"
     lat: 48.2103
     lng: 16.3653
+    visitDate: "12/30"
     type: cafe
     order: 15
     country: "오스트리아"
@@ -156,6 +172,7 @@ locations:
   - name: "밀라노 중앙역"
     lat: 45.4861
     lng: 9.2040
+    visitDate: "1/1"
     type: transport
     order: 16
     country: "이탈리아"
@@ -164,6 +181,7 @@ locations:
   - name: "밀라노 호텔 (두오모 근처)"
     lat: 45.4640
     lng: 9.1900
+    visitDate: "1/1"
     type: hotel
     order: 17
     country: "이탈리아"
@@ -172,6 +190,7 @@ locations:
   - name: "밀라노 두오모"
     lat: 45.4642
     lng: 9.1900
+    visitDate: "1/2"
     type: temple
     order: 18
     country: "이탈리아"
@@ -185,6 +204,7 @@ locations:
   - name: "갤러리아 비토리오 에마누엘레 2세"
     lat: 45.4657
     lng: 9.1900
+    visitDate: "1/2"
     type: shopping
     order: 19
     country: "이탈리아"
@@ -196,6 +216,7 @@ locations:
   - name: "최후의 만찬 (산타 마리아 델레 그라치에)"
     lat: 45.4660
     lng: 9.1711
+    visitDate: "1/3"
     type: museum
     order: 20
     country: "이탈리아"
@@ -207,6 +228,7 @@ locations:
   - name: "말펜사 공항"
     lat: 45.6306
     lng: 8.7281
+    visitDate: "1/4"
     type: airport
     order: 21
     country: "이탈리아"

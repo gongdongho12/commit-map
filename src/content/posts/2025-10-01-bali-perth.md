@@ -1,6 +1,7 @@
 ---
 title: "발리 경유 호주 퍼스 힐링여행"
 date: 2025-10-01
+endDate: 2025-10-06
 country: "호주"
 countries: ["인도네시아", "호주"]
 tripType: ["healing", "nature", "food"]
@@ -9,6 +10,8 @@ locations:
   - name: "응우라라이 국제공항 (발리)"
     lat: -8.7467
     lng: 115.1672
+    link: "https://maps.app.goo.gl/aqLN55vVDxrZAH1m6"
+    visitDate: "10/1"
     type: airport
     order: 1
     country: "인도네시아"
@@ -17,6 +20,7 @@ locations:
   - name: "발리 스파 마사지"
     lat: -8.6500
     lng: 115.1370
+    visitDate: "10/1"
     type: spa
     order: 2
     country: "인도네시아"
@@ -28,6 +32,7 @@ locations:
   - name: "발리 로컬 맛집"
     lat: -8.6520
     lng: 115.1390
+    visitDate: "10/1"
     type: restaurant
     order: 3
     country: "인도네시아"
@@ -40,6 +45,7 @@ locations:
   - name: "퍼스 공항"
     lat: -31.9403
     lng: 115.9670
+    visitDate: "10/3"
     type: airport
     order: 4
     country: "호주"
@@ -48,6 +54,7 @@ locations:
   - name: "노보텔 퍼스 랭리"
     lat: -31.9505
     lng: 115.8605
+    visitDate: "10/3"
     type: hotel
     order: 5
     country: "호주"
@@ -61,6 +68,7 @@ locations:
   - name: "울워스 퍼스 시티"
     lat: -31.9520
     lng: 115.8600
+    visitDate: "10/3"
     type: shopping
     order: 6
     country: "호주"
@@ -72,6 +80,7 @@ locations:
   - name: "노보텔 피트니스 센터"
     lat: -31.9505
     lng: 115.8605
+    visitDate: "10/3"
     type: gym
     order: 7
     country: "호주"
@@ -81,6 +90,7 @@ locations:
   - name: "피나클스 사막"
     lat: -30.6003
     lng: 115.1577
+    visitDate: "10/4"
     type: nature
     order: 8
     country: "호주"
@@ -94,6 +104,7 @@ locations:
   - name: "피나클스 바베큐 런치"
     lat: -30.6100
     lng: 115.1600
+    visitDate: "10/4"
     type: restaurant
     order: 9
     country: "호주"
@@ -105,6 +116,7 @@ locations:
   - name: "캥거루 서식지 (얌밤 국립공원)"
     lat: -30.5500
     lng: 115.0800
+    visitDate: "10/4"
     type: zoo
     order: 10
     country: "호주"
@@ -116,6 +128,7 @@ locations:
   - name: "별보기 스팟 (피나클스)"
     lat: -30.5900
     lng: 115.1500
+    visitDate: "10/4"
     type: viewpoint
     order: 11
     country: "호주"
@@ -128,6 +141,7 @@ locations:
   - name: "로트네스트 섬"
     lat: -32.0067
     lng: 115.5181
+    visitDate: "10/5"
     type: nature
     order: 12
     country: "호주"
@@ -139,6 +153,7 @@ locations:
   - name: "쿼카 만나기"
     lat: -31.9950
     lng: 115.5300
+    visitDate: "10/5"
     type: zoo
     order: 13
     country: "호주"
@@ -152,6 +167,7 @@ locations:
   - name: "더 베이슨 스노쿨링"
     lat: -32.0200
     lng: 115.5100
+    visitDate: "10/5"
     type: beach
     order: 14
     country: "호주"
@@ -166,6 +182,7 @@ locations:
   - name: "퍼스 공항 (귀국)"
     lat: -31.9403
     lng: 115.9670
+    visitDate: "10/6"
     type: airport
     order: 15
     country: "호주"

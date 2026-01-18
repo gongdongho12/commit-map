@@ -96,6 +96,13 @@
   font-size: 11px;
 }
 
+.popup-date {
+  font-size: 11px;
+  color: #4361ee;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
 .marker-popup strong {
   display: block;
   font-size: 14px;
