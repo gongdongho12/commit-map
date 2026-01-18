@@ -75,43 +75,7 @@ const tripTypes: Record<string, string> = {
             </button>
         ))}
     </div>
-    <script>
-      // 다중 선택 (최대 2개) 국가 필터 로직
-      let activeCountries = [];
-      const countryButtons = document.querySelectorAll('[data-filter-type="country"]');
-      const postCards = document.querySelectorAll('.post-card');
-      const mapContainer = document.querySelector('astro-slot[client\\:only="react"]')?.parentElement?.querySelector('mapcontainer') || null;
-      function applyFilters() {
-        // 포스트 필터링
-        postCards.forEach(card => {
-          const postCountry = card.querySelector('.post-country')?.textContent?.trim();
-          const matches = activeCountries.length === 0 || activeCountries.includes(postCountry);
-          card.style.display = matches ? 'block' : 'none';
-        });
-        // 지도 필터링 (재렌더링을 위해 MapContainer에 filtered routes 전달)
-        // 여기서는 간단히 전체 지도 표시를 유지 (복잡한 재렌더링은 MapContainer 내부에서 props 변경 시 자동 반영)
-      }
-      countryButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const val = btn.getAttribute('data-filter-value');
-          const idx = activeCountries.indexOf(val);
-          if (idx > -1) {
-            activeCountries.splice(idx, 1);
-          } else {
-            if (activeCountries.length < 2) {
-              activeCountries.push(val);
-            } else {
-              // 최대 2개 초과 시 가장 오래된 선택 해제
-              activeCountries.shift();
-              activeCountries.push(val);
-            }
-          }
-          // 버튼 상태 토글
-          btn.classList.toggle('active', activeCountries.includes(val));
-          applyFilters();
-        });
-      });
-    </script>
+
     <div class="filter-info" id="filter-info" style="display:none;">
       <span id="filter-label"></span>
       <button id="clear-filter">✕ 전체 보기</button>
@@ -119,7 +83,14 @@ const tripTypes: Record<string, string> = {
   </section>
 
   <section class="map-section">
-    <div id="map-container" data-routes={JSON.stringify(routes)}></div>
+    <div id="map-wrapper">
+      <MapContainer 
+        client:only="react" 
+        locations={[]} 
+        routes={routes} 
+        worldView={true} 
+      />
+    </div>
   </section>
 
   <section class="posts-section">
@@ -158,78 +129,40 @@ const tripTypes: Record<string, string> = {
 </BaseLayout>
 
 <script>
-  import { MapContainer } from '../components/map/MapContainer';
-  import { createRoot } from 'react-dom/client';
-  import { createElement } from 'react';
-
-  let root = null;
-  let allRoutes = [];
   let activeCountries = [];
-
-  function renderMap(routes) {
-    const container = document.getElementById('map-container');
-    if (!container) return;
-    if (!root) {
-      root = createRoot(container);
-    }
-    root.render(createElement(MapContainer, {
-      locations: [],
-      routes,
-      worldView: true
-    }));
-  }
 
   function applyFilters() {
     // Filter posts (consider all associated countries, split hyphen-separated)
-    const cards = document.querySelectorAll('.post-card') as NodeListOf<HTMLElement>;
+    // Cast to NodeListOf<HTMLElement> to access style property
+    const cards = document.querySelectorAll('.post-card');
     cards.forEach(card => {
+      // @ts-ignore
       const raw = card.dataset.countries?.split(',') || [];
       const countries = raw.flatMap(c => c.split('-').map(s => s.trim()));
       const matches = activeCountries.length === 0 || activeCountries.some(ac => countries.includes(ac));
+      // @ts-ignore
       card.style.display = matches ? 'block' : 'none';
     });
 
-    // Filter map routes AND locations
-    const filteredRoutes = allRoutes.map(route => {
-      // If no active filters, return full route
-      if (activeCountries.length === 0) return route;
-
-      // Check if route has any relevant countries
-      const routeCountries = route.countries || [];
-      if (!routeCountries.some(c => activeCountries.includes(c))) return null;
-
-      // Filter locations:
-      // 1. If location has specific country, keep if it matches active filters.
-      // 2. If location has NO country, keep it (assuming it's ambiguous or general).
-      const filteredLocations = route.locations.filter(loc => {
-        if (!loc.country) return true; // Keep ambiguous locations
-        return activeCountries.includes(loc.country);
-      });
-
-      if (filteredLocations.length === 0) return null;
-
-      return { ...route, locations: filteredLocations };
-    }).filter(Boolean);
-    renderMap(filteredRoutes);
+    // Notify Map Component
+    window.dispatchEvent(new CustomEvent('map-filter-change', {
+        detail: { countries: [...activeCountries] }
+    }));
 
     // Update filter info UI
-    const filterInfo = document.getElementById('filter-info')!;
-    const filterLabel = document.getElementById('filter-label')!;
-    if (activeCountries.length > 0) {
-      filterInfo.style.display = 'flex';
-      filterLabel.textContent = `🌍 ${activeCountries.join(' + ')} 여행만 표시 중`;
-    } else {
-      filterInfo.style.display = 'none';
+    const filterInfo = document.getElementById('filter-info');
+    const filterLabel = document.getElementById('filter-label');
+    if (filterInfo && filterLabel) {
+        if (activeCountries.length > 0) {
+        filterInfo.style.display = 'flex';
+        filterLabel.textContent = `🌍 ${activeCountries.join(' + ')} 여행만 표시 중`;
+        } else {
+        filterInfo.style.display = 'none';
+        }
     }
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('map-container');
-    if (container) {
-      allRoutes = JSON.parse(container.dataset.routes || '[]');
-      renderMap(allRoutes);
-    }
-
     // Country tag click handling (max 2 selections)
     document.querySelectorAll('.country-tag').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -245,7 +178,7 @@ const tripTypes: Record<string, string> = {
         const idx = activeCountries.indexOf(country);
         if (idx > -1) {
           activeCountries.splice(idx, 1);
-        } else            // allow unlimited selections (no duplicate)
+        } else            
             if (!activeCountries.includes(country)) {
               activeCountries.push(country);
             }
@@ -351,7 +284,7 @@ const tripTypes: Record<string, string> = {
     margin-bottom: 3rem;
   }
 
-  #map-container {
+  #map-wrapper {
     height: 500px;
     border-radius: 12px;
     overflow: hidden;

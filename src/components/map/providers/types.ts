@@ -8,6 +8,7 @@ export interface Location {
   type?: string;
   date?: Date;
   excerpt?: string;
+  country?: string;
 }
 
 export interface MarkerClickHandler {

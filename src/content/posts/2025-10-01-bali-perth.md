@@ -11,6 +11,7 @@ locations:
     lng: 115.1672
     type: airport
     order: 1
+    country: "인도네시아"
     note: "발리 경유, 하루 쉬어가기"
 
   - name: "발리 스파 마사지"
@@ -18,6 +19,7 @@ locations:
     lng: 115.1370
     type: spa
     order: 2
+    country: "인도네시아"
     note: "발리식 전통 마사지로 여행 피로 풀기"
     contents:
       - heading: "추천"
@@ -28,6 +30,7 @@ locations:
     lng: 115.1390
     type: restaurant
     order: 3
+    country: "인도네시아"
     note: "나시고랭, 미고랭, 사테 등 인도네시아 음식"
     contents:
       - heading: "메뉴"
@@ -39,6 +42,7 @@ locations:
     lng: 115.9670
     type: airport
     order: 4
+    country: "호주"
     note: "10월 3일 퍼스 도착"
 
   - name: "노보텔 퍼스 랭리"
@@ -46,6 +50,7 @@ locations:
     lng: 115.8605
     type: hotel
     order: 5
+    country: "호주"
     note: "스위트룸! 퍼스 시내 중심가 위치"
     contents:
       - heading: "위치"
@@ -58,6 +63,7 @@ locations:
     lng: 115.8600
     type: shopping
     order: 6
+    country: "호주"
     note: "장보기 - 호주 마트 구경"
     contents:
       - heading: "쇼핑 리스트"
@@ -68,6 +74,7 @@ locations:
     lng: 115.8605
     type: gym
     order: 7
+    country: "호주"
     note: "호텔 헬스장에서 운동"
 
   # Day 3: 피나클스 사막 투어 (10/4)
@@ -76,6 +83,7 @@ locations:
     lng: 115.1577
     type: nature
     order: 8
+    country: "호주"
     note: "수천 개의 석회암 기둥이 펼쳐진 신비로운 사막"
     contents:
       - heading: "형성 과정"
@@ -88,6 +96,7 @@ locations:
     lng: 115.1600
     type: restaurant
     order: 9
+    country: "호주"
     note: "투어 중 바베큐 점심!"
     contents:
       - heading: "메뉴"
@@ -98,6 +107,7 @@ locations:
     lng: 115.0800
     type: zoo
     order: 10
+    country: "호주"
     note: "야생 캥거루 만나기!"
     contents:
       - heading: "캥거루"
@@ -108,6 +118,7 @@ locations:
     lng: 115.1500
     type: viewpoint
     order: 11
+    country: "호주"
     note: "돌아오는 길에 별 감상"
     contents:
       - heading: "밤하늘"
@@ -119,6 +130,7 @@ locations:
     lng: 115.5181
     type: nature
     order: 12
+    country: "호주"
     note: "퍼스에서 페리로 25분, 천혜의 자연"
     contents:
       - heading: "섬 소개"
@@ -129,6 +141,7 @@ locations:
     lng: 115.5300
     type: zoo
     order: 13
+    country: "호주"
     note: "세상에서 가장 행복한 동물, 쿼카!"
     contents:
       - heading: "쿼카"
@@ -141,6 +154,7 @@ locations:
     lng: 115.5100
     type: beach
     order: 14
+    country: "호주"
     note: "맑은 바다에서 스노쿨링"
     contents:
       - heading: "해양 생물"
@@ -154,6 +168,7 @@ locations:
     lng: 115.9670
     type: airport
     order: 15
+    country: "호주"
     note: "10월 6일 귀국, 안녕 퍼스!"
 
 tags: ["호주", "퍼스", "발리", "피나클스", "로트네스트", "쿼카", "힐링"]

@@ -8,6 +8,8 @@ interface Route {
   locations: Location[];
   color?: string;
   slug?: string;
+  country?: string;
+  countries?: string[];
 }
 
 interface MapContainerProps {
@@ -53,12 +55,54 @@ export function MapContainer({
     });
   }, []);
 
+  const [filteredRoutes, setFilteredRoutes] = useState<Route[] | undefined>(routes);
+  const [activeCountries, setActiveCountries] = useState<string[]>([]);
+
+  useEffect(() => {
+    const handleFilterChange = (event: CustomEvent<{ countries: string[] }>) => {
+       setActiveCountries(event.detail.countries);
+    };
+    
+    window.addEventListener('map-filter-change', handleFilterChange as EventListener);
+    return () => {
+        window.removeEventListener('map-filter-change', handleFilterChange as EventListener);
+    }
+  }, []);
+
+  useEffect(() => {
+     if (activeCountries.length === 0) {
+        setFilteredRoutes(routes);
+        return;
+     }
+     
+     if (!routes) {
+        setFilteredRoutes(routes);
+        return;
+     }
+
+     const filtered = routes.map(route => {
+        const routeCountries = route.countries || [];
+        if (!routeCountries.some(c => activeCountries.includes(c))) return null;
+
+        const filteredLocations = route.locations.filter(loc => {
+            if (!loc.country) return true; 
+            return activeCountries.includes(loc.country);
+        });
+
+        if (filteredLocations.length === 0) return null;
+        return { ...route, locations: filteredLocations };
+     }).filter((r): r is Route => r !== null);
+     
+     setFilteredRoutes(filtered);
+
+  }, [activeCountries, routes]);
+
   // 마커에 맞게 지도 뷰 조정
   useEffect(() => {
     if (!mapRef.current || !MapComponents) return;
     
-    const allLocations = routes 
-      ? routes.flatMap(r => r.locations)
+    const allLocations = filteredRoutes 
+      ? filteredRoutes.flatMap(r => r.locations)
       : locations;
     
     if (allLocations.length > 0) {
@@ -66,7 +110,7 @@ export function MapContainer({
       const bounds = L.latLngBounds(allLocations.map((loc: Location) => [loc.lat, loc.lng]));
       mapRef.current.fitBounds(bounds, { padding: [50, 50], maxZoom: worldView ? 4 : 10 });
     }
-  }, [MapComponents, routes, locations, worldView]);
+  }, [MapComponents, filteredRoutes, locations, worldView]);
 
   if (!isClient || !MapComponents) {
     return (
@@ -88,8 +132,8 @@ export function MapContainer({
     useEffect(() => {
       mapRef.current = map;
       
-      const allLocs = routes 
-        ? routes.flatMap(r => r.locations)
+      const allLocs = filteredRoutes 
+        ? filteredRoutes.flatMap(r => r.locations)
         : locations;
       
       if (allLocs.length > 0) {
@@ -101,8 +145,8 @@ export function MapContainer({
     return null;
   }
 
-  const allLocations = routes 
-    ? routes.flatMap(r => r.locations)
+  const allLocations = filteredRoutes 
+    ? filteredRoutes.flatMap(r => r.locations)
     : locations;
 
   // 기본 center (마커 없을 때)
@@ -152,7 +196,7 @@ export function MapContainer({
       <FitBoundsComponent />
       
       {/* 여러 루트 라인 */}
-      {routes && routes.map((route, routeIndex) => {
+      {filteredRoutes && filteredRoutes.map((route, routeIndex) => {
         const color = route.color || routeColors[routeIndex % routeColors.length];
         const sortedRouteLocations = [...route.locations].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
         const positions = sortedRouteLocations.map(loc => [loc.lat, loc.lng] as [number, number]);
@@ -167,7 +211,7 @@ export function MapContainer({
       })}
 
       {/* 단일 루트 */}
-      {showRoute && !routes && polylinePositions.length > 1 && (
+      {showRoute && !filteredRoutes && polylinePositions.length > 1 && (
         <Polyline 
           positions={polylinePositions} 
           pathOptions={{ color: '#4361ee', weight: 3, opacity: 0.8 }} 
@@ -175,7 +219,7 @@ export function MapContainer({
       )}
       
       {/* 여러 루트 마커 */}
-      {routes && routes.map((route, routeIndex) => {
+      {filteredRoutes && filteredRoutes.map((route, routeIndex) => {
         const color = route.color || routeColors[routeIndex % routeColors.length];
         return route.locations.map((location, index) => (
           <Marker 
@@ -199,7 +243,7 @@ export function MapContainer({
       })}
 
       {/* 단일 루트 마커 */}
-      {!routes && locations.map((location, index) => (
+      {!filteredRoutes && locations.map((location, index) => (
         <Marker 
           key={`${location.lat}-${location.lng}-${index}`}
           position={[location.lat, location.lng]}

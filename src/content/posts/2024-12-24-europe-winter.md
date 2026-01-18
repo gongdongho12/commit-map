@@ -11,6 +11,7 @@ locations:
     lng: -0.4543
     type: airport
     order: 1
+    country: "영국"
     note: "런던 도착, 여행의 시작"
 
   - name: "런던 호텔 (킹스크로스)"
@@ -18,6 +19,7 @@ locations:
     lng: -0.1238
     type: hotel
     order: 2
+    country: "영국"
     note: "킹스크로스역 근처, 해리포터 플랫폼 9¾ 도보 가능"
 
   - name: "대영박물관"
@@ -25,6 +27,7 @@ locations:
     lng: -0.1270
     type: museum
     order: 3
+    country: "영국"
     note: "세계 3대 박물관, 로제타스톤 필수"
     contents:
       - heading: "하이라이트"
@@ -37,6 +40,7 @@ locations:
     lng: -0.1419
     type: palace
     order: 4
+    country: "영국"
     note: "근위병 교대식 11:00"
     contents:
       - heading: "근위병 교대식"
@@ -47,6 +51,7 @@ locations:
     lng: -0.1196
     type: viewpoint
     order: 5
+    country: "영국"
     note: "템즈강변 대관람차, 야경이 특히 아름다움"
 
   - name: "버로우 마켓"
@@ -54,6 +59,7 @@ locations:
     lng: -0.0910
     type: market
     order: 6
+    country: "영국"
     note: "런던 최고의 푸드마켓, 점심 추천"
 
   - name: "세인트폴 대성당"
@@ -61,6 +67,7 @@ locations:
     lng: -0.0984
     type: temple
     order: 7
+    country: "영국"
     note: "다이애나비 결혼식 장소, 돔 전망대 추천"
 
   # Day 4-6: 비엔나
@@ -69,6 +76,7 @@ locations:
     lng: 16.5697
     type: airport
     order: 8
+    country: "오스트리아"
     note: "영국에서 비엔나로 이동 (2시간 비행)"
 
   - name: "비엔나 호텔 (슈테판광장)"
@@ -76,6 +84,7 @@ locations:
     lng: 16.3738
     type: hotel
     order: 9
+    country: "오스트리아"
     note: "슈테판대성당 도보 3분, 위치 최고"
 
   - name: "슈테판대성당"
@@ -83,6 +92,7 @@ locations:
     lng: 16.3731
     type: temple
     order: 10
+    country: "오스트리아"
     note: "비엔나의 상징, 고딕 양식의 걸작"
     contents:
       - heading: "탑 전망"
@@ -93,6 +103,7 @@ locations:
     lng: 16.3122
     type: palace
     order: 11
+    country: "오스트리아"
     note: "합스부르크 여름 별궁, 동물원 포함"
     contents:
       - heading: "그랜드 투어"
@@ -105,6 +116,7 @@ locations:
     lng: 16.3030
     type: zoo
     order: 12
+    country: "오스트리아"
     note: "세계에서 가장 오래된 동물원 (1752년)"
     contents:
       - heading: "특징"
@@ -115,6 +127,7 @@ locations:
     lng: 16.3689
     type: theater
     order: 13
+    country: "오스트리아"
     note: "12월 31일 신년 갈라 콘서트"
     contents:
       - heading: "신년 콘서트"
@@ -125,6 +138,7 @@ locations:
     lng: 16.3630
     type: market
     order: 14
+    country: "오스트리아"
     note: "비엔나 최대 재래시장, 다양한 먹거리"
 
   - name: "카페 센트럴"
@@ -132,6 +146,7 @@ locations:
     lng: 16.3653
     type: cafe
     order: 15
+    country: "오스트리아"
     note: "프로이트가 다녔던 전통 카페, 비엔나 커피 필수"
     contents:
       - heading: "추천 메뉴"
@@ -143,6 +158,7 @@ locations:
     lng: 9.2040
     type: transport
     order: 16
+    country: "이탈리아"
     note: "비엔나에서 기차로 이동 (7시간)"
 
   - name: "밀라노 호텔 (두오모 근처)"
@@ -150,6 +166,7 @@ locations:
     lng: 9.1900
     type: hotel
     order: 17
+    country: "이탈리아"
     note: "두오모 도보 10분, 갤러리아 근처"
 
   - name: "밀라노 두오모"
@@ -157,6 +174,7 @@ locations:
     lng: 9.1900
     type: temple
     order: 18
+    country: "이탈리아"
     note: "세계 최대 고딕 성당, 옥상 전망대 필수"
     contents:
       - heading: "옥상 테라스"
@@ -169,6 +187,7 @@ locations:
     lng: 9.1900
     type: shopping
     order: 19
+    country: "이탈리아"
     note: "세계에서 가장 아름다운 쇼핑몰"
     contents:
       - heading: "명소"
@@ -179,6 +198,7 @@ locations:
     lng: 9.1711
     type: museum
     order: 20
+    country: "이탈리아"
     note: "레오나르도 다빈치의 걸작"
     contents:
       - heading: "예약 필수"
@@ -189,6 +209,7 @@ locations:
     lng: 8.7281
     type: airport
     order: 21
+    country: "이탈리아"
     note: "여행의 끝, 한국으로 귀국"
 
 tags: ["유럽", "영국", "런던", "오스트리아", "비엔나", "이탈리아", "밀라노", "신년", "크리스마스"]
