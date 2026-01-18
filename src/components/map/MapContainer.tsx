@@ -190,7 +190,7 @@ export function MapContainer({
                 <strong>{location.name}</strong>
                 {location.note && <p className="popup-note">{location.note}</p>}
                 {location.slug && (
-                  <a href={`/commit-map/posts/${location.slug}/`}>자세히 보기 →</a>
+                  <a href={`/posts/${location.slug}/`}>자세히 보기 →</a>
                 )}
               </div>
             </Popup>
@@ -213,7 +213,7 @@ export function MapContainer({
               {location.note && <p className="popup-note">{location.note}</p>}
               {location.excerpt && <p>{location.excerpt}</p>}
               {location.slug && (
-                <a href={`/commit-map/posts/${location.slug}/`}>자세히 보기 →</a>
+                <a href={`/posts/${location.slug}/`}>자세히 보기 →</a>
               )}
             </div>
           </Popup>

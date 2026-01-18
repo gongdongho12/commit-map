@@ -6,6 +6,6 @@ import react from '@astrojs/react';
 export default defineConfig({
   integrations: [react()],
   site: 'https://gongdongho12.github.io',
-  base: '/commit-map',
+  // base path 제거 - 루트에서 서빙
   output: 'static',
 });

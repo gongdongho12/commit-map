@@ -4,23 +4,10 @@ import { getCollection } from 'astro:content';
 
 const posts = await getCollection('posts');
 
-// 연도별 그룹핑
-const postsByYear = posts.reduce((acc, post) => {
-  const year = new Date(post.data.date).getFullYear();
-  if (!acc[year]) acc[year] = [];
-  acc[year].push(post);
-  return acc;
-}, {} as Record<number, typeof posts>);
-
-// 연도 내림차순 정렬
-const sortedYears = Object.keys(postsByYear).map(Number).sort((a, b) => b - a);
-
-// 각 연도 내에서 월별로 정렬
-sortedYears.forEach(year => {
-  postsByYear[year].sort((a, b) => 
-    new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-  );
-});
+// 날짜순 정렬
+const allPosts = [...posts].sort((a, b) => 
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
 
 // 나라별 통계
 const countryCounts = posts.reduce((acc, post) => {
@@ -28,7 +15,6 @@ const countryCounts = posts.reduce((acc, post) => {
   if (country) {
     acc[country] = (acc[country] || 0) + 1;
   }
-  // 경유 나라들도 카운트
   post.data.countries?.forEach(c => {
     if (c !== country) acc[c] = (acc[c] || 0) + 1;
   });
@@ -36,7 +22,7 @@ const countryCounts = posts.reduce((acc, post) => {
 }, {} as Record<string, number>);
 
 // 여행 유형별 통계
-const tripTypes = {
+const tripTypes: Record<string, { icon: string; label: string }> = {
   sightseeing: { icon: '🏛️', label: '관광' },
   healing: { icon: '🧘', label: '힐링' },
   food: { icon: '🍽️', label: '맛집' },
@@ -64,27 +50,26 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
   <div class="timeline-page">
     <aside class="sidebar">
       <section class="filter-section">
-        <h3>🌍 나라별</h3>
-        <div class="tag-cloud">
+        <h3>🌍 나라별 <button class="clear-btn" id="clear-country">초기화</button></h3>
+        <div class="tag-cloud" id="country-filters">
           {Object.entries(countryCounts)
             .sort((a, b) => b[1] - a[1])
             .map(([country, count]) => (
-              <span class="filter-tag country-tag">
+              <button class="filter-tag country-tag" data-filter-type="country" data-filter-value={country}>
                 {country} <span class="count">{count}</span>
-              </span>
+              </button>
             ))}
         </div>
       </section>
 
       <section class="filter-section">
-        <h3>✈️ 여행 유형</h3>
-        <div class="tag-cloud">
+        <h3>✈️ 여행 유형 <button class="clear-btn" id="clear-type">초기화</button></h3>
+        <div class="tag-cloud" id="type-filters">
           {Object.entries(tripTypeCounts).map(([type, count]) => (
-            <span class="filter-tag type-tag">
-              {tripTypes[type as keyof typeof tripTypes]?.icon} 
-              {tripTypes[type as keyof typeof tripTypes]?.label}
+            <button class="filter-tag type-tag" data-filter-type="tripType" data-filter-value={type}>
+              {tripTypes[type]?.icon} {tripTypes[type]?.label}
               <span class="count">{count}</span>
-            </span>
+            </button>
           ))}
         </div>
       </section>
@@ -106,50 +91,172 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
           </div>
         </div>
       </section>
+
+      <div class="active-filters" id="active-filters" style="display:none;">
+        <h3>🔍 적용된 필터</h3>
+        <div id="filter-badges"></div>
+      </div>
     </aside>
 
     <main class="timeline-main">
       <h1>🗓️ 여행 타임라인</h1>
       
-      {sortedYears.map(year => (
-        <section class="year-section">
-          <h2 class="year-header">{year}년</h2>
-          <div class="year-content">
-            {postsByYear[year].map(post => {
-              const month = new Date(post.data.date).getMonth();
-              return (
-                <a href={`/commit-map/posts/${post.id}/`} class="timeline-card">
-                  <div class="timeline-date">
-                    <span class="month">{months[month]}</span>
-                    <span class="day">{new Date(post.data.date).getDate()}</span>
-                  </div>
-                  <div class="timeline-content">
-                    <div class="timeline-header">
-                      <span class="country-badge">{post.data.country}</span>
-                      {post.data.tripType?.map(type => (
-                        <span class="type-badge">
-                          {tripTypes[type as keyof typeof tripTypes]?.icon}
-                        </span>
-                      ))}
-                    </div>
-                    <h3>{post.data.title}</h3>
-                    <p>{post.data.excerpt}</p>
-                    <div class="timeline-meta">
-                      <span>📍 {post.data.locations.length}개 장소</span>
-                      {post.data.tags?.slice(0, 3).map(tag => (
-                        <span class="mini-tag">#{tag}</span>
-                      ))}
-                    </div>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        </section>
-      ))}
+      <div id="posts-container">
+        {allPosts.map(post => {
+          const year = new Date(post.data.date).getFullYear();
+          const month = new Date(post.data.date).getMonth();
+          const countries = [post.data.country, ...(post.data.countries || [])].filter(Boolean);
+          const types = post.data.tripType || [];
+          
+          return (
+            <a href={`/posts/${post.id}/`} 
+               class="timeline-card" 
+               data-year={year}
+               data-countries={countries.join(',')}
+               data-types={types.join(',')}>
+              <div class="timeline-date">
+                <span class="year">{year}</span>
+                <span class="month">{months[month]}</span>
+                <span class="day">{new Date(post.data.date).getDate()}</span>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <span class="country-badge">{post.data.country}</span>
+                  {post.data.tripType?.map(type => (
+                    <span class="type-badge">
+                      {tripTypes[type]?.icon}
+                    </span>
+                  ))}
+                </div>
+                <h3>{post.data.title}</h3>
+                <p>{post.data.excerpt}</p>
+                <div class="timeline-meta">
+                  <span>📍 {post.data.locations.length}개 장소</span>
+                  {post.data.tags?.slice(0, 3).map(tag => (
+                    <span class="mini-tag">#{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+
+      <div id="no-results" style="display:none;">
+        <p>필터 조건에 맞는 여행이 없습니다.</p>
+      </div>
     </main>
   </div>
 </BaseLayout>
+
+<script>
+  // 필터 상태
+  let activeCountry: string | null = null;
+  let activeType: string | null = null;
+
+  // 요소들
+  const countryFilters = document.querySelectorAll('[data-filter-type="country"]');
+  const typeFilters = document.querySelectorAll('[data-filter-type="tripType"]');
+  const cards = document.querySelectorAll('.timeline-card') as NodeListOf<HTMLElement>;
+  const activeFiltersSection = document.getElementById('active-filters')!;
+  const filterBadges = document.getElementById('filter-badges')!;
+  const noResults = document.getElementById('no-results')!;
+  const clearCountryBtn = document.getElementById('clear-country')!;
+  const clearTypeBtn = document.getElementById('clear-type')!;
+
+  function applyFilters() {
+    let visibleCount = 0;
+    
+    cards.forEach(card => {
+      const countries = card.dataset.countries?.split(',') || [];
+      const types = card.dataset.types?.split(',') || [];
+      
+      const matchesCountry = !activeCountry || countries.includes(activeCountry);
+      const matchesType = !activeType || types.includes(activeType);
+      
+      if (matchesCountry && matchesType) {
+        card.style.display = 'flex';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    // 결과 없음 표시
+    noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+
+    // 활성 필터 표시
+    updateActiveFiltersUI();
+  }
+
+  function updateActiveFiltersUI() {
+    const hasFilters = activeCountry || activeType;
+    activeFiltersSection.style.display = hasFilters ? 'block' : 'none';
+    
+    if (hasFilters) {
+      let badges = '';
+      if (activeCountry) {
+        badges += `<span class="filter-badge country-badge-active">${activeCountry} ✕</span>`;
+      }
+      if (activeType) {
+        const typeInfo = {
+          sightseeing: '🏛️ 관광', healing: '🧘 힐링', food: '🍽️ 맛집',
+          culture: '🎭 문화', nature: '🌲 자연', adventure: '⛰️ 모험',
+          shopping: '🛍️ 쇼핑', business: '💼 출장', family: '👨‍👩‍👧‍👦 가족', solo: '🚶 혼행'
+        };
+        badges += `<span class="filter-badge type-badge-active">${typeInfo[activeType as keyof typeof typeInfo]} ✕</span>`;
+      }
+      filterBadges.innerHTML = badges;
+    }
+
+    // 버튼 활성 상태 업데이트
+    countryFilters.forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-filter-value') === activeCountry);
+    });
+    typeFilters.forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-filter-value') === activeType);
+    });
+  }
+
+  // 나라 필터 클릭
+  countryFilters.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const value = btn.getAttribute('data-filter-value');
+      activeCountry = activeCountry === value ? null : value;
+      applyFilters();
+    });
+  });
+
+  // 유형 필터 클릭
+  typeFilters.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const value = btn.getAttribute('data-filter-value');
+      activeType = activeType === value ? null : value;
+      applyFilters();
+    });
+  });
+
+  // 초기화 버튼
+  clearCountryBtn.addEventListener('click', () => {
+    activeCountry = null;
+    applyFilters();
+  });
+  clearTypeBtn.addEventListener('click', () => {
+    activeType = null;
+    applyFilters();
+  });
+
+  // 활성 필터 배지 클릭으로 제거
+  filterBadges.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('country-badge-active')) {
+      activeCountry = null;
+    } else if (target.classList.contains('type-badge-active')) {
+      activeType = null;
+    }
+    applyFilters();
+  });
+</script>
 
 <style>
   .timeline-page {
@@ -173,7 +280,7 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
     height: fit-content;
   }
 
-  .filter-section, .stats-section {
+  .filter-section, .stats-section, .active-filters {
     background: var(--color-bg-secondary);
     border-radius: 12px;
     padding: 1.25rem;
@@ -181,10 +288,27 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
     border: 1px solid var(--color-border);
   }
 
-  .filter-section h3, .stats-section h3 {
+  .filter-section h3, .stats-section h3, .active-filters h3 {
     font-size: 0.9rem;
     margin-bottom: 0.75rem;
     color: var(--color-text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .clear-btn {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  .clear-btn:hover {
+    background: var(--color-border);
   }
 
   .tag-cloud {
@@ -202,6 +326,8 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
     font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s;
+    border: none;
+    font-family: inherit;
   }
 
   .country-tag {
@@ -209,7 +335,7 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
     color: #0369a1;
   }
 
-  .country-tag:hover {
+  .country-tag:hover, .country-tag.active {
     background: #0ea5e9;
     color: white;
   }
@@ -219,7 +345,7 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
     color: #be185d;
   }
 
-  .type-tag:hover {
+  .type-tag:hover, .type-tag.active {
     background: #ec4899;
     color: white;
   }
@@ -252,24 +378,35 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
     color: var(--color-text-muted);
   }
 
+  #filter-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .filter-badge {
+    padding: 0.375rem 0.625rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .country-badge-active {
+    background: #0ea5e9;
+    color: white;
+  }
+
+  .type-badge-active {
+    background: #ec4899;
+    color: white;
+  }
+
   .timeline-main h1 {
     font-size: 1.75rem;
     margin-bottom: 2rem;
   }
 
-  .year-section {
-    margin-bottom: 2.5rem;
-  }
-
-  .year-header {
-    font-size: 1.25rem;
-    color: var(--color-primary);
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--color-primary);
-    margin-bottom: 1rem;
-  }
-
-  .year-content {
+  #posts-container {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -296,9 +433,14 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 60px;
+    min-width: 70px;
     padding-right: 1rem;
     border-right: 2px solid var(--color-border);
+  }
+
+  .timeline-date .year {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
   }
 
   .timeline-date .month {
@@ -356,5 +498,11 @@ const months = ['1월', '2월', '3월', '4월', '5월', '6월',
 
   .mini-tag {
     color: var(--color-accent);
+  }
+
+  #no-results {
+    text-align: center;
+    padding: 2rem;
+    color: var(--color-text-muted);
   }
 </style>

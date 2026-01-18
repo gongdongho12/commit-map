@@ -33,7 +33,7 @@ const mapLocations = locations.map(l => ({
 <BaseLayout title={post.data.title} description={post.data.excerpt}>
   <article class="post">
     <header class="post-header">
-      <a href="/commit-map/" class="back-link">← 목록으로</a>
+      <a href="/" class="back-link">← 목록으로</a>
       <time datetime={post.data.date.toISOString()}>
         {post.data.date.toLocaleDateString('ko-KR', { 
           year: 'numeric', 

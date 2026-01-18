@@ -5,9 +5,11 @@ import { MapContainer } from '../components/map/MapContainer';
 
 const posts = await getCollection('posts');
 
-// 각 포스트별 루트 데이터
+// 각 포스트별 루트 데이터 (나라 정보 포함)
 const routes = posts.map((post, index) => ({
   slug: post.id,
+  country: post.data.country,
+  countries: [post.data.country, ...(post.data.countries || [])].filter(Boolean),
   locations: post.data.locations.map((loc, locIndex) => ({
     lat: loc.lat,
     lng: loc.lng,
@@ -26,10 +28,12 @@ const sortedPosts = posts.sort((a, b) =>
 
 // 나라별 카운트
 const countryCounts = posts.reduce((acc, post) => {
-  const country = post.data.country;
-  if (country) acc[country] = (acc[country] || 0) + 1;
-  post.data.countries?.forEach(c => {
-    if (c !== country) acc[c] = (acc[c] || 0) + 1;
+  // Combine primary and secondary countries, then split hyphen-separated entries
+  const allCountries = [post.data.country, ...(post.data.countries || [])]
+    .filter(Boolean)
+    .flatMap(c => c.split('-').map(s => s.trim()));
+  allCountries.forEach(c => {
+    if (c) acc[c] = (acc[c] || 0) + 1;
   });
   return acc;
 }, {} as Record<string, number>);
@@ -57,52 +61,193 @@ const tripTypes: Record<string, string> = {
 
   <!-- 나라별 태그 클라우드 -->
   <section class="tag-section">
-    <div class="tag-cloud">
+    <div class="tag-cloud" id="country-filters">
+      <button class="country-tag active" data-country="all">
+        전체 <span class="count">{posts.length}</span>
+      </button>
       {Object.entries(countryCounts)
         .sort((a, b) => b[1] - a[1])
         .map(([country, count]) => (
-          <span class="country-tag">
-            {country} <span class="count">{count}</span>
-          </span>
+            <button class="country-tag" data-country={country}>
+              {country} <span class="count">{count}</span>
+            </button>
         ))}
+    </div>
+    <script>
+      // 다중 선택 (최대 2개) 국가 필터 로직
+      let activeCountries = [];
+      const countryButtons = document.querySelectorAll('[data-filter-type="country"]');
+      const postCards = document.querySelectorAll('.post-card');
+      const mapContainer = document.querySelector('astro-slot[client\\:only="react"]')?.parentElement?.querySelector('mapcontainer') || null;
+      function applyFilters() {
+        // 포스트 필터링
+        postCards.forEach(card => {
+          const postCountry = card.querySelector('.post-country')?.textContent?.trim();
+          const matches = activeCountries.length === 0 || activeCountries.includes(postCountry);
+          card.style.display = matches ? 'block' : 'none';
+        });
+        // 지도 필터링 (재렌더링을 위해 MapContainer에 filtered routes 전달)
+        // 여기서는 간단히 전체 지도 표시를 유지 (복잡한 재렌더링은 MapContainer 내부에서 props 변경 시 자동 반영)
+      }
+      countryButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.getAttribute('data-filter-value');
+          const idx = activeCountries.indexOf(val);
+          if (idx > -1) {
+            activeCountries.splice(idx, 1);
+          } else {
+            if (activeCountries.length < 2) {
+              activeCountries.push(val);
+            } else {
+              // 최대 2개 초과 시 가장 오래된 선택 해제
+              activeCountries.shift();
+              activeCountries.push(val);
+            }
+          }
+          // 버튼 상태 토글
+          btn.classList.toggle('active', activeCountries.includes(val));
+          applyFilters();
+        });
+      });
+    </script>
+    <div class="filter-info" id="filter-info" style="display:none;">
+      <span id="filter-label"></span>
+      <button id="clear-filter">✕ 전체 보기</button>
     </div>
   </section>
 
   <section class="map-section">
-    <MapContainer client:only="react" locations={[]} routes={routes} worldView={true} />
+    <div id="map-container" data-routes={JSON.stringify(routes)}></div>
   </section>
 
   <section class="posts-section">
     <h2>최근 여행</h2>
-    <div class="posts-grid">
-      {sortedPosts.map(post => (
-        <a href={`/commit-map/posts/${post.id}/`} class="post-card">
-          <div class="post-card-header">
-            <span class="post-country">{post.data.country}</span>
-            <time datetime={post.data.date.toISOString()}>
-              {post.data.date.toLocaleDateString('ko-KR')}
-            </time>
-          </div>
-          <h3>{post.data.title}</h3>
-          {post.data.excerpt && <p class="post-excerpt">{post.data.excerpt}</p>}
-          <div class="post-meta">
-            <span class="location-count">📍 {post.data.locations.length}개 장소</span>
-            {post.data.tripType?.map(type => (
-              <span class="trip-type">{tripTypes[type]}</span>
-            ))}
-          </div>
-          {post.data.tags && (
-            <div class="post-tags">
-              {post.data.tags.slice(0, 4).map(tag => (
-                <span class="tag">#{tag}</span>
+    <div class="posts-grid" id="posts-grid">
+      {sortedPosts.map(post => {
+        const countries = [post.data.country, ...(post.data.countries || [])].filter(Boolean);
+        return (
+          <a href={`/posts/${post.id}/`} class="post-card" data-countries={countries.join(',')}>
+            <div class="post-card-header">
+              <span class="post-country">{post.data.country}</span>
+              <time datetime={post.data.date.toISOString()}>
+                {post.data.date.toLocaleDateString('ko-KR')}
+              </time>
+            </div>
+            <h3>{post.data.title}</h3>
+            {post.data.excerpt && <p class="post-excerpt">{post.data.excerpt}</p>}
+            <div class="post-meta">
+              <span class="location-count">📍 {post.data.locations.length}개 장소</span>
+              {post.data.tripType?.map(type => (
+                <span class="trip-type">{tripTypes[type]}</span>
               ))}
             </div>
-          )}
-        </a>
-      ))}
+            {post.data.tags && (
+              <div class="post-tags">
+                {post.data.tags.slice(0, 4).map(tag => (
+                  <span class="tag">#{tag}</span>
+                ))}
+              </div>
+            )}
+          </a>
+        );
+      })}
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  import { MapContainer } from '../components/map/MapContainer';
+  import { createRoot } from 'react-dom/client';
+  import { createElement } from 'react';
+
+  let root = null;
+  let allRoutes = [];
+  let activeCountries = [];
+
+  function renderMap(routes) {
+    const container = document.getElementById('map-container');
+    if (!container) return;
+    if (!root) {
+      root = createRoot(container);
+    }
+    root.render(createElement(MapContainer, {
+      locations: [],
+      routes,
+      worldView: true
+    }));
+  }
+
+  function applyFilters() {
+    // Filter posts (consider all associated countries, split hyphen-separated)
+    const cards = document.querySelectorAll('.post-card') as NodeListOf<HTMLElement>;
+    cards.forEach(card => {
+      const raw = card.dataset.countries?.split(',') || [];
+      const countries = raw.flatMap(c => c.split('-').map(s => s.trim()));
+      const matches = activeCountries.length === 0 || activeCountries.some(ac => countries.includes(ac));
+      card.style.display = matches ? 'block' : 'none';
+    });
+
+    // Filter map routes
+    const filteredRoutes = activeCountries.length === 0
+      ? allRoutes
+      : allRoutes.filter(r => r.countries && activeCountries.some(c => r.countries.includes(c)));
+    renderMap(filteredRoutes);
+
+    // Update filter info UI
+    const filterInfo = document.getElementById('filter-info')!;
+    const filterLabel = document.getElementById('filter-label')!;
+    if (activeCountries.length > 0) {
+      filterInfo.style.display = 'flex';
+      filterLabel.textContent = `🌍 ${activeCountries.join(' + ')} 여행만 표시 중`;
+    } else {
+      filterInfo.style.display = 'none';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('map-container');
+    if (container) {
+      allRoutes = JSON.parse(container.dataset.routes || '[]');
+      renderMap(allRoutes);
+    }
+
+    // Country tag click handling (max 2 selections)
+    document.querySelectorAll('.country-tag').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const country = btn.getAttribute('data-country');
+        if (!country) return;
+        if (country === 'all') {
+          // Clear all filters
+          activeCountries = [];
+          document.querySelectorAll('.country-tag').forEach(b => b.classList.remove('active'));
+          applyFilters();
+          return;
+        }
+        const idx = activeCountries.indexOf(country);
+        if (idx > -1) {
+          activeCountries.splice(idx, 1);
+        } else            // allow unlimited selections (no duplicate)
+            if (!activeCountries.includes(country)) {
+              activeCountries.push(country);
+            }
+        // toggle button active class
+        btn.classList.toggle('active', activeCountries.includes(country));
+        applyFilters();
+      });
+    });
+
+    // Clear filter button
+    const clearBtn = document.getElementById('clear-filter');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        activeCountries = [];
+        // remove active class from all buttons
+        document.querySelectorAll('.country-tag').forEach(b => b.classList.remove('active'));
+        applyFilters();
+      });
+    }
+  });
+</script>
 
 <style>
   .hero {
@@ -147,9 +292,11 @@ const tripTypes: Record<string, string> = {
     color: #0369a1;
     cursor: pointer;
     transition: all 0.2s;
+    border: none;
+    font-family: inherit;
   }
 
-  .country-tag:hover {
+  .country-tag:hover, .country-tag.active {
     background: #0ea5e9;
     color: white;
   }
@@ -159,9 +306,38 @@ const tripTypes: Record<string, string> = {
     opacity: 0.7;
   }
 
+  .filter-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: #fef3c7;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #92400e;
+  }
+
+  .filter-info button {
+    background: transparent;
+    border: none;
+    color: #92400e;
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-decoration: underline;
+  }
+
   .map-section {
     margin-bottom: 3rem;
+  }
+
+  #map-container {
     height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0,0,0,0.05);
   }
 
   .posts-section h2 {
