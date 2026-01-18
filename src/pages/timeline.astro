@@ -1,0 +1,360 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('posts');
+
+// 연도별 그룹핑
+const postsByYear = posts.reduce((acc, post) => {
+  const year = new Date(post.data.date).getFullYear();
+  if (!acc[year]) acc[year] = [];
+  acc[year].push(post);
+  return acc;
+}, {} as Record<number, typeof posts>);
+
+// 연도 내림차순 정렬
+const sortedYears = Object.keys(postsByYear).map(Number).sort((a, b) => b - a);
+
+// 각 연도 내에서 월별로 정렬
+sortedYears.forEach(year => {
+  postsByYear[year].sort((a, b) => 
+    new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
+});
+
+// 나라별 통계
+const countryCounts = posts.reduce((acc, post) => {
+  const country = post.data.country;
+  if (country) {
+    acc[country] = (acc[country] || 0) + 1;
+  }
+  // 경유 나라들도 카운트
+  post.data.countries?.forEach(c => {
+    if (c !== country) acc[c] = (acc[c] || 0) + 1;
+  });
+  return acc;
+}, {} as Record<string, number>);
+
+// 여행 유형별 통계
+const tripTypes = {
+  sightseeing: { icon: '🏛️', label: '관광' },
+  healing: { icon: '🧘', label: '힐링' },
+  food: { icon: '🍽️', label: '맛집' },
+  culture: { icon: '🎭', label: '문화' },
+  nature: { icon: '🌲', label: '자연' },
+  adventure: { icon: '⛰️', label: '모험' },
+  shopping: { icon: '🛍️', label: '쇼핑' },
+  business: { icon: '💼', label: '출장' },
+  family: { icon: '👨‍👩‍👧‍👦', label: '가족' },
+  solo: { icon: '🚶', label: '혼행' },
+};
+
+const tripTypeCounts = posts.reduce((acc, post) => {
+  post.data.tripType?.forEach(type => {
+    acc[type] = (acc[type] || 0) + 1;
+  });
+  return acc;
+}, {} as Record<string, number>);
+
+const months = ['1월', '2월', '3월', '4월', '5월', '6월', 
+                '7월', '8월', '9월', '10월', '11월', '12월'];
+---
+
+<BaseLayout title="타임라인">
+  <div class="timeline-page">
+    <aside class="sidebar">
+      <section class="filter-section">
+        <h3>🌍 나라별</h3>
+        <div class="tag-cloud">
+          {Object.entries(countryCounts)
+            .sort((a, b) => b[1] - a[1])
+            .map(([country, count]) => (
+              <span class="filter-tag country-tag">
+                {country} <span class="count">{count}</span>
+              </span>
+            ))}
+        </div>
+      </section>
+
+      <section class="filter-section">
+        <h3>✈️ 여행 유형</h3>
+        <div class="tag-cloud">
+          {Object.entries(tripTypeCounts).map(([type, count]) => (
+            <span class="filter-tag type-tag">
+              {tripTypes[type as keyof typeof tripTypes]?.icon} 
+              {tripTypes[type as keyof typeof tripTypes]?.label}
+              <span class="count">{count}</span>
+            </span>
+          ))}
+        </div>
+      </section>
+
+      <section class="stats-section">
+        <h3>📊 통계</h3>
+        <div class="stats">
+          <div class="stat-item">
+            <span class="stat-value">{posts.length}</span>
+            <span class="stat-label">여행</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">{Object.keys(countryCounts).length}</span>
+            <span class="stat-label">나라</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">{posts.reduce((sum, p) => sum + p.data.locations.length, 0)}</span>
+            <span class="stat-label">장소</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <main class="timeline-main">
+      <h1>🗓️ 여행 타임라인</h1>
+      
+      {sortedYears.map(year => (
+        <section class="year-section">
+          <h2 class="year-header">{year}년</h2>
+          <div class="year-content">
+            {postsByYear[year].map(post => {
+              const month = new Date(post.data.date).getMonth();
+              return (
+                <a href={`/commit-map/posts/${post.id}/`} class="timeline-card">
+                  <div class="timeline-date">
+                    <span class="month">{months[month]}</span>
+                    <span class="day">{new Date(post.data.date).getDate()}</span>
+                  </div>
+                  <div class="timeline-content">
+                    <div class="timeline-header">
+                      <span class="country-badge">{post.data.country}</span>
+                      {post.data.tripType?.map(type => (
+                        <span class="type-badge">
+                          {tripTypes[type as keyof typeof tripTypes]?.icon}
+                        </span>
+                      ))}
+                    </div>
+                    <h3>{post.data.title}</h3>
+                    <p>{post.data.excerpt}</p>
+                    <div class="timeline-meta">
+                      <span>📍 {post.data.locations.length}개 장소</span>
+                      {post.data.tags?.slice(0, 3).map(tag => (
+                        <span class="mini-tag">#{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  .timeline-page {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+  }
+
+  @media (max-width: 900px) {
+    .timeline-page {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      order: 1;
+    }
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 80px;
+    height: fit-content;
+  }
+
+  .filter-section, .stats-section {
+    background: var(--color-bg-secondary);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--color-border);
+  }
+
+  .filter-section h3, .stats-section h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.625rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .country-tag {
+    background: #e0f2fe;
+    color: #0369a1;
+  }
+
+  .country-tag:hover {
+    background: #0ea5e9;
+    color: white;
+  }
+
+  .type-tag {
+    background: #fce7f3;
+    color: #be185d;
+  }
+
+  .type-tag:hover {
+    background: #ec4899;
+    color: white;
+  }
+
+  .count {
+    font-size: 0.7rem;
+    opacity: 0.8;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .stat-item {
+    padding: 0.5rem;
+  }
+
+  .stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .timeline-main h1 {
+    font-size: 1.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .year-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .year-header {
+    font-size: 1.25rem;
+    color: var(--color-primary);
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-primary);
+    margin-bottom: 1rem;
+  }
+
+  .year-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .timeline-card {
+    display: flex;
+    gap: 1rem;
+    background: var(--color-bg-secondary);
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 1px solid var(--color-border);
+    transition: all 0.2s;
+  }
+
+  .timeline-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(67, 97, 238, 0.1);
+    border-color: var(--color-primary);
+  }
+
+  .timeline-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    padding-right: 1rem;
+    border-right: 2px solid var(--color-border);
+  }
+
+  .timeline-date .month {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .timeline-date .day {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  .timeline-content {
+    flex: 1;
+  }
+
+  .timeline-header {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .country-badge {
+    font-size: 0.75rem;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .type-badge {
+    font-size: 1rem;
+  }
+
+  .timeline-content h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.375rem;
+  }
+
+  .timeline-content p {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .mini-tag {
+    color: var(--color-accent);
+  }
+</style>
