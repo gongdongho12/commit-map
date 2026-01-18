@@ -18,6 +18,8 @@ const routes = posts.map((post, index) => ({
     order: loc.order ?? locIndex + 1,
     note: loc.note,
     type: loc.type,
+    // Add country from location or fallback to post country if single country post
+    country: loc.country || (post.data.countries?.length ? undefined : post.data.country),
   })),
 }));
 
@@ -187,10 +189,27 @@ const tripTypes: Record<string, string> = {
       card.style.display = matches ? 'block' : 'none';
     });
 
-    // Filter map routes
-    const filteredRoutes = activeCountries.length === 0
-      ? allRoutes
-      : allRoutes.filter(r => r.countries && activeCountries.some(c => r.countries.includes(c)));
+    // Filter map routes AND locations
+    const filteredRoutes = allRoutes.map(route => {
+      // If no active filters, return full route
+      if (activeCountries.length === 0) return route;
+
+      // Check if route has any relevant countries
+      const routeCountries = route.countries || [];
+      if (!routeCountries.some(c => activeCountries.includes(c))) return null;
+
+      // Filter locations:
+      // 1. If location has specific country, keep if it matches active filters.
+      // 2. If location has NO country, keep it (assuming it's ambiguous or general).
+      const filteredLocations = route.locations.filter(loc => {
+        if (!loc.country) return true; // Keep ambiguous locations
+        return activeCountries.includes(loc.country);
+      });
+
+      if (filteredLocations.length === 0) return null;
+
+      return { ...route, locations: filteredLocations };
+    }).filter(Boolean);
     renderMap(filteredRoutes);
 
     // Update filter info UI

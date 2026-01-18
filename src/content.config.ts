@@ -41,6 +41,7 @@ const locationSchema = z.object({
     alt: z.string().optional(),
     caption: z.string().optional(),
   })).optional(),
+  country: z.string().optional(), // 특정 국가에 속한 장소일 경우 (필터링용)
 });
 
 const postsCollection = defineCollection({
