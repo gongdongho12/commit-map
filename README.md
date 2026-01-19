@@ -72,4 +72,4 @@ npm run dev
 ```
 
 ### 배포
-GitHub main 브랜치에 푸시하면 GitHub Actions를 통해 자동으로 배포됩니다.
+GitHub contents 브랜치에 푸시하면 GitHub Actions를 통해 자동으로 배포됩니다.
