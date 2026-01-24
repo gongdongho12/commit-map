@@ -546,4 +546,82 @@ const tripTypes: Record<string, string> = {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.7; }
   }
+
+  /* 모바일 반응형 스타일 */
+  @media (max-width: 768px) {
+    .posts-section {
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .posts-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .post-card {
+      padding: 1.25rem;
+    }
+
+    .hero {
+      padding: 2rem 1rem 1.5rem;
+    }
+
+    .hero h1 {
+      font-size: 1.75rem;
+    }
+
+    .hero p {
+      font-size: 1rem;
+    }
+
+    #map-wrapper {
+      height: 350px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .posts-section {
+      padding: 1rem;
+      border-radius: 12px;
+    }
+
+    .posts-section h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+    }
+
+    .post-card {
+      padding: 1rem;
+    }
+
+    .post-card h3 {
+      font-size: 1rem;
+    }
+
+    .post-card-header {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .post-card time {
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    .tag-cloud {
+      padding: 0 0.5rem;
+    }
+
+    .country-tag {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    #map-wrapper {
+      height: 280px;
+      border-radius: 8px;
+    }
+  }
 </style>
