@@ -10,6 +10,7 @@ const postsCollection = defineCollection({
     countries: z.array(z.string()).optional(),
     tripType: z.array(z.string()).optional(),
     tags: z.array(z.string()).optional(),
+    draft: z.boolean().optional().default(false),
     excerpt: z.string().optional(),
     locations: z.array(z.object({
       name: z.string(),
