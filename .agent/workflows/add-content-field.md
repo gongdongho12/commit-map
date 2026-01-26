@@ -82,6 +82,31 @@ locations:
     visitDate: "10/1"
 ```
 
+## 6. 트러블슈팅 및 팁
+
+### 스키마 Validation 에러 (Invalid enum value)
+`Invalid enum value` 에러가 발생하면 정의된 enum 값과 실제 데이터가 일치하는지 확인해야 합니다.
+
+**에러 예시:**
+```
+locations.1.type: Invalid enum value. Expected 'attraction' | ... received 'church'
+```
+
+**해결:**
+1. `src/content.config.ts`의 `locationTypeSchema`에 `'church'` 추가
+2. `src/components/map/providers/types.ts`의 `locationTypeIcons`에 아이콘 추가 (예: `church: '⛪'`)
+
+### 상세 설명 추가 (`contents` 필드 활용)
+단순 텍스트(`note`)보다 더 풍성한 설명을 추가하고 싶다면 `contents` 배열을 사용하세요.
+
+```yaml
+contents:
+  - heading: "💡 팁"
+    text: "저녁에 가볍게 맥주나 와인 한잔하기 좋아요."
+  - heading: "📸 포토 스팟"
+    text: "광장 중앙 분수를 배경으로 찍으세요."
+```
+
 ## 트러블슈팅
 
 데이터가 undefined로 나오면:

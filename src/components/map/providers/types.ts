@@ -54,6 +54,7 @@ export const locationTypeIcons: Record<string, string> = {
   palace: '🏰',
   spa: '💆',
   gym: '🏋️',
+  church: '⛪',
 };
 
 // 특별 스타일 적용할 타입 (호텔, 음식 관련)
