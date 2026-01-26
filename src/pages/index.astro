@@ -3,7 +3,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { MapContainer } from '../components/map/MapContainer';
 
-const posts = await getCollection('posts');
+const allPosts = await getCollection('posts');
+const posts = allPosts.filter(post => {
+  // 프로덕션 환경(import.meta.env.PROD)이면서 draft가 true인 경우 제외
+  if (import.meta.env.PROD && post.data.draft) return false;
+  return true;
+});
 
 // 각 포스트별 루트 데이터 (나라 정보 포함)
 const routes = posts.map((post, index) => ({

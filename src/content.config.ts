@@ -60,6 +60,7 @@ const postsCollection = defineCollection({
     tags: z.array(z.string()).optional(),
     thumbnail: z.string().optional(),
     excerpt: z.string().optional(),
+    draft: z.boolean().optional(), // 숨김 처리 여부 (true면 프로덕션 빌드에서 제외)
   }),
 });
 

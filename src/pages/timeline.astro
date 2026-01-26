@@ -2,7 +2,11 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-const posts = await getCollection('posts');
+const allPosts = await getCollection('posts');
+const posts = allPosts.filter(post => {
+  if (import.meta.env.PROD && post.data.draft) return false;
+  return true;
+});
 
 // 날짜순 정렬
 const allPosts = [...posts].sort((a, b) => 
