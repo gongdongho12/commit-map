@@ -169,7 +169,6 @@ const tripTypes: Record<string, string> = {
     </div>
     <div class="load-more" id="recent-load-more" hidden aria-live="polite">
       <div class="load-more-status">
-        <span class="load-more-spinner" aria-hidden="true"></span>
         <span id="recent-count-info"></span>
       </div>
       <span class="load-more-progress" aria-hidden="true">
@@ -682,25 +681,7 @@ const tripTypes: Record<string, string> = {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
     min-height: 24px;
-  }
-
-  .load-more-spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(67, 97, 238, 0.16);
-    border-top-color: var(--color-primary);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    opacity: 0;
-    transform: scale(0.72);
-    transition: opacity 0.2s, transform 0.2s;
-  }
-
-  .load-more.is-loading .load-more-spinner {
-    opacity: 1;
-    transform: scale(1);
   }
 
   .load-more-progress {
@@ -756,12 +737,6 @@ const tripTypes: Record<string, string> = {
 
   .load-more span {
     text-align: center;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
   }
 
   @keyframes loading-bar {
