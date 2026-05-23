@@ -1,0 +1,4 @@
+interface:
+  display_name: "Commit Map Feature PR Loop"
+  short_description: "Split commit-map feature ideas into focused PR-ready tasks."
+  default_prompt: "Use this skill to implement one focused commit-map feature as a small, validated PR."
