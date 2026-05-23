@@ -147,3 +147,37 @@
 .leaflet-bottom {
   z-index: 2;
 }
+
+@media (max-width: 640px) {
+  .map-container {
+    border-radius: 10px;
+  }
+
+  .marker-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .marker-emoji {
+    font-size: 14px;
+  }
+
+  .marker-num {
+    width: 15px;
+    height: 15px;
+    font-size: 8px;
+  }
+
+  .marker-popup {
+    min-width: 150px;
+    max-width: 220px;
+  }
+
+  .leaflet-popup-content {
+    margin: 10px 12px;
+  }
+
+  .marker-popup strong {
+    font-size: 13px;
+  }
+}
