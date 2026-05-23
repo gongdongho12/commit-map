@@ -33,23 +33,9 @@ const routes = posts.map((post, index) => ({
 }));
 
 // 날짜순 정렬
-const sortedPosts = posts.sort((a, b) => 
+const sortedPosts = [...posts].sort((a, b) => 
   new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
-
-// 오늘 날짜 기준으로 과거/미래 분류
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-
-const pastTrips = sortedPosts.filter(post => {
-  const endDate = post.data.endDate || post.data.date;
-  return endDate < today;
-});
-
-const futurePlans = sortedPosts.filter(post => {
-  const startDate = post.data.date;
-  return startDate >= today;
-}).sort((a, b) => a.data.date.getTime() - b.data.date.getTime()); // 미래는 가까운 순
 
 // 나라별 카운트
 const countryCounts = posts.reduce((acc, post) => {
@@ -121,59 +107,15 @@ const tripTypes: Record<string, string> = {
     </div>
   </section>
 
-  {futurePlans.length > 0 && (
-    <section class="posts-section plans-section">
-      <h2>🗓️ 여행 계획</h2>
-      <div class="posts-grid" id="plans-grid">
-        {futurePlans.slice(0, 12).map(post => {
-          const countries = (post.data.countries && post.data.countries.length > 0) 
-            ? post.data.countries 
-            : (post.data.country ? [post.data.country] : []);
-          
-          const startDate = post.data.date;
-          const endDate = post.data.endDate || startDate;
-          const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-          const nights = days - 1;
-          const durationText = nights > 0 ? `${nights}박 ${days}일` : '당일치기';
-          
-          // D-day 계산
-          const dDay = Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-          const dDayText = dDay === 0 ? 'D-Day!' : `D-${dDay}`;
-          
-          return (
-            <a href={`/posts/${post.id.replace(/\.md$/, '')}/`} class="post-card-link plan-card-link" data-countries={countries.join(',')}>
-              <article class="post-card plan-card">
-                <div class="post-card-header">
-                  <span class="post-country">{post.data.country}</span>
-                  <span class="dday-badge">{dDayText}</span>
-                </div>
-                <time datetime={post.data.date.toISOString()}>
-                  {post.data.date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}
-                  {post.data.endDate && post.data.endDate.getTime() !== post.data.date.getTime() 
-                    ? ` ~ ${post.data.endDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}` 
-                    : ''}
-                  <span class="duration-badge">{durationText}</span>
-                </time>
-                <h3>{post.data.title}</h3>
-                {post.data.excerpt && <p class="post-excerpt">{post.data.excerpt}</p>}
-                <div class="post-meta">
-                  <span class="location-count">📍 {post.data.locations.length}개 장소</span>
-                  {post.data.tripType?.map(type => (
-                    <span class="trip-type">{tripTypes[type]}</span>
-                  ))}
-                </div>
-              </article>
-            </a>
-          );
-        })}
-      </div>
-    </section>
-  )}
+  <section class="posts-section plans-section" id="plans-section" hidden>
+    <h2>🗓️ 여행 계획</h2>
+    <div class="posts-grid" id="plans-grid"></div>
+  </section>
 
   <section class="posts-section">
     <h2>✈️ 최근 여행</h2>
     <div class="posts-grid" id="posts-grid">
-      {pastTrips.slice(0, 12).map(post => {
+      {sortedPosts.map(post => {
         const countries = (post.data.countries && post.data.countries.length > 0) 
           ? post.data.countries 
           : (post.data.country ? [post.data.country] : []);
@@ -186,10 +128,18 @@ const tripTypes: Record<string, string> = {
         const durationText = nights > 0 ? `${nights}박 ${days}일` : '당일치기';
         
         return (
-          <a href={`/posts/${post.id.replace(/\.md$/, '')}/`} class="post-card-link" data-countries={countries.join(',')}>
+          <a 
+            href={`/posts/${post.id.replace(/\.md$/, '')}/`} 
+            class="post-card-link trip-card" 
+            data-countries={countries.join(',')}
+            data-start={startDate.toISOString().slice(0, 10)}
+            data-end={endDate.toISOString().slice(0, 10)}
+          >
             <article class="post-card">
               <div class="post-card-header">
-              <span class="post-country">{post.data.country}</span>
+                <span class="post-country">{post.data.country}</span>
+                <span class="dday-badge" data-dday-badge hidden></span>
+              </div>
               <time datetime={post.data.date.toISOString()}>
                 {post.data.date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
                 {post.data.endDate && post.data.endDate.getTime() !== post.data.date.getTime() 
@@ -197,45 +147,160 @@ const tripTypes: Record<string, string> = {
                   : ''}
                 <span class="duration-badge">{durationText}</span>
               </time>
-            </div>
-            <h3>{post.data.title}</h3>
-            {post.data.excerpt && <p class="post-excerpt">{post.data.excerpt}</p>}
-            <div class="post-meta">
-              <span class="location-count">📍 {post.data.locations.length}개 장소</span>
-              {post.data.tripType?.map(type => (
-                <span class="trip-type">{tripTypes[type]}</span>
-              ))}
-            </div>
-            {post.data.tags && (
-              <div class="post-tags">
-                {post.data.tags.slice(0, 4).map(tag => (
-                  <span class="tag">#{tag}</span>
+              <h3>{post.data.title}</h3>
+              {post.data.excerpt && <p class="post-excerpt">{post.data.excerpt}</p>}
+              <div class="post-meta">
+                <span class="location-count">📍 {post.data.locations.length}개 장소</span>
+                {post.data.tripType?.map(type => (
+                  <span class="trip-type">{tripTypes[type]}</span>
                 ))}
               </div>
-            )}
+              {post.data.tags && (
+                <div class="post-tags">
+                  {post.data.tags.slice(0, 4).map(tag => (
+                    <span class="tag">#{tag}</span>
+                  ))}
+                </div>
+              )}
             </article>
           </a>
         );
       })}
     </div>
+    <nav class="pagination" id="recent-pagination" aria-label="최근 여행 페이지" hidden>
+      <button type="button" id="recent-prev" aria-label="이전 페이지">‹</button>
+      <span id="recent-page-info"></span>
+      <button type="button" id="recent-next" aria-label="다음 페이지">›</button>
+    </nav>
   </section>
 </BaseLayout>
 
 <script>
   let activeCountries = [];
+  let recentPage = 1;
+  const recentPageSize = 3;
+
+  function parseLocalDate(value) {
+    const [year, month, day] = value.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  function getTodayStart() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  }
+
+  function updateTripDateState() {
+    const plansSection = document.getElementById('plans-section');
+    const plansGrid = document.getElementById('plans-grid');
+    const postsGrid = document.getElementById('posts-grid');
+    if (!plansSection || !plansGrid || !postsGrid) return;
+
+    const today = getTodayStart();
+    const cards = Array.from(document.querySelectorAll('.trip-card'));
+    const futureCards = [];
+    const pastCards = [];
+
+    cards.forEach(card => {
+      const startValue = card.getAttribute('data-start');
+      const endValue = card.getAttribute('data-end') || startValue;
+      if (!startValue || !endValue) return;
+
+      const startDate = parseLocalDate(startValue);
+      const endDate = parseLocalDate(endValue);
+      const dDay = Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const isCurrent = startDate <= today && today <= endDate;
+      const isPlanned = today <= endDate;
+      const badge = card.querySelector('[data-dday-badge]');
+      const article = card.querySelector('.post-card');
+
+      if (badge) {
+        if (isPlanned) {
+          badge.hidden = false;
+          badge.textContent = isCurrent ? '여행 중' : (dDay === 0 ? 'D-Day!' : `D-${dDay}`);
+        } else {
+          badge.hidden = true;
+          badge.textContent = '';
+        }
+      }
+
+      card.classList.toggle('plan-card-link', isPlanned);
+      article?.classList.toggle('plan-card', isPlanned);
+
+      if (isPlanned) {
+        futureCards.push(card);
+      } else {
+        pastCards.push(card);
+      }
+    });
+
+    futureCards.sort((a, b) => {
+      return parseLocalDate(a.getAttribute('data-start')).getTime() - parseLocalDate(b.getAttribute('data-start')).getTime();
+    });
+    pastCards.sort((a, b) => {
+      return parseLocalDate(b.getAttribute('data-start')).getTime() - parseLocalDate(a.getAttribute('data-start')).getTime();
+    });
+
+    futureCards.forEach(card => plansGrid.appendChild(card));
+    pastCards.forEach(card => postsGrid.appendChild(card));
+    plansSection.hidden = futureCards.length === 0;
+  }
+
+  function updateRecentPagination() {
+    const postsGrid = document.getElementById('posts-grid');
+    const pagination = document.getElementById('recent-pagination');
+    const pageInfo = document.getElementById('recent-page-info');
+    const prevBtn = document.getElementById('recent-prev');
+    const nextBtn = document.getElementById('recent-next');
+    if (!postsGrid || !pagination || !pageInfo || !prevBtn || !nextBtn) return;
+
+    const cards = Array.from(postsGrid.querySelectorAll('.trip-card'));
+    const visibleCards = cards.filter(card => card.getAttribute('data-filter-match') !== 'false');
+    const totalPages = Math.max(1, Math.ceil(visibleCards.length / recentPageSize));
+    recentPage = Math.min(recentPage, totalPages);
+
+    cards.forEach(card => {
+      card.style.display = 'none';
+    });
+
+    visibleCards.forEach((card, index) => {
+      const start = (recentPage - 1) * recentPageSize;
+      const end = start + recentPageSize;
+      card.style.display = index >= start && index < end ? 'block' : 'none';
+    });
+
+    pagination.hidden = visibleCards.length <= recentPageSize;
+    pageInfo.textContent = `${recentPage} / ${totalPages}`;
+    prevBtn.toggleAttribute('disabled', recentPage <= 1);
+    nextBtn.toggleAttribute('disabled', recentPage >= totalPages);
+  }
 
   function applyFilters() {
     // Filter posts (consider all associated countries, split hyphen-separated)
     // Cast to NodeListOf<HTMLElement> to access style property
     const cards = document.querySelectorAll('.post-card-link');
+    let visiblePlanCount = 0;
     cards.forEach(card => {
       // @ts-ignore
       const raw = card.dataset.countries?.split(',') || [];
       const countries = raw.flatMap(c => c.split('-').map(s => s.trim()));
       const matches = activeCountries.length === 0 || activeCountries.some(ac => countries.includes(ac));
-      // @ts-ignore
-      card.style.display = matches ? 'block' : 'none';
+      card.setAttribute('data-filter-match', matches ? 'true' : 'false');
+      if (card.parentElement?.id === 'plans-grid') {
+        // @ts-ignore
+        card.style.display = matches ? 'block' : 'none';
+        if (matches) visiblePlanCount++;
+      }
     });
+
+    const plansSection = document.getElementById('plans-section');
+    const plansGrid = document.getElementById('plans-grid');
+    if (plansSection && plansGrid) {
+      plansSection.hidden = plansGrid.children.length === 0 || visiblePlanCount === 0;
+    }
+
+    updateRecentPagination();
 
     // Notify Map Component
     window.dispatchEvent(new CustomEvent('map-filter-change', {
@@ -256,6 +321,9 @@ const tripTypes: Record<string, string> = {
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    updateTripDateState();
+    applyFilters();
+
     // Country tag click handling (max 2 selections)
     document.querySelectorAll('.country-tag').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -265,9 +333,12 @@ const tripTypes: Record<string, string> = {
           // Clear all filters
           activeCountries = [];
           document.querySelectorAll('.country-tag').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          recentPage = 1;
           applyFilters();
           return;
         }
+        document.querySelector('[data-country="all"]')?.classList.remove('active');
         const idx = activeCountries.indexOf(country);
         if (idx > -1) {
           activeCountries.splice(idx, 1);
@@ -277,6 +348,10 @@ const tripTypes: Record<string, string> = {
             }
         // toggle button active class
         btn.classList.toggle('active', activeCountries.includes(country));
+        if (activeCountries.length === 0) {
+          document.querySelector('[data-country="all"]')?.classList.add('active');
+        }
+        recentPage = 1;
         applyFilters();
       });
     });
@@ -288,9 +363,21 @@ const tripTypes: Record<string, string> = {
         activeCountries = [];
         // remove active class from all buttons
         document.querySelectorAll('.country-tag').forEach(b => b.classList.remove('active'));
+        document.querySelector('[data-country="all"]')?.classList.add('active');
+        recentPage = 1;
         applyFilters();
       });
     }
+
+    document.getElementById('recent-prev')?.addEventListener('click', () => {
+      recentPage = Math.max(1, recentPage - 1);
+      updateRecentPagination();
+    });
+
+    document.getElementById('recent-next')?.addEventListener('click', () => {
+      recentPage += 1;
+      updateRecentPagination();
+    });
   });
 </script>
 
@@ -505,6 +592,52 @@ const tripTypes: Record<string, string> = {
     gap: 0.5rem;
   }
 
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .pagination[hidden] {
+    display: none;
+  }
+
+  .pagination button {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+    transition: all 0.2s;
+  }
+
+  .pagination button:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    box-shadow: 0 4px 14px rgba(67, 97, 238, 0.12);
+  }
+
+  .pagination button:disabled {
+    cursor: not-allowed;
+    opacity: 0.35;
+  }
+
+  .pagination span {
+    min-width: 56px;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
   .tag {
     font-size: 0.75rem;
     color: var(--color-accent);
@@ -554,9 +687,52 @@ const tripTypes: Record<string, string> = {
 
   /* 모바일 반응형 스타일 */
   @media (max-width: 768px) {
+    .hero {
+      padding: 1.5rem 0.5rem 1.25rem;
+      text-align: left;
+    }
+
+    .hero h1 {
+      font-size: 1.75rem;
+      line-height: 1.25;
+    }
+
+    .hero p {
+      font-size: 0.95rem;
+    }
+
+    .tag-section {
+      margin: 0 -1rem 1rem;
+      padding: 0 1rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tag-cloud {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      width: max-content;
+      min-width: 100%;
+      padding-bottom: 0.25rem;
+    }
+
+    .country-tag {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    .filter-info {
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      line-height: 1.4;
+    }
+
     .posts-section {
       padding: 1.25rem;
       margin-bottom: 1.5rem;
+      border-radius: 12px;
     }
 
     .posts-grid {
@@ -568,20 +744,9 @@ const tripTypes: Record<string, string> = {
       padding: 1.25rem;
     }
 
-    .hero {
-      padding: 2rem 1rem 1.5rem;
-    }
-
-    .hero h1 {
-      font-size: 1.75rem;
-    }
-
-    .hero p {
-      font-size: 1rem;
-    }
-
     #map-wrapper {
-      height: 350px;
+      height: 340px;
+      border-radius: 10px;
     }
   }
 
@@ -613,10 +778,6 @@ const tripTypes: Record<string, string> = {
     .post-card time {
       flex-wrap: wrap;
       gap: 0.25rem;
-    }
-
-    .tag-cloud {
-      padding: 0 0.5rem;
     }
 
     .country-tag {
