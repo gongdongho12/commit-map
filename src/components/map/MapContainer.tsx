@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import type { Location } from './providers/types';
 import { locationTypeIcons, specialTypes } from './providers/types';
 import 'leaflet/dist/leaflet.css';
@@ -24,6 +24,58 @@ const routeColors = [
   '#4361ee', '#f72585', '#4cc9f0', '#7b2cbf',
   '#06d6a0', '#ff9f1c', '#ef476f', '#118ab2',
 ];
+
+const fallbackLocationType = 'attraction';
+
+const locationTypeLabels: Record<string, string> = {
+  attraction: '명소',
+  hotel: '숙소',
+  restaurant: '식사',
+  cafe: '카페',
+  transport: '이동',
+  airport: '공항',
+  shopping: '쇼핑',
+  nature: '자연',
+  temple: '사찰',
+  museum: '전시',
+  zoo: '동물원',
+  theater: '공연',
+  market: '시장',
+  beach: '해변',
+  mountain: '산',
+  viewpoint: '전망',
+  bar: '바',
+  palace: '궁전',
+  spa: '스파',
+  gym: '운동',
+  church: '성당',
+};
+
+const locationTypeOrder = [
+  'attraction',
+  'hotel',
+  'restaurant',
+  'cafe',
+  'market',
+  'shopping',
+  'transport',
+  'airport',
+  'nature',
+  'beach',
+  'mountain',
+  'viewpoint',
+  'temple',
+  'museum',
+  'palace',
+  'theater',
+  'bar',
+  'spa',
+  'gym',
+  'zoo',
+  'church',
+];
+
+const getLocationType = (type?: string) => type || fallbackLocationType;
 
 export function MapContainer({ 
   locations, 
@@ -57,6 +109,7 @@ export function MapContainer({
 
   const [filteredRoutes, setFilteredRoutes] = useState<Route[] | undefined>(routes);
   const [activeCountries, setActiveCountries] = useState<string[]>([]);
+  const [activeTypes, setActiveTypes] = useState<string[]>([]);
 
   useEffect(() => {
     const handleFilterChange = (event: CustomEvent<{ countries: string[] }>) => {
@@ -97,20 +150,77 @@ export function MapContainer({
 
   }, [activeCountries, routes]);
 
+  const sourceLocations = useMemo(() => {
+    return filteredRoutes 
+      ? filteredRoutes.flatMap(r => r.locations)
+      : locations;
+  }, [filteredRoutes, locations]);
+
+  const availableTypeFilters = useMemo(() => {
+    const counts = new Map<string, number>();
+
+    sourceLocations.forEach(location => {
+      const type = getLocationType(location.type);
+      counts.set(type, (counts.get(type) || 0) + 1);
+    });
+
+    return Array.from(counts.entries())
+      .map(([type, count]) => ({
+        type,
+        count,
+        icon: locationTypeIcons[type] || locationTypeIcons[fallbackLocationType] || '📍',
+        label: locationTypeLabels[type] || type,
+      }))
+      .sort((a, b) => {
+        const aOrder = locationTypeOrder.indexOf(a.type);
+        const bOrder = locationTypeOrder.indexOf(b.type);
+        const normalizedAOrder = aOrder === -1 ? Number.MAX_SAFE_INTEGER : aOrder;
+        const normalizedBOrder = bOrder === -1 ? Number.MAX_SAFE_INTEGER : bOrder;
+
+        if (normalizedAOrder !== normalizedBOrder) return normalizedAOrder - normalizedBOrder;
+        return a.label.localeCompare(b.label, 'ko');
+      });
+  }, [sourceLocations]);
+
+  useEffect(() => {
+    const availableTypes = new Set(availableTypeFilters.map(filter => filter.type));
+    setActiveTypes(current => current.filter(type => availableTypes.has(type)));
+  }, [availableTypeFilters]);
+
+  const activeTypeSet = useMemo(() => new Set(activeTypes), [activeTypes]);
+  const hasTypeFilter = activeTypes.length > 0;
+
+  const isLocationTypeVisible = (location: Location) => {
+    if (!hasTypeFilter) return true;
+    return activeTypeSet.has(getLocationType(location.type));
+  };
+
+  const visibleRoutes = useMemo(() => {
+    if (!filteredRoutes) return undefined;
+
+    return filteredRoutes.map(route => ({
+      ...route,
+      locations: route.locations.filter(isLocationTypeVisible),
+    }));
+  }, [activeTypeSet, filteredRoutes, hasTypeFilter]);
+
+  const visibleLocations = useMemo(() => {
+    if (visibleRoutes) return visibleRoutes.flatMap(route => route.locations);
+    return locations.filter(isLocationTypeVisible);
+  }, [activeTypeSet, hasTypeFilter, locations, visibleRoutes]);
+
+  const fitLocations = visibleLocations.length > 0 ? visibleLocations : sourceLocations;
+
   // 마커에 맞게 지도 뷰 조정
   useEffect(() => {
     if (!mapRef.current || !MapComponents) return;
-    
-    const allLocations = filteredRoutes 
-      ? filteredRoutes.flatMap(r => r.locations)
-      : locations;
-    
-    if (allLocations.length > 0) {
+
+    if (fitLocations.length > 0) {
       const { L } = MapComponents;
-      const bounds = L.latLngBounds(allLocations.map((loc: Location) => [loc.lat, loc.lng]));
+      const bounds = L.latLngBounds(fitLocations.map((loc: Location) => [loc.lat, loc.lng]));
       mapRef.current.fitBounds(bounds, { padding: [50, 50], maxZoom: worldView ? 4 : 10 });
     }
-  }, [MapComponents, filteredRoutes, locations, worldView]);
+  }, [MapComponents, fitLocations, worldView]);
 
   if (!isClient || !MapComponents) {
     return (
@@ -131,23 +241,15 @@ export function MapContainer({
     
     useEffect(() => {
       mapRef.current = map;
-      
-      const allLocs = filteredRoutes 
-        ? filteredRoutes.flatMap(r => r.locations)
-        : locations;
-      
-      if (allLocs.length > 0) {
-        const bounds = L.latLngBounds(allLocs.map((loc: Location) => [loc.lat, loc.lng]));
+
+      if (fitLocations.length > 0) {
+        const bounds = L.latLngBounds(fitLocations.map((loc: Location) => [loc.lat, loc.lng]));
         map.fitBounds(bounds, { padding: [50, 50], maxZoom: worldView ? 4 : 10 });
       }
-    }, [map]);
+    }, [map, fitLocations, worldView]);
     
     return null;
   }
-
-  const allLocations = filteredRoutes 
-    ? filteredRoutes.flatMap(r => r.locations)
-    : locations;
 
   // 기본 center (마커 없을 때)
   const defaultCenter: [number, number] = [20, 0]; // 세계 중심
@@ -157,6 +259,18 @@ export function MapContainer({
   const polylinePositions = sortedLocations.map(loc => [loc.lat, loc.lng] as [number, number]);
 
   const getTypeIcon = (type?: string) => locationTypeIcons[type || 'attraction'] || '📍';
+
+  const toggleTypeFilter = (type: string) => {
+    setActiveTypes(current => (
+      current.includes(type)
+        ? current.filter(activeType => activeType !== type)
+        : [...current, type]
+    ));
+  };
+
+  const clearTypeFilters = () => {
+    setActiveTypes([]);
+  };
 
   const createTypedIcon = (location: Location, index: number, routeColor?: string) => {
     const icon = getTypeIcon(location.type);
@@ -178,20 +292,59 @@ export function MapContainer({
   };
 
   return (
-    <LeafletMap 
-      center={defaultCenter} 
-      zoom={defaultZoom} 
-      className={`map-container ${className}`}
-      style={{ height: '100%', width: '100%' }}
-      scrollWheelZoom={true}
-      minZoom={2}
-      maxZoom={18}
-      worldCopyJump={true}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+    <div className={`map-container ${className}`}>
+      {availableTypeFilters.length > 1 && (
+        <div className="map-type-filters" aria-label="장소 타입 필터">
+          <div className="map-type-filter-scroll">
+            {availableTypeFilters.map(filter => {
+              const isActive = activeTypeSet.has(filter.type);
+
+              return (
+                <button
+                  key={filter.type}
+                  type="button"
+                  className={`map-type-filter ${isActive ? 'is-active' : ''}`}
+                  aria-pressed={isActive}
+                  title={`${filter.label} 장소만 보기`}
+                  onClick={() => toggleTypeFilter(filter.type)}
+                >
+                  <span className="map-type-filter-icon" aria-hidden="true">{filter.icon}</span>
+                  <span className="map-type-filter-label">{filter.label}</span>
+                  <span className="map-type-filter-count">{filter.count}</span>
+                </button>
+              );
+            })}
+            {hasTypeFilter && (
+              <button
+                type="button"
+                className="map-type-filter map-type-filter-clear"
+                onClick={clearTypeFilters}
+              >
+                전체
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {hasTypeFilter && visibleLocations.length === 0 && (
+        <div className="map-empty-filter">선택한 타입의 장소가 없어요</div>
+      )}
+
+      <LeafletMap 
+        center={defaultCenter} 
+        zoom={defaultZoom} 
+        className="map-leaflet"
+        style={{ height: '100%', width: '100%' }}
+        scrollWheelZoom={true}
+        minZoom={2}
+        maxZoom={18}
+        worldCopyJump={true}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
       
       <FitBoundsComponent />
       
@@ -219,7 +372,7 @@ export function MapContainer({
       )}
       
       {/* 여러 루트 마커 */}
-      {filteredRoutes && filteredRoutes.map((route, routeIndex) => {
+      {visibleRoutes && visibleRoutes.map((route, routeIndex) => {
         const color = route.color || routeColors[routeIndex % routeColors.length];
         return route.locations.map((location, index) => (
           <Marker 
@@ -249,7 +402,7 @@ export function MapContainer({
       })}
 
       {/* 단일 루트 마커 */}
-      {!filteredRoutes && locations.map((location, index) => {
+      {!visibleRoutes && visibleLocations.map((location, index) => {
         // 🔍 디버깅: link, visitDate 파싱 확인
         console.log(`[MapContainer] Location "${location.name}" - link:`, location.link, '| visitDate:', location.visitDate, '| slug:', location.slug);
         
@@ -280,6 +433,7 @@ export function MapContainer({
           </Marker>
         );
       })}
-    </LeafletMap>
+      </LeafletMap>
+    </div>
   );
 }
