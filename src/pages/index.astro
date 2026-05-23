@@ -54,6 +54,15 @@ const countryCounts = posts.reduce((acc, post) => {
   return acc;
 }, {} as Record<string, number>);
 
+const currentYear = new Date().getFullYear();
+const totalTravelDays = posts.reduce((acc, post) => {
+  const startDate = post.data.date;
+  const endDate = post.data.endDate || startDate;
+  return acc + Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+}, 0);
+const totalLocations = posts.reduce((acc, post) => acc + post.data.locations.length, 0);
+const currentYearTrips = posts.filter(post => post.data.date.getFullYear() === currentYear).length;
+
 // 여행 유형 아이콘
 const tripTypes: Record<string, string> = {
   sightseeing: '🏛️',
@@ -73,6 +82,29 @@ const tripTypes: Record<string, string> = {
   <section class="hero">
     <h1>여행의 발자취</h1>
     <p>마크다운으로 기록하고, 지도에서 다시 만나다</p>
+  </section>
+
+  <section class="stats-section" aria-label="여행 요약">
+    <div class="stat-item">
+      <span class="stat-label">전체 여행</span>
+      <strong>{posts.length}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">방문 국가</span>
+      <strong>{Object.keys(countryCounts).length}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">기록 장소</span>
+      <strong>{totalLocations}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">여행일</span>
+      <strong>{totalTravelDays}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">올해 여행</span>
+      <strong id="current-year-trips" data-fallback-year={currentYear}>{currentYearTrips}</strong>
+    </div>
   </section>
 
   <!-- 나라별 태그 클라우드 -->
@@ -347,6 +379,21 @@ const tripTypes: Record<string, string> = {
     handleRecentAutoLoad();
   }
 
+  function updateCurrentYearStats() {
+    const currentYearTrips = document.getElementById('current-year-trips');
+    if (!currentYearTrips) return;
+
+    const year = new Date().getFullYear();
+    const cards = Array.from(document.querySelectorAll('.trip-card'));
+    const tripCount = cards.filter(card => {
+      const startValue = card.getAttribute('data-start');
+      return startValue ? parseLocalDate(startValue).getFullYear() === year : false;
+    }).length;
+
+    currentYearTrips.textContent = String(tripCount);
+    currentYearTrips.setAttribute('data-fallback-year', String(year));
+  }
+
   function applyFilters() {
     cancelRecentAutoLoad();
 
@@ -394,6 +441,7 @@ const tripTypes: Record<string, string> = {
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    updateCurrentYearStats();
     updateTripDateState();
     applyFilters();
 
@@ -470,6 +518,42 @@ const tripTypes: Record<string, string> = {
 
   .tag-section {
     margin-bottom: 1.5rem;
+  }
+
+  .stats-section {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0 auto 1.5rem;
+  }
+
+  .stat-item {
+    display: flex;
+    min-width: 0;
+    min-height: 86px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-bg-secondary);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+  }
+
+  .stat-label {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .stat-item strong {
+    color: var(--color-text);
+    font-size: 1.85rem;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
   }
 
   .tag-cloud {
@@ -815,6 +899,22 @@ const tripTypes: Record<string, string> = {
       -webkit-overflow-scrolling: touch;
     }
 
+    .stats-section {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.625rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-item {
+      min-height: 76px;
+      padding: 0.875rem;
+      border-radius: 10px;
+    }
+
+    .stat-item strong {
+      font-size: 1.55rem;
+    }
+
     .tag-cloud {
       flex-wrap: nowrap;
       justify-content: flex-start;
@@ -858,6 +958,22 @@ const tripTypes: Record<string, string> = {
   }
 
   @media (max-width: 480px) {
+    .stats-section {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stat-item:last-child {
+      grid-column: 1 / -1;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+    }
+
+    .stat-item strong {
+      font-size: 1.45rem;
+    }
+
     .posts-section {
       padding: 1rem;
       border-radius: 12px;
