@@ -1,0 +1,489 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const splitCountries = (values: Array<string | undefined>) => {
+  const countries = values
+    .filter(Boolean)
+    .flatMap(value => value!.split('-').map(country => country.trim()))
+    .filter(Boolean);
+
+  return Array.from(new Set(countries));
+};
+
+const getPostCountries = (post: Awaited<ReturnType<typeof getCollection<'posts'>>>[number]) => {
+  const sourceCountries = post.data.countries?.length
+    ? post.data.countries
+    : [post.data.country];
+
+  return splitCountries(sourceCountries);
+};
+
+const getPostSlug = (post: Awaited<ReturnType<typeof getCollection<'posts'>>>[number]) => (
+  post.id.replace(/\.md$/, '')
+);
+
+const getDurationDays = (post: Awaited<ReturnType<typeof getCollection<'posts'>>>[number]) => {
+  const startDate = post.data.date;
+  const endDate = post.data.endDate || startDate;
+
+  return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+};
+
+const getMatchingLocationCount = (
+  post: Awaited<ReturnType<typeof getCollection<'posts'>>>[number],
+  country: string,
+) => {
+  const postCountries = getPostCountries(post);
+  const isSingleCountryPost = postCountries.length === 1;
+  const matchingLocations = post.data.locations.filter(location => {
+    if (location.country) return splitCountries([location.country]).includes(country);
+    return isSingleCountryPost && postCountries.includes(country);
+  });
+
+  return matchingLocations.length;
+};
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('posts')).filter(post => !post.data.draft);
+  const splitPathCountries = (values: Array<string | undefined>) => values
+    .filter(Boolean)
+    .flatMap(value => value!.split('-').map(item => item.trim()))
+    .filter(Boolean);
+  const getPathCountries = (post: typeof posts[number]) => {
+    const sourceCountries = post.data.countries?.length
+      ? post.data.countries
+      : [post.data.country];
+
+    return Array.from(new Set(splitPathCountries(sourceCountries)));
+  };
+  const countries = Array.from(
+    new Set(posts.flatMap(post => getPathCountries(post)))
+  ).sort((a, b) => a.localeCompare(b, 'ko-KR'));
+
+  return countries.map(country => ({
+    params: { country },
+  }));
+}
+
+const { country } = Astro.params;
+const decodedCountry = decodeURIComponent(country || '');
+const allPosts = (await getCollection('posts')).filter(post => !post.data.draft);
+const countryPosts = allPosts
+  .filter(post => getPostCountries(post).includes(decodedCountry))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const totalDays = countryPosts.reduce((sum, post) => sum + getDurationDays(post), 0);
+const locationCount = countryPosts.reduce((sum, post) => (
+  sum + getMatchingLocationCount(post, decodedCountry)
+), 0);
+const years = Array.from(new Set(countryPosts.map(post => post.data.date.getFullYear())))
+  .sort((a, b) => b - a);
+const latestPost = countryPosts[0];
+const latestDate = latestPost?.data.date.toLocaleDateString('ko-KR', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const tripTypes: Record<string, { icon: string; label: string }> = {
+  sightseeing: { icon: '🏛️', label: '관광' },
+  healing: { icon: '🧘', label: '힐링' },
+  food: { icon: '🍽️', label: '맛집' },
+  culture: { icon: '🎭', label: '문화' },
+  nature: { icon: '🌲', label: '자연' },
+  adventure: { icon: '⛰️', label: '모험' },
+  shopping: { icon: '🛍️', label: '쇼핑' },
+  business: { icon: '💼', label: '출장' },
+  family: { icon: '👨‍👩‍👧‍👦', label: '가족' },
+  solo: { icon: '🚶', label: '혼행' },
+};
+---
+
+<BaseLayout
+  title={`${decodedCountry} 여행 아카이브`}
+  description={`${decodedCountry} 여행 기록을 모아보는 국가별 아카이브`}
+>
+  <section class="country-hero">
+    <a class="back-link" href="/">← 전체 지도로 돌아가기</a>
+    <div class="country-title-row">
+      <div>
+        <p class="eyebrow">Country Archive</p>
+        <h1>{decodedCountry}</h1>
+      </div>
+      {latestDate && (
+        <p class="latest-trip">
+          최근 기록
+          <strong>{latestDate}</strong>
+        </p>
+      )}
+    </div>
+  </section>
+
+  <section class="summary-grid" aria-label={`${decodedCountry} 여행 요약`}>
+    <article class="summary-card">
+      <span class="summary-value">{countryPosts.length}</span>
+      <span class="summary-label">여행</span>
+    </article>
+    <article class="summary-card">
+      <span class="summary-value">{totalDays}</span>
+      <span class="summary-label">기록된 일수</span>
+    </article>
+    <article class="summary-card">
+      <span class="summary-value">{locationCount}</span>
+      <span class="summary-label">방문 장소</span>
+    </article>
+    <article class="summary-card">
+      <span class="summary-value">{years.length}</span>
+      <span class="summary-label">방문 연도</span>
+    </article>
+  </section>
+
+  <section class="country-posts">
+    <div class="section-heading">
+      <h2>{decodedCountry} 여행 기록</h2>
+      {years.length > 0 && <p>{years.join(', ')}</p>}
+    </div>
+
+    <div class="posts-grid">
+      {countryPosts.map(post => {
+        const postCountries = getPostCountries(post);
+        const durationDays = getDurationDays(post);
+        const nights = durationDays - 1;
+        const durationText = nights > 0 ? `${nights}박 ${durationDays}일` : '당일치기';
+        const matchingLocations = getMatchingLocationCount(post, decodedCountry);
+
+        return (
+          <a href={`/posts/${getPostSlug(post)}/`} class="trip-card-link">
+            <article class="trip-card">
+              <div class="trip-card-top">
+                <span class="country-badge">{decodedCountry}</span>
+                <time datetime={post.data.date.toISOString()}>
+                  {post.data.date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
+                  {post.data.endDate && post.data.endDate.getTime() !== post.data.date.getTime()
+                    ? ` ~ ${post.data.endDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}`
+                    : ''}
+                </time>
+              </div>
+              <h3>{post.data.title}</h3>
+              {post.data.excerpt && <p class="excerpt">{post.data.excerpt}</p>}
+
+              <div class="meta-row">
+                <span>{durationText}</span>
+                <span>이 국가 {matchingLocations || post.data.locations.length}개 장소</span>
+              </div>
+
+              <div class="chip-row">
+                {postCountries.length > 1 && postCountries.map(item => (
+                  <span class:list={['country-chip', { active: item === decodedCountry }]}>
+                    {item}
+                  </span>
+                ))}
+                {post.data.tripType?.slice(0, 4).map(type => (
+                  <span class="type-chip">{tripTypes[type]?.icon} {tripTypes[type]?.label || type}</span>
+                ))}
+              </div>
+            </article>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .country-hero {
+    padding: 2.5rem 0 1.5rem;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover {
+    color: var(--color-primary);
+  }
+
+  .country-title-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    align-items: flex-end;
+  }
+
+  .eyebrow {
+    color: var(--color-primary);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1.1;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .latest-trip {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    text-align: right;
+  }
+
+  .latest-trip strong {
+    display: block;
+    color: var(--color-text);
+    font-size: 1rem;
+    margin-top: 0.25rem;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .summary-card {
+    min-height: 104px;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+  }
+
+  .summary-value {
+    font-size: 1.75rem;
+    line-height: 1;
+    font-weight: 800;
+    color: var(--color-primary);
+  }
+
+  .summary-label {
+    margin-top: 0.45rem;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .country-posts {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08);
+  }
+
+  .section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .section-heading h2 {
+    font-size: 1.35rem;
+  }
+
+  .section-heading p {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .trip-card-link {
+    display: block;
+    height: 100%;
+  }
+
+  .trip-card {
+    height: 100%;
+    padding: 1.2rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .trip-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-primary);
+    box-shadow: 0 10px 24px rgba(67, 97, 238, 0.12);
+  }
+
+  .trip-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .country-badge,
+  .country-chip,
+  .type-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .country-badge {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    color: white;
+    padding: 0.2rem 0.5rem;
+  }
+
+  time {
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  h3 {
+    font-size: 1.05rem;
+    line-height: 1.35;
+    margin-bottom: 0.5rem;
+  }
+
+  .excerpt {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin-bottom: 1rem;
+    flex: 1;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-top: auto;
+    margin-bottom: 0.8rem;
+  }
+
+  .meta-row span {
+    background: #f1f5f9;
+    border-radius: 4px;
+    padding: 0.28rem 0.5rem;
+  }
+
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .country-chip {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 0.2rem 0.45rem;
+  }
+
+  .country-chip.active {
+    background: #0ea5e9;
+    color: white;
+  }
+
+  .type-chip {
+    background: rgba(123, 44, 191, 0.1);
+    color: var(--color-accent);
+    padding: 0.2rem 0.45rem;
+  }
+
+  @media (max-width: 768px) {
+    .country-hero {
+      padding: 1.5rem 0 1rem;
+    }
+
+    .country-title-row,
+    .section-heading {
+      display: block;
+    }
+
+    .latest-trip {
+      margin-top: 1rem;
+      text-align: left;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .summary-card {
+      min-height: 92px;
+      padding: 0.9rem;
+    }
+
+    .summary-value {
+      font-size: 1.45rem;
+    }
+
+    .country-posts {
+      margin: 0 -0.5rem;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .section-heading p {
+      margin-top: 0.35rem;
+    }
+
+    .posts-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .trip-card {
+      padding: 1rem;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .summary-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .trip-card-top {
+      align-items: flex-start;
+    }
+
+    time {
+      max-width: 56%;
+      line-height: 1.35;
+    }
+  }
+</style>
