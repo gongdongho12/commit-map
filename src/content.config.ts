@@ -18,7 +18,7 @@ const tripTypeSchema = z.enum([
 const locationTypeSchema = z.enum([
   'attraction', 'hotel', 'restaurant', 'cafe', 'transport', 'airport',
   'shopping', 'nature', 'temple', 'museum', 'zoo', 'theater', 'market',
-  'beach', 'mountain', 'viewpoint', 'bar', 'palace', 'spa', 'gym',
+  'beach', 'mountain', 'viewpoint', 'bar', 'palace', 'spa', 'gym', 'church',
 ]).optional();
 
 // 장소별 콘텐츠 섹션
