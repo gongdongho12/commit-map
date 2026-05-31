@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
 import Comments from '../../components/Comments.astro';
 import { MapContainer } from '../../components/map/MapContainer';
+import { buildClipPayloadPath } from '../../lib/clipPayload';
 import { resolveFlightSchedule } from '../../lib/flightSchedules';
 
 export async function getStaticPaths() {
@@ -42,6 +43,13 @@ const endDate = post.data.endDate || startDate;
 const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 const nights = days - 1;
 const durationText = nights > 0 ? `${nights}박 ${days}일` : '당일치기';
+const postSlug = post.id.replace(/\.md$/, '');
+const clipPayloadUrl = new URL(buildClipPayloadPath(post), Astro.url).toString();
+const clipStudioUrl = new URL(import.meta.env.PUBLIC_CLIP_APP_URL || 'https://clip.dongholab.com/');
+clipStudioUrl.searchParams.set('source', 'commit-map');
+clipStudioUrl.searchParams.set('trip', postSlug);
+clipStudioUrl.searchParams.set('clip', 'GlobeRoute');
+clipStudioUrl.searchParams.set('payloadUrl', clipPayloadUrl);
 
 // visitDate별 그룹핑
 const groupedByDate = locations.reduce((acc, loc) => {
@@ -165,6 +173,12 @@ const expenseTotals = Array.from(
           ))}
         </div>
       )}
+      <div class="clip-actions">
+        <a href={clipStudioUrl.toString()} class="clip-action" target="_blank" rel="noopener noreferrer">
+          <span>영상 클립 만들기</span>
+          <small>clip.dongholab.com</small>
+        </a>
+      </div>
     </header>
 
     <section class="route-map">
@@ -537,6 +551,39 @@ const expenseTotals = Array.from(
     background: rgba(123, 44, 191, 0.1);
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
+  }
+
+  .clip-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+
+  .clip-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border: 1px solid rgba(67, 97, 238, 0.22);
+    border-radius: 8px;
+    background: rgba(67, 97, 238, 0.07);
+    color: var(--color-primary);
+    font-size: 0.9rem;
+    font-weight: 800;
+    padding: 0.75rem 0.9rem;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+
+  .clip-action small {
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .clip-action:hover {
+    background: rgba(67, 97, 238, 0.12);
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
   }
 
   .route-map,
