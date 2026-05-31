@@ -41,6 +41,37 @@ const flightSchema = z.object({
   note: z.string().optional(),
 });
 
+// 비용 기록 스키마
+const expenseCategorySchema = z.enum([
+  'flight', 'ferry', 'train', 'bus', 'taxi', 'airport-transfer',
+  'hotel', 'food', 'activity', 'shopping', 'insurance', 'etc',
+]);
+
+const expenseItemSchema = z.object({
+  name: z.string(),
+  amount: z.number().optional(),
+  currency: z.string().optional(),
+  quantity: z.number().optional(),
+  note: z.string().optional(),
+});
+
+const expenseSchema = z.object({
+  title: z.string(),                         // 예: VIE Bangkok, KE629, 팀호완
+  category: expenseCategorySchema,
+  date: z.string().optional(),
+  amount: z.number().optional(),             // 현지 통화 기준 총액
+  currency: z.string().optional(),           // 예: KRW, JPY, THB, SGD
+  krwAmount: z.number().optional(),          // 원화 환산액을 별도로 기록하고 싶을 때
+  quantity: z.number().optional(),           // 예: 2
+  unit: z.string().optional(),               // 예: 박, 명, 회, 구간
+  payment: z.string().optional(),            // 예: 현대카드, 현금, 친구 정산
+  bookingSource: z.string().optional(),      // 예: Accor, Agoda, 항공사 공홈
+  linkedLocation: z.string().optional(),     // 장소명과 연결하고 싶을 때
+  relatedFlightNo: z.string().optional(),    // 항공편과 연결하고 싶을 때
+  items: z.array(expenseItemSchema).optional(), // 식당 메뉴 등 세부 항목
+  note: z.string().optional(),
+});
+
 // 단일 위치 스키마
 const locationSchema = z.object({
   name: z.string(),
@@ -71,6 +102,7 @@ const postsCollection = defineCollection({
     country: z.string(),                          // 나라 (필수)
     countries: z.array(z.string()).optional(),    // 여러 나라 경유 시
     flights: z.array(flightSchema).optional(),     // 항공편 기록
+    expenses: z.array(expenseSchema).optional(),   // 교통/숙소/식비 등 비용 기록
     tripType: z.array(tripTypeSchema).optional(), // 여행 유형 (복수 가능)
     tags: z.array(z.string()).optional(),
     thumbnail: z.string().optional(),

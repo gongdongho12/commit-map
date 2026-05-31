@@ -74,6 +74,54 @@ const flightDirectionLabels: Record<string, string> = {
   return: '귀국',
   transfer: '이동',
 };
+
+const expenses = post.data.expenses || [];
+const expenseCategoryLabels: Record<string, { icon: string; label: string }> = {
+  flight: { icon: '✈️', label: '항공' },
+  ferry: { icon: '⛴️', label: '배편' },
+  train: { icon: '🚆', label: '철도' },
+  bus: { icon: '🚌', label: '버스' },
+  taxi: { icon: '🚕', label: '택시' },
+  'airport-transfer': { icon: '🚐', label: '공항 이동' },
+  hotel: { icon: '🏨', label: '숙소' },
+  food: { icon: '🍽️', label: '식사' },
+  activity: { icon: '🎟️', label: '액티비티' },
+  shopping: { icon: '🛍️', label: '쇼핑' },
+  insurance: { icon: '🛡️', label: '보험' },
+  etc: { icon: '💳', label: '기타' },
+};
+const formatMoney = (amount?: number, currency?: string) => {
+  if (amount === undefined) return undefined;
+  const targetCurrency = currency || 'KRW';
+
+  try {
+    return new Intl.NumberFormat('ko-KR', {
+      style: 'currency',
+      currency: targetCurrency,
+      maximumFractionDigits: ['KRW', 'JPY', 'IDR'].includes(targetCurrency) ? 0 : 2,
+    }).format(amount);
+  } catch {
+    return `${amount.toLocaleString('ko-KR')} ${targetCurrency}`;
+  }
+};
+const getExpenseAmountText = (expense: typeof expenses[number]) => {
+  const primaryAmount = formatMoney(expense.amount, expense.currency);
+  const krwAmount = formatMoney(expense.krwAmount, 'KRW');
+
+  if (primaryAmount && krwAmount && expense.currency !== 'KRW') return `${primaryAmount} · 약 ${krwAmount}`;
+  return primaryAmount || krwAmount || '금액 미입력';
+};
+const expenseTotals = Array.from(
+  expenses.reduce((totals, expense) => {
+    if (expense.amount !== undefined && expense.currency) {
+      totals.set(expense.currency, (totals.get(expense.currency) || 0) + expense.amount);
+    }
+    if (expense.krwAmount !== undefined && expense.currency !== 'KRW') {
+      totals.set('KRW', (totals.get('KRW') || 0) + expense.krwAmount);
+    }
+    return totals;
+  }, new Map<string, number>())
+).map(([currency, amount]) => formatMoney(amount, currency));
 ---
 
 <BaseLayout title={post.data.title} description={post.data.excerpt}>
@@ -151,6 +199,61 @@ const flightDirectionLabels: Record<string, string> = {
                     Google 검색
                   </a>
                 </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+    {expenses.length > 0 && (
+      <section class="expense-section">
+        <div class="section-title-row">
+          <h2>💳 비용 기록</h2>
+          <div class="expense-totals">
+            <span>{expenses.length}개 항목</span>
+            {expenseTotals.map(total => total && <span>{total}</span>)}
+          </div>
+        </div>
+
+        <div class="expense-grid">
+          {expenses.map(expense => {
+            const category = expenseCategoryLabels[expense.category] || expenseCategoryLabels.etc;
+            const quantityText = expense.quantity && expense.unit
+              ? `${expense.quantity}${expense.unit}`
+              : undefined;
+
+            return (
+              <article class="expense-card">
+                <div class="expense-card-top">
+                  <div>
+                    <p class="expense-category">{category.icon} {category.label}</p>
+                    <h3>{expense.title}</h3>
+                  </div>
+                  <strong>{getExpenseAmountText(expense)}</strong>
+                </div>
+
+                <div class="expense-meta">
+                  {expense.date && <span>{expense.date}</span>}
+                  {quantityText && <span>{quantityText}</span>}
+                  {expense.payment && <span>{expense.payment}</span>}
+                  {expense.bookingSource && <span>{expense.bookingSource}</span>}
+                  {expense.linkedLocation && <span>{expense.linkedLocation}</span>}
+                  {expense.relatedFlightNo && <span>{expense.relatedFlightNo}</span>}
+                </div>
+
+                {expense.items && expense.items.length > 0 && (
+                  <ul class="expense-items">
+                    {expense.items.map(item => (
+                      <li>
+                        <span>{item.name}{item.quantity ? ` x ${item.quantity}` : ''}</span>
+                        <strong>{formatMoney(item.amount, item.currency || expense.currency)}</strong>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {expense.note && <p class="expense-note">{expense.note}</p>}
               </article>
             );
           })}
@@ -374,11 +477,12 @@ const flightDirectionLabels: Record<string, string> = {
   }
 
   .route-map,
-  .flight-section {
+  .flight-section,
+  .expense-section {
     margin-bottom: 2rem;
   }
 
-  .route-map h2, .route-details h2, .flight-section h2 {
+  .route-map h2, .route-details h2, .flight-section h2, .expense-section h2 {
     font-size: 1.25rem;
     margin-bottom: 1rem;
   }
@@ -479,6 +583,128 @@ const flightDirectionLabels: Record<string, string> = {
     background: rgba(67, 97, 238, 0.08);
     border-color: var(--color-primary);
     color: var(--color-primary);
+  }
+
+  .section-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .section-title-row h2 {
+    margin-bottom: 0;
+  }
+
+  .expense-totals {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+
+  .expense-totals span {
+    background: #f1f5f9;
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .expense-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+
+  .expense-card {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .expense-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .expense-category {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+  }
+
+  .expense-card h3 {
+    font-size: 1.05rem;
+    line-height: 1.35;
+    margin: 0;
+  }
+
+  .expense-card-top > strong {
+    color: var(--color-primary);
+    flex-shrink: 0;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    text-align: right;
+  }
+
+  .expense-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .expense-meta span {
+    background: #f8fafc;
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 0.25rem 0.45rem;
+  }
+
+  .expense-items {
+    display: grid;
+    gap: 0.35rem;
+    list-style: none;
+    margin: 0 0 0.85rem;
+    padding: 0;
+  }
+
+  .expense-items li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 0.84rem;
+    padding-bottom: 0.35rem;
+  }
+
+  .expense-items li:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .expense-items strong {
+    color: var(--color-text);
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  .expense-note {
+    color: var(--color-text-muted);
+    font-size: 0.86rem;
+    line-height: 1.55;
+    margin: 0;
   }
 
   .route-details {
@@ -676,11 +902,12 @@ const flightDirectionLabels: Record<string, string> = {
     }
 
     .route-map,
-    .flight-section {
+    .flight-section,
+    .expense-section {
       margin-bottom: 1.5rem;
     }
 
-    .route-map h2, .route-details h2, .flight-section h2, .comments-section h2 {
+    .route-map h2, .route-details h2, .flight-section h2, .expense-section h2, .comments-section h2 {
       font-size: 1.1rem;
     }
 
@@ -706,6 +933,35 @@ const flightDirectionLabels: Record<string, string> = {
 
     .flight-card h3 {
       font-size: 1.15rem;
+    }
+
+    .section-title-row {
+      display: block;
+    }
+
+    .expense-totals {
+      justify-content: flex-start;
+      margin-top: 0.75rem;
+    }
+
+    .expense-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .expense-card {
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .expense-card-top {
+      display: block;
+    }
+
+    .expense-card-top > strong {
+      display: block;
+      margin-top: 0.45rem;
+      text-align: left;
     }
 
     .date-header {
