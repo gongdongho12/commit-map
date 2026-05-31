@@ -87,23 +87,23 @@ const tripTypes: Record<string, string> = {
   <section class="stats-section" aria-label="여행 요약">
     <div class="stat-item">
       <span class="stat-label">전체 여행</span>
-      <strong>{posts.length}</strong>
+      <strong data-stat-value={posts.length}>{posts.length}</strong>
     </div>
     <div class="stat-item">
       <span class="stat-label">방문 국가</span>
-      <strong>{Object.keys(countryCounts).length}</strong>
+      <strong data-stat-value={Object.keys(countryCounts).length}>{Object.keys(countryCounts).length}</strong>
     </div>
     <div class="stat-item">
       <span class="stat-label">기록 장소</span>
-      <strong>{totalLocations}</strong>
+      <strong data-stat-value={totalLocations}>{totalLocations}</strong>
     </div>
     <div class="stat-item">
       <span class="stat-label">여행일</span>
-      <strong>{totalTravelDays}</strong>
+      <strong data-stat-value={totalTravelDays}>{totalTravelDays}</strong>
     </div>
     <div class="stat-item">
       <span class="stat-label">올해 여행</span>
-      <strong id="current-year-trips" data-fallback-year={currentYear}>{currentYearTrips}</strong>
+      <strong id="current-year-trips" data-stat-value={currentYearTrips} data-fallback-year={currentYear}>{currentYearTrips}</strong>
     </div>
   </section>
 
@@ -391,7 +391,63 @@ const tripTypes: Record<string, string> = {
     }).length;
 
     currentYearTrips.textContent = String(tripCount);
+    currentYearTrips.setAttribute('data-stat-value', String(tripCount));
     currentYearTrips.setAttribute('data-fallback-year', String(year));
+  }
+
+  function animateStatNumber(element) {
+    if (!(element instanceof HTMLElement) || element.dataset.statAnimated === 'true') return;
+
+    const target = Number(element.dataset.statValue || element.textContent || 0);
+    if (!Number.isFinite(target)) return;
+
+    element.dataset.statAnimated = 'true';
+
+    const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (shouldReduceMotion || target <= 0) {
+      element.textContent = target.toLocaleString('ko-KR');
+      return;
+    }
+
+    const duration = 760;
+    const start = performance.now();
+    const easeOutCubic = (progress) => 1 - Math.pow(1 - progress, 3);
+
+    const step = (now) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const current = Math.round(target * easeOutCubic(progress));
+      element.textContent = current.toLocaleString('ko-KR');
+
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+
+    element.textContent = '0';
+    window.requestAnimationFrame(step);
+  }
+
+  function setupStatCountUp() {
+    const statNumbers = Array.from(document.querySelectorAll('[data-stat-value]'));
+    if (statNumbers.length === 0) return;
+
+    if (!('IntersectionObserver' in window)) {
+      statNumbers.forEach(animateStatNumber);
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries, currentObserver) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        animateStatNumber(entry.target);
+        currentObserver.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.35,
+    });
+
+    statNumbers.forEach(stat => observer.observe(stat));
   }
 
   function applyFilters() {
@@ -442,6 +498,7 @@ const tripTypes: Record<string, string> = {
 
   document.addEventListener('DOMContentLoaded', () => {
     updateCurrentYearStats();
+    setupStatCountUp();
     updateTripDateState();
     applyFilters();
 
