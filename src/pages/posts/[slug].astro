@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
 import Comments from '../../components/Comments.astro';
 import { MapContainer } from '../../components/map/MapContainer';
+import { resolveFlightSchedule } from '../../lib/flightSchedules';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -52,7 +53,7 @@ const groupedByDate = locations.reduce((acc, loc) => {
 
 const dateGroups = Object.entries(groupedByDate);
 
-const flights = post.data.flights || [];
+const flights = (post.data.flights || []).map(resolveFlightSchedule);
 const normalizeFlightNo = (flightNo: string) => flightNo.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 const getFlightAwareUrl = (flightNo: string) => (
   `https://www.flightaware.com/live/flight/${normalizeFlightNo(flightNo)}`

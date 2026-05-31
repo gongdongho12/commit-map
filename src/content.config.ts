@@ -31,11 +31,11 @@ const contentSectionSchema = z.object({
 const flightSchema = z.object({
   flightNo: z.string(),                         // 예: KE629, LJ123
   date: z.string().optional(),                  // 탑승일. 예: 2026-05-01
-  airline: z.string().optional(),               // 항공사명
-  from: z.string().optional(),                  // 출발 공항 IATA 코드 또는 도시
-  to: z.string().optional(),                    // 도착 공항 IATA 코드 또는 도시
-  departureTime: z.string().optional(),         // 현지 출발 시각. 예: 09:30
-  arrivalTime: z.string().optional(),           // 현지 도착 시각. 예: 15:05
+  airline: z.string().optional(),               // 항공사명. 등록된 항공편은 자동 보정 가능
+  from: z.string().optional(),                  // 출발 공항 IATA 코드 또는 도시. 등록된 항공편은 자동 보정 가능
+  to: z.string().optional(),                    // 도착 공항 IATA 코드 또는 도시. 등록된 항공편은 자동 보정 가능
+  departureTime: z.string().optional(),         // 현지 출발 시각. 등록된 항공편은 자동 보정 가능
+  arrivalTime: z.string().optional(),           // 현지 도착 시각. 등록된 항공편은 자동 보정 가능
   direction: z.enum(['outbound', 'return', 'transfer']).optional(),
   lookupUrl: z.string().optional(),             // 직접 지정한 조회 링크가 있으면 우선 사용
   note: z.string().optional(),
