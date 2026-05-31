@@ -24,6 +24,16 @@ type FlightSchedule = {
 
 const flightSchedules: FlightSchedule[] = [
   {
+    flightNo: 'KE2185',
+    airline: '대한항공',
+    from: 'ICN',
+    to: 'OKJ',
+    departureTime: '07:30',
+    arrivalTime: '09:00',
+    validFrom: '2026-03-29',
+    validTo: '2026-10-23',
+  },
+  {
     flightNo: 'LJ239',
     airline: '진에어',
     from: 'ICN',
@@ -42,6 +52,16 @@ const flightSchedules: FlightSchedule[] = [
     arrivalTime: '13:00',
     validFrom: '2026-06-07',
     validTo: '2026-06-07',
+  },
+  {
+    flightNo: 'LJ360',
+    airline: '진에어',
+    from: 'TAK',
+    to: 'ICN',
+    departureTime: '17:15',
+    arrivalTime: '18:55',
+    validFrom: '2026-03-29',
+    validTo: '2026-10-11',
   },
 ];
 
