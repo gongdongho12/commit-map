@@ -359,7 +359,9 @@ const expenseTotals = Array.from(
 
   const renderMermaidDiagrams = async () => {
     const blocks = Array.from(
-      document.querySelectorAll<HTMLElement>('.post-content pre > code.language-mermaid')
+      document.querySelectorAll<HTMLElement>(
+        '.post-content pre[data-language="mermaid"] > code, .post-content pre > code.language-mermaid'
+      )
     );
     if (blocks.length === 0) return;
 

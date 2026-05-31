@@ -198,28 +198,28 @@ excerpt: "진에어 LJ239/LJ242로 간사이를 왕복하고, 비와호·나가�
 | 6/6 | 나가하마, 오사카 | 오전 나가하마 여유 일정, 14:30 AZAI FACTORY TOUR, 저녁 덴노지 이동 |
 | 6/7 | 오사카, 간사이, 인천 | HOPETREE TENNOJI 체크아웃, KIX 이동, LJ242 귀국 |
 
-## 이동 플로우
+## 일정 타임라인
 
 ```mermaid
-flowchart TD
-  A["6/3 인천국제공항<br/>LJ239 16:10 출발"] --> B["간사이국제공항<br/>18:05 도착"]
-  B --> C["나가하마 이동<br/>간사이 패스 시작"]
-  C --> D["그랜드 머큐어 레이크 비와<br/>3박 베이스"]
-  D --> E["6/4 오쓰항<br/>미시간 크루즈"]
-  E --> F["비와코 테라스<br/>날씨 좋으면 진행"]
-  F --> D
-  D --> G["6/5 나가하마 시내<br/>오데카케 패스포트"]
-  G --> H["6/6 AZAI FACTORY TOUR<br/>14:30 예약"]
-  H --> I["오사카 덴노지<br/>HOPETREE TENNOJI 1박"]
-  I --> J["6/7 간사이국제공항<br/>LJ242 11:10 출발"]
-  J --> K["인천국제공항<br/>13:00 도착"]
-
-  classDef flight fill:#e0f2fe,stroke:#0284c7,color:#0f172a
-  classDef stay fill:#fef3c7,stroke:#d97706,color:#0f172a
-  classDef activity fill:#ecfdf5,stroke:#059669,color:#0f172a
-  class A,B,J,K flight
-  class D,I stay
-  class E,F,G,H activity
+timeline
+  title 비와호·나가하마·오사카 4박 5일
+  6/3 출국·이동 : LJ239 인천 16:10 출발
+                : 간사이 18:05 도착
+                : 간사이 패스로 나가하마 이동
+                : 그랜드 머큐어 레이크 비와 체크인
+  6/4 비와호 남쪽 : 오쓰항 미시간 크루즈
+                  : 비와코 테라스 로프웨이
+                  : 나가하마 숙소 귀환
+  6/5 나가하마 : 오데카케 패스포트 사용
+               : 구로카베 스퀘어와 나가하마성
+               : 비와호 주변 산책
+  6/6 투어·오사카 : 오전 나가하마 여유 일정
+                   : 14:30 AZAI FACTORY TOUR
+                   : 덴노지 이동
+                   : HOPETREE TENNOJI 체크인
+  6/7 귀국 : KIX 이동
+            : LJ242 간사이 11:10 출발
+            : 인천 13:00 도착
 ```
 
 ## 6/3 - 간사이 입국 후 나가하마로 이동
