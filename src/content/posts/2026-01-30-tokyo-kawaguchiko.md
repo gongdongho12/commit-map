@@ -4,6 +4,81 @@ date: 2026-01-30
 endDate: 2026-02-02
 country: "일본"
 tripType: ["healing", "sightseeing", "shopping", "food"]
+expenses:
+  - category: bus
+    title: "나리타 공항 LCB 버스"
+    date: "2026-01-30"
+    amount: 1500
+    currency: "JPY"
+    unit: "구간"
+    linkedLocation: "나리타 국제공항 제2터미널"
+    note: "나리타 공항에서 도쿄역까지 이동"
+  - category: bus
+    title: "도쿄역-가와구치코 고속버스"
+    date: "2026-01-30"
+    amount: 2300
+    currency: "JPY"
+    unit: "구간"
+    linkedLocation: "도쿄역"
+    note: "15:30 출발편"
+  - category: bus
+    title: "가와구치코 주유버스"
+    date: "2026-01-30"
+    amount: 180
+    currency: "JPY"
+    unit: "구간"
+    linkedLocation: "시키노야도 (四季の宿)"
+    note: "가와구치코역에서 숙소까지 이동"
+  - category: activity
+    title: "2일 버스 패스 + 로프웨이 + 유람선 세트"
+    date: "2026-01-31"
+    amount: 3300
+    currency: "JPY"
+    unit: "세트"
+    linkedLocation: "가와구치코"
+  - category: activity
+    title: "사케 양조장 투어"
+    date: "2026-01-31"
+    amount: 1500
+    currency: "JPY"
+    unit: "명"
+    linkedLocation: "이데 양조장"
+  - category: food
+    title: "가와구치코 간식"
+    date: "2026-01-31"
+    amount: 400
+    currency: "JPY"
+    quantity: 2
+    unit: "개"
+    note: "쿠키 200엔 x 2개"
+  - category: activity
+    title: "바람동굴 + 얼음동굴 세트 입장권"
+    date: "2026-02-01"
+    amount: 600
+    currency: "JPY"
+    unit: "세트"
+    linkedLocation: "후가쿠 풍혈"
+  - category: bus
+    title: "가와구치코-바스타 신주쿠 고속버스"
+    date: "2026-02-01"
+    amount: 2000
+    currency: "JPY"
+    unit: "구간"
+    linkedLocation: "가와구치코역"
+    note: "사전예약"
+  - category: train
+    title: "도쿄 지하철 24시간권"
+    date: "2026-02-01"
+    amount: 800
+    currency: "JPY"
+    unit: "권"
+  - category: train
+    title: "아사쿠사-나리타 액세스 특급"
+    date: "2026-02-02"
+    amount: 1000
+    currency: "JPY"
+    unit: "구간"
+    note: "24시간권 활용 후 나리타 이동"
 locations:
   # Day 1: 1/30 - 나리타 → 가와구치코
   - name: "나리타 국제공항 제2터미널"
@@ -284,6 +359,26 @@ excerpt: "후지산 온천 료칸에서 힐링하고, 동굴 탐방, 불꽃축�
 | 1/31 | 가와구치코 | 사케 양조장, 로프웨이, 유람선, 호우토우, **불꽃축제** |
 | 2/1 | 가와구치코→도쿄 | **바람/얼음동굴**, 규카츠, 바스타신주쿠, **아사쿠사 일루미네이션** |
 | 2/2 | 도쿄 | **돈키호테 면세쇼핑**, 나리타 출발(15:40) |
+
+## 일정 타임라인
+
+```mermaid
+timeline
+  title 2026 도쿄·가와구치코 - 후지산 온천 & 도쿄 쇼핑
+  1/30 나리타→가와구치코 : LCB→도쿄역→버스→시키노야도 체크인
+  1/31 가와구치코 : 사케 양조장
+              : 로프웨이
+              : 유람선
+              : 호우토우
+              : 불꽃축제
+  2/1 가와구치코→도쿄 : 바람/얼음동굴
+              : 규카츠
+              : 바스타신주쿠
+              : 아사쿠사 일루미네이션
+  2/2 도쿄 : 돈키호테 면세쇼핑
+              : 나리타 출발(15시40)
+```
+
 
 ## 💰 교통비 정리
 
