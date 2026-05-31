@@ -5,6 +5,16 @@ interface Props {
 }
 
 const { title, description = '여행의 발자취를 지도 위에' } = Astro.props;
+const appVersion = import.meta.env.PUBLIC_APP_VERSION || '0.0.0';
+const buildCommit = import.meta.env.PUBLIC_BUILD_COMMIT || 'dev';
+const buildDate = import.meta.env.PUBLIC_BUILD_DATE || '';
+const formattedBuildDate = buildDate
+  ? new Intl.DateTimeFormat('ko-KR', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      timeZone: 'Asia/Seoul',
+    }).format(new Date(buildDate))
+  : '개발 빌드';
 ---
 
 <!doctype html>
@@ -13,6 +23,10 @@ const { title, description = '여행의 발자취를 지도 위에' } = Astro.pr
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <meta name="application-name" content="Commit Map" />
+    <meta name="application-version" content={appVersion} />
+    <meta name="build-commit" content={buildCommit} />
+    <meta name="build-date" content={buildDate} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -50,7 +64,9 @@ const { title, description = '여행의 발자취를 지도 위에' } = Astro.pr
       <slot />
     </main>
     <footer class="footer">
-      <p>Built with Astro & ❤️</p>
+      <p class="version-info" title={`Build ${buildCommit} · ${formattedBuildDate}`}>
+        Built with Astro · v{appVersion} · {buildCommit}
+      </p>
     </footer>
   </body>
 </html>
@@ -182,6 +198,10 @@ const { title, description = '여행의 발자취를 지도 위에' } = Astro.pr
     color: var(--color-text-muted);
     font-size: 0.875rem;
     border-top: 1px solid var(--color-border);
+  }
+
+  .version-info {
+    color: var(--color-text-muted);
   }
 
   @media (max-width: 768px) {
