@@ -51,6 +51,29 @@ const groupedByDate = locations.reduce((acc, loc) => {
 }, {} as Record<string, typeof locations>);
 
 const dateGroups = Object.entries(groupedByDate);
+
+const flights = post.data.flights || [];
+const normalizeFlightNo = (flightNo: string) => flightNo.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+const getFlightAwareUrl = (flightNo: string) => (
+  `https://www.flightaware.com/live/flight/${normalizeFlightNo(flightNo)}`
+);
+const getFlightSearchUrl = (flight: typeof flights[number]) => {
+  const query = [
+    flight.flightNo,
+    flight.date,
+    flight.from && flight.to ? `${flight.from} ${flight.to}` : undefined,
+  ].filter(Boolean).join(' ');
+
+  return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+};
+const getFlightPrimaryUrl = (flight: typeof flights[number]) => (
+  flight.lookupUrl || getFlightAwareUrl(flight.flightNo)
+);
+const flightDirectionLabels: Record<string, string> = {
+  outbound: '출국',
+  return: '귀국',
+  transfer: '이동',
+};
 ---
 
 <BaseLayout title={post.data.title} description={post.data.excerpt}>
@@ -87,6 +110,53 @@ const dateGroups = Object.entries(groupedByDate);
         <MapContainer client:only="react" locations={mapLocations} showRoute={true} />
       </div>
     </section>
+
+    {flights.length > 0 && (
+      <section class="flight-section">
+        <h2>✈️ 항공편</h2>
+        <div class="flight-grid">
+          {flights.map(flight => {
+            const routeText = [flight.from, flight.to].filter(Boolean).join(' → ');
+            const timeText = [flight.departureTime, flight.arrivalTime].filter(Boolean).join(' → ');
+            const directionLabel = flight.direction ? flightDirectionLabels[flight.direction] : undefined;
+
+            return (
+              <article class="flight-card">
+                <div class="flight-card-top">
+                  <div>
+                    <p class="flight-label">{directionLabel || flight.airline || '항공편'}</p>
+                    <h3>
+                      <a href={getFlightPrimaryUrl(flight)} target="_blank" rel="noopener noreferrer">
+                        {flight.flightNo}
+                        <span class="link-icon">↗</span>
+                      </a>
+                    </h3>
+                  </div>
+                  {flight.date && <time datetime={flight.date}>{flight.date}</time>}
+                </div>
+
+                <div class="flight-meta">
+                  {flight.airline && <span>{flight.airline}</span>}
+                  {routeText && <span>{routeText}</span>}
+                  {timeText && <span>{timeText}</span>}
+                </div>
+
+                {flight.note && <p class="flight-note">{flight.note}</p>}
+
+                <div class="flight-links">
+                  <a href={getFlightAwareUrl(flight.flightNo)} target="_blank" rel="noopener noreferrer">
+                    FlightAware
+                  </a>
+                  <a href={getFlightSearchUrl(flight)} target="_blank" rel="noopener noreferrer">
+                    Google 검색
+                  </a>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    )}
 
     <section class="route-details">
       <h2>📍 방문 장소</h2>
@@ -303,11 +373,12 @@ const dateGroups = Object.entries(groupedByDate);
     border-radius: 4px;
   }
 
-  .route-map {
+  .route-map,
+  .flight-section {
     margin-bottom: 2rem;
   }
 
-  .route-map h2, .route-details h2 {
+  .route-map h2, .route-details h2, .flight-section h2 {
     font-size: 1.25rem;
     margin-bottom: 1rem;
   }
@@ -316,6 +387,98 @@ const dateGroups = Object.entries(groupedByDate);
     height: 400px;
     border-radius: 12px;
     overflow: hidden;
+  }
+
+  .flight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+
+  .flight-card {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .flight-card-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .flight-label {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+  }
+
+  .flight-card h3 {
+    font-size: 1.3rem;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .flight-card h3 a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--color-primary);
+  }
+
+  .flight-card time {
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: right;
+  }
+
+  .flight-meta,
+  .flight-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .flight-meta {
+    margin-bottom: 0.85rem;
+  }
+
+  .flight-meta span {
+    background: #f1f5f9;
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.28rem 0.5rem;
+  }
+
+  .flight-note {
+    color: var(--color-text-muted);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0 0 0.85rem;
+  }
+
+  .flight-links a {
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    color: var(--color-text);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.35rem 0.55rem;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+
+  .flight-links a:hover {
+    background: rgba(67, 97, 238, 0.08);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
   }
 
   .route-details {
@@ -512,17 +675,37 @@ const dateGroups = Object.entries(groupedByDate);
       gap: 0.375rem;
     }
 
-    .route-map {
+    .route-map,
+    .flight-section {
       margin-bottom: 1.5rem;
     }
 
-    .route-map h2, .route-details h2, .comments-section h2 {
+    .route-map h2, .route-details h2, .flight-section h2, .comments-section h2 {
       font-size: 1.1rem;
     }
 
     .map-wrapper {
       height: 320px;
       border-radius: 10px;
+    }
+
+    .flight-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .flight-card {
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .flight-card-top {
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+
+    .flight-card h3 {
+      font-size: 1.15rem;
     }
 
     .date-header {

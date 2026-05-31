@@ -27,6 +27,20 @@ const contentSectionSchema = z.object({
   text: z.string(),
 });
 
+// 항공편 기록 스키마
+const flightSchema = z.object({
+  flightNo: z.string(),                         // 예: KE629, LJ123
+  date: z.string().optional(),                  // 탑승일. 예: 2026-05-01
+  airline: z.string().optional(),               // 항공사명
+  from: z.string().optional(),                  // 출발 공항 IATA 코드 또는 도시
+  to: z.string().optional(),                    // 도착 공항 IATA 코드 또는 도시
+  departureTime: z.string().optional(),         // 현지 출발 시각. 예: 09:30
+  arrivalTime: z.string().optional(),           // 현지 도착 시각. 예: 15:05
+  direction: z.enum(['outbound', 'return', 'transfer']).optional(),
+  lookupUrl: z.string().optional(),             // 직접 지정한 조회 링크가 있으면 우선 사용
+  note: z.string().optional(),
+});
+
 // 단일 위치 스키마
 const locationSchema = z.object({
   name: z.string(),
@@ -56,6 +70,7 @@ const postsCollection = defineCollection({
     // 새로운 필드들
     country: z.string(),                          // 나라 (필수)
     countries: z.array(z.string()).optional(),    // 여러 나라 경유 시
+    flights: z.array(flightSchema).optional(),     // 항공편 기록
     tripType: z.array(tripTypeSchema).optional(), // 여행 유형 (복수 가능)
     tags: z.array(z.string()).optional(),
     thumbnail: z.string().optional(),
