@@ -56,12 +56,14 @@ const dateGroups = Object.entries(groupedByDate);
 const flights = (post.data.flights || []).map(resolveFlightSchedule);
 const normalizeFlightNo = (flightNo: string) => flightNo.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 const flightAwareAirlineCodes: Record<string, string> = {
+  '5J': 'CEB',
+  '7C': 'JJA',
   KE: 'KAL',
   LJ: 'JNA',
 };
 const getFlightAwareFlightNo = (flightNo: string) => {
   const normalizedFlightNo = normalizeFlightNo(flightNo);
-  const match = normalizedFlightNo.match(/^([A-Z]+)(\d.*)$/);
+  const match = normalizedFlightNo.match(/^([A-Z0-9]{2})(\d.*)$/);
   if (!match) return normalizedFlightNo;
 
   const [, airlineCode, flightNumber] = match;
