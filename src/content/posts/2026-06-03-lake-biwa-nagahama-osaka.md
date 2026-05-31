@@ -28,6 +28,23 @@ expenses:
     currency: "KRW"
     quantity: 4
     unit: "일"
+  - category: hotel
+    title: "그랜드 머큐어 레이크 비와 리조트 & 스파"
+    date: "2026-06-03"
+    amount: 13872
+    currency: "JPY"
+    quantity: 3
+    unit: "박"
+    linkedLocation: "그랜드 머큐어 레이크 비와 리조트 & 스파"
+    note: "3박 총액"
+  - category: hotel
+    title: "HOPETREE TENNOJI"
+    date: "2026-06-06"
+    amount: 67477
+    currency: "KRW"
+    quantity: 1
+    unit: "박"
+    linkedLocation: "HOPETREE TENNOJI"
   - category: activity
     title: "나가하마 오데카케 패스포트"
     date: "2026-06-05"
