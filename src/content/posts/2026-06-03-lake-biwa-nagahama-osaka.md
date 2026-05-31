@@ -198,6 +198,30 @@ excerpt: "진에어 LJ239/LJ242로 간사이를 왕복하고, 비와호·나가�
 | 6/6 | 나가하마, 오사카 | 오전 나가하마 여유 일정, 14:30 AZAI FACTORY TOUR, 저녁 덴노지 이동 |
 | 6/7 | 오사카, 간사이, 인천 | HOPETREE TENNOJI 체크아웃, KIX 이동, LJ242 귀국 |
 
+## 이동 플로우
+
+```mermaid
+flowchart TD
+  A["6/3 인천국제공항<br/>LJ239 16:10 출발"] --> B["간사이국제공항<br/>18:05 도착"]
+  B --> C["나가하마 이동<br/>간사이 패스 시작"]
+  C --> D["그랜드 머큐어 레이크 비와<br/>3박 베이스"]
+  D --> E["6/4 오쓰항<br/>미시간 크루즈"]
+  E --> F["비와코 테라스<br/>날씨 좋으면 진행"]
+  F --> D
+  D --> G["6/5 나가하마 시내<br/>오데카케 패스포트"]
+  G --> H["6/6 AZAI FACTORY TOUR<br/>14:30 예약"]
+  H --> I["오사카 덴노지<br/>HOPETREE TENNOJI 1박"]
+  I --> J["6/7 간사이국제공항<br/>LJ242 11:10 출발"]
+  J --> K["인천국제공항<br/>13:00 도착"]
+
+  classDef flight fill:#e0f2fe,stroke:#0284c7,color:#0f172a
+  classDef stay fill:#fef3c7,stroke:#d97706,color:#0f172a
+  classDef activity fill:#ecfdf5,stroke:#059669,color:#0f172a
+  class A,B,J,K flight
+  class D,I stay
+  class E,F,G,H activity
+```
+
 ## 6/3 - 간사이 입국 후 나가하마로 이동
 
 LJ239는 인천에서 오후 출발이라 첫날은 이동 중심으로 잡는 편이 좋다. 간사이에 도착하면 간사이 패스를 바로 쓰는 흐름으로 나가하마까지 이동하고, 그랜드 머큐어 레이크 비와 리조트 & 스파에 체크인한다.
