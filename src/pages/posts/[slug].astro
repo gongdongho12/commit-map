@@ -38,11 +38,15 @@ const mapLocations = locations.map(l => ({
   link: l.link, visitDate: l.visitDate,
 }));
 // 여행 기간 계산
+const isHiddenPost = Boolean(post.data.draft);
+const hasExplicitEndDate = Boolean(post.data.endDate);
 const startDate = post.data.date;
 const endDate = post.data.endDate || startDate;
 const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 const nights = days - 1;
 const durationText = nights > 0 ? `${nights}박 ${days}일` : '당일치기';
+const showDuration = !isHiddenPost || hasExplicitEndDate;
+const durationBadgeText = showDuration ? durationText : '날짜 확인 중';
 const postSlug = post.id.replace(/\.md$/, '');
 const clipPayloadUrl = new URL(buildClipPayloadPath(post), Astro.url).toString();
 const clipStudioUrl = new URL(import.meta.env.PUBLIC_CLIP_APP_URL || 'https://clip.dongholab.com/');
@@ -147,7 +151,7 @@ const expenseTotals = Array.from(
 ).map(([currency, amount]) => formatMoney(amount, currency));
 ---
 
-<BaseLayout title={post.data.title} description={post.data.excerpt}>
+<BaseLayout title={post.data.title} description={post.data.excerpt} noindex={isHiddenPost}>
   <article class="post">
     <header class="post-header">
       <a href="/" class="back-link">← 목록으로</a>
@@ -162,7 +166,7 @@ const expenseTotals = Array.from(
             ? ` ~ ${post.data.endDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}` 
             : ''}
         </time>
-        <span class="duration-badge">{durationText}</span>
+        <span class={`duration-badge${showDuration ? '' : ' pending-badge'}`}>{durationBadgeText}</span>
         <span class="dday-badge" data-dday-badge hidden></span>
       </div>
       <h1>{post.data.title}</h1>
@@ -173,12 +177,14 @@ const expenseTotals = Array.from(
           ))}
         </div>
       )}
-      <div class="clip-actions">
-        <a href={clipStudioUrl.toString()} class="clip-action" target="_blank" rel="noopener noreferrer">
-          <span>영상 클립 만들기</span>
-          <small>clip.dongholab.com</small>
-        </a>
-      </div>
+      {!isHiddenPost && (
+        <div class="clip-actions">
+          <a href={clipStudioUrl.toString()} class="clip-action" target="_blank" rel="noopener noreferrer">
+            <span>영상 클립 만들기</span>
+            <small>clip.dongholab.com</small>
+          </a>
+        </div>
+      )}
     </header>
 
     <section class="route-map">
@@ -353,10 +359,12 @@ const expenseTotals = Array.from(
       <Content />
     </section>
 
-    <section class="comments-section">
-      <h2>💬 댓글</h2>
-      <Comments />
-    </section>
+    {!isHiddenPost && (
+      <section class="comments-section">
+        <h2>💬 댓글</h2>
+        <Comments />
+      </section>
+    )}
   </article>
 </BaseLayout>
 
@@ -476,6 +484,10 @@ const expenseTotals = Array.from(
     border-radius: 4px;
     font-size: 0.75rem;
     font-weight: 600;
+  }
+
+  .duration-badge.pending-badge {
+    background: linear-gradient(135deg, #64748b, #475569);
   }
 
   .dday-badge {
