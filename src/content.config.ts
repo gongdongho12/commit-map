@@ -107,7 +107,8 @@ const postsCollection = defineCollection({
     tags: z.array(z.string()).optional(),
     thumbnail: z.string().optional(),
     excerpt: z.string().optional(),
-    draft: z.boolean().optional(), // 숨김 처리 여부 (true면 프로덕션 빌드에서 제외)
+    visibility: z.enum(['public', 'hidden']).optional(), // hidden이면 목록에서 제외하고 직접 링크만 유지
+    draft: z.boolean().optional(), // 작업중 표시 여부 (true면 목록에 회색 draft 카드로 노출)
   }),
 });
 

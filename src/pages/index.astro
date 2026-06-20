@@ -4,9 +4,13 @@ import { getCollection } from 'astro:content';
 import { MapContainer } from '../components/map/MapContainer';
 
 const allPosts = await getCollection('posts');
+const isHiddenPost = (post: typeof allPosts[number]) => (
+  post.data.visibility === 'hidden'
+);
+const isDraftPost = (post: typeof allPosts[number]) => Boolean(post.data.draft);
 const posts = allPosts.filter(post => {
-  // draft가 true인 경우 제외 (사용자 요청에 따라 항상 제외)
-  if (post.data.draft) return false;
+  // visibility: hidden은 공유용/비공개 글이라 목록에서 제외한다.
+  if (isHiddenPost(post)) return false;
   return true;
 });
 
@@ -148,6 +152,7 @@ const tripTypes: Record<string, string> = {
     <h2>✈️ 최근 여행</h2>
     <div class="posts-grid" id="posts-grid">
       {sortedPosts.map(post => {
+        const isDraft = isDraftPost(post);
         const countries = (post.data.countries && post.data.countries.length > 0) 
           ? post.data.countries 
           : (post.data.country ? [post.data.country] : []);
@@ -162,15 +167,19 @@ const tripTypes: Record<string, string> = {
         return (
           <a 
             href={`/posts/${post.id.replace(/\.md$/, '')}/`} 
-            class="post-card-link trip-card" 
+            class={`post-card-link trip-card${isDraft ? ' draft-card-link' : ''}`}
             data-countries={countries.join(',')}
             data-start={startDate.toISOString().slice(0, 10)}
             data-end={endDate.toISOString().slice(0, 10)}
+            data-visibility={post.data.visibility || 'public'}
           >
-            <article class="post-card">
+            <article class={`post-card${isDraft ? ' draft-card' : ''}`}>
               <div class="post-card-header">
                 <span class="post-country">{post.data.country}</span>
-                <span class="dday-badge" data-dday-badge hidden></span>
+                <span class="card-badges">
+                  {isDraft && <span class="draft-badge">작업중</span>}
+                  <span class="dday-badge" data-dday-badge hidden></span>
+                </span>
               </div>
               <time datetime={post.data.date.toISOString()}>
                 {post.data.date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
@@ -734,6 +743,14 @@ const tripTypes: Record<string, string> = {
     font-size: 0.875rem;
   }
 
+  .card-badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
   .post-country {
     background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
     color: white;
@@ -907,6 +924,44 @@ const tripTypes: Record<string, string> = {
   .plan-card:hover {
     border-color: #f59e0b;
     box-shadow: 0 8px 30px rgba(245, 158, 11, 0.15);
+  }
+
+  .post-card.draft-card {
+    background: linear-gradient(135deg, rgba(241, 245, 249, 0.9), rgba(226, 232, 240, 0.7));
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+
+  .post-card.draft-card:hover {
+    border-color: #64748b;
+    box-shadow: 0 8px 28px rgba(100, 116, 139, 0.16);
+  }
+
+  .post-card.draft-card .post-country {
+    background: #64748b;
+  }
+
+  .post-card.draft-card h3 {
+    color: #334155;
+  }
+
+  .post-card.draft-card .tag,
+  .post-card.draft-card .location-count {
+    background: #e2e8f0;
+    color: #475569;
+  }
+
+  .draft-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 0.15rem 0.45rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 0.7rem;
+    font-weight: 800;
   }
 
   .plan-card time {

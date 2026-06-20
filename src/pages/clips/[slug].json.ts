@@ -5,7 +5,7 @@ import { buildClipPayload } from '../../lib/clipPayload';
 export const prerender = true;
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  const posts = await getCollection('posts', ({ data }) => data.visibility !== 'hidden');
 
   return posts.map(post => ({
     params: { slug: post.id.replace(/\.md$/, '') },

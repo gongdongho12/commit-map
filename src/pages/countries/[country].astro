@@ -44,8 +44,12 @@ const getMatchingLocationCount = (
   return matchingLocations.length;
 };
 
+function isDraftPost(post: Awaited<ReturnType<typeof getCollection<'posts'>>>[number]) {
+  return Boolean(post.data.draft);
+}
+
 export async function getStaticPaths() {
-  const posts = (await getCollection('posts')).filter(post => !post.data.draft);
+  const posts = (await getCollection('posts')).filter(post => post.data.visibility !== 'hidden');
   const splitPathCountries = (values: Array<string | undefined>) => values
     .filter(Boolean)
     .flatMap(value => value!.split('-').map(item => item.trim()))
@@ -68,7 +72,7 @@ export async function getStaticPaths() {
 
 const { country } = Astro.params;
 const decodedCountry = decodeURIComponent(country || '');
-const allPosts = (await getCollection('posts')).filter(post => !post.data.draft);
+const allPosts = (await getCollection('posts')).filter(post => post.data.visibility !== 'hidden');
 const countryPosts = allPosts
   .filter(post => getPostCountries(post).includes(decodedCountry))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
@@ -147,6 +151,7 @@ const tripTypes: Record<string, { icon: string; label: string }> = {
 
     <div class="posts-grid">
       {countryPosts.map(post => {
+        const isDraft = isDraftPost(post);
         const postCountries = getPostCountries(post);
         const durationDays = getDurationDays(post);
         const nights = durationDays - 1;
@@ -155,9 +160,10 @@ const tripTypes: Record<string, { icon: string; label: string }> = {
 
         return (
           <a href={`/posts/${getPostSlug(post)}/`} class="trip-card-link">
-            <article class="trip-card">
+            <article class:list={['trip-card', { 'draft-card': isDraft }]}>
               <div class="trip-card-top">
                 <span class="country-badge">{decodedCountry}</span>
+                {isDraft && <span class="draft-badge">작업중</span>}
                 <time datetime={post.data.date.toISOString()}>
                   {post.data.date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
                   {post.data.endDate && post.data.endDate.getTime() !== post.data.date.getTime()
@@ -336,6 +342,21 @@ const tripTypes: Record<string, { icon: string; label: string }> = {
     box-shadow: 0 10px 24px rgba(67, 97, 238, 0.12);
   }
 
+  .trip-card.draft-card {
+    background: linear-gradient(135deg, rgba(241, 245, 249, 0.92), rgba(226, 232, 240, 0.68));
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+
+  .trip-card.draft-card:hover {
+    border-color: #64748b;
+    box-shadow: 0 10px 24px rgba(100, 116, 139, 0.14);
+  }
+
+  .trip-card.draft-card .country-badge {
+    background: #64748b;
+  }
+
   .trip-card-top {
     display: flex;
     justify-content: space-between;
@@ -360,6 +381,20 @@ const tripTypes: Record<string, { icon: string; label: string }> = {
     background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
     color: white;
     padding: 0.2rem 0.5rem;
+  }
+
+  .draft-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 800;
+    white-space: nowrap;
   }
 
   time {

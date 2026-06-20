@@ -38,7 +38,8 @@ const mapLocations = locations.map(l => ({
   link: l.link, visitDate: l.visitDate,
 }));
 // 여행 기간 계산
-const isHiddenPost = Boolean(post.data.draft);
+const isHiddenPost = post.data.visibility === 'hidden';
+const isDraftPost = Boolean(post.data.draft);
 const hasExplicitEndDate = Boolean(post.data.endDate);
 const startDate = post.data.date;
 const endDate = post.data.endDate || startDate;
@@ -167,6 +168,7 @@ const expenseTotals = Array.from(
             : ''}
         </time>
         <span class={`duration-badge${showDuration ? '' : ' pending-badge'}`}>{durationBadgeText}</span>
+        {isDraftPost && <span class="draft-badge">작업중</span>}
         <span class="dday-badge" data-dday-badge hidden></span>
       </div>
       <h1>{post.data.title}</h1>
@@ -488,6 +490,19 @@ const expenseTotals = Array.from(
 
   .duration-badge.pending-badge {
     background: linear-gradient(135deg, #64748b, #475569);
+  }
+
+  .draft-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 23px;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 800;
   }
 
   .dday-badge {
