@@ -3,6 +3,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
 import Comments from '../../components/Comments.astro';
 import { MapContainer } from '../../components/map/MapContainer';
+import { buildClipPayloadPath } from '../../lib/clipPayload';
+import { resolveFlightSchedule } from '../../lib/flightSchedules';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -36,18 +38,23 @@ const mapLocations = locations.map(l => ({
   link: l.link, visitDate: l.visitDate,
 }));
 // 여행 기간 계산
+const isHiddenPost = post.data.visibility === 'hidden';
+const isDraftPost = Boolean(post.data.draft);
+const hasExplicitEndDate = Boolean(post.data.endDate);
 const startDate = post.data.date;
 const endDate = post.data.endDate || startDate;
 const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 const nights = days - 1;
 const durationText = nights > 0 ? `${nights}박 ${days}일` : '당일치기';
-
-// D-day 계산
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-const dDay = Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-const isFuture = dDay >= 0;
-const dDayText = dDay === 0 ? 'D-Day!' : `D-${dDay}`;
+const showDuration = !isHiddenPost || hasExplicitEndDate;
+const durationBadgeText = showDuration ? durationText : '날짜 확인 중';
+const postSlug = post.id.replace(/\.md$/, '');
+const clipPayloadUrl = new URL(buildClipPayloadPath(post), Astro.url).toString();
+const clipStudioUrl = new URL(import.meta.env.PUBLIC_CLIP_APP_URL || 'https://clip.dongholab.com/');
+clipStudioUrl.searchParams.set('source', 'commit-map');
+clipStudioUrl.searchParams.set('trip', postSlug);
+clipStudioUrl.searchParams.set('clip', 'GlobeRoute');
+clipStudioUrl.searchParams.set('payloadUrl', clipPayloadUrl);
 
 // visitDate별 그룹핑
 const groupedByDate = locations.reduce((acc, loc) => {
@@ -58,21 +65,111 @@ const groupedByDate = locations.reduce((acc, loc) => {
 }, {} as Record<string, typeof locations>);
 
 const dateGroups = Object.entries(groupedByDate);
+
+const flights = (post.data.flights || []).map(resolveFlightSchedule);
+const normalizeFlightNo = (flightNo: string) => flightNo.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+const flightAwareAirlineCodes: Record<string, string> = {
+  '5J': 'CEB',
+  '7C': 'JJA',
+  KE: 'KAL',
+  LJ: 'JNA',
+};
+const getFlightAwareFlightNo = (flightNo: string) => {
+  const normalizedFlightNo = normalizeFlightNo(flightNo);
+  const match = normalizedFlightNo.match(/^([A-Z0-9]{2})(\d.*)$/);
+  if (!match) return normalizedFlightNo;
+
+  const [, airlineCode, flightNumber] = match;
+  return `${flightAwareAirlineCodes[airlineCode] || airlineCode}${flightNumber}`;
+};
+const getFlightAwareUrl = (flightNo: string) => (
+  `https://www.flightaware.com/live/flight/${getFlightAwareFlightNo(flightNo)}`
+);
+const getFlightSearchUrl = (flight: typeof flights[number]) => {
+  const query = [
+    flight.flightNo,
+    flight.date,
+    flight.from && flight.to ? `${flight.from} ${flight.to}` : undefined,
+  ].filter(Boolean).join(' ');
+
+  return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+};
+const getFlightPrimaryUrl = (flight: typeof flights[number]) => (
+  flight.lookupUrl || getFlightAwareUrl(flight.flightNo)
+);
+const flightDirectionLabels: Record<string, string> = {
+  outbound: '출국',
+  return: '귀국',
+  transfer: '이동',
+};
+
+const expenses = post.data.expenses || [];
+const expenseCategoryLabels: Record<string, { icon: string; label: string }> = {
+  flight: { icon: '✈️', label: '항공' },
+  ferry: { icon: '⛴️', label: '배편' },
+  train: { icon: '🚆', label: '철도' },
+  bus: { icon: '🚌', label: '버스' },
+  taxi: { icon: '🚕', label: '택시' },
+  'airport-transfer': { icon: '🚐', label: '공항 이동' },
+  hotel: { icon: '🏨', label: '숙소' },
+  food: { icon: '🍽️', label: '식사' },
+  activity: { icon: '🎟️', label: '액티비티' },
+  shopping: { icon: '🛍️', label: '쇼핑' },
+  insurance: { icon: '🛡️', label: '보험' },
+  etc: { icon: '💳', label: '기타' },
+};
+const formatMoney = (amount?: number, currency?: string) => {
+  if (amount === undefined) return undefined;
+  const targetCurrency = currency || 'KRW';
+
+  try {
+    return new Intl.NumberFormat('ko-KR', {
+      style: 'currency',
+      currency: targetCurrency,
+      maximumFractionDigits: ['KRW', 'JPY', 'IDR'].includes(targetCurrency) ? 0 : 2,
+    }).format(amount);
+  } catch {
+    return `${amount.toLocaleString('ko-KR')} ${targetCurrency}`;
+  }
+};
+const getExpenseAmountText = (expense: typeof expenses[number]) => {
+  const primaryAmount = formatMoney(expense.amount, expense.currency);
+  const krwAmount = formatMoney(expense.krwAmount, 'KRW');
+
+  if (primaryAmount && krwAmount && expense.currency !== 'KRW') return `${primaryAmount} · 약 ${krwAmount}`;
+  return primaryAmount || krwAmount || '금액 미입력';
+};
+const expenseTotals = Array.from(
+  expenses.reduce((totals, expense) => {
+    if (expense.amount !== undefined && expense.currency) {
+      totals.set(expense.currency, (totals.get(expense.currency) || 0) + expense.amount);
+    }
+    if (expense.krwAmount !== undefined && expense.currency !== 'KRW') {
+      totals.set('KRW', (totals.get('KRW') || 0) + expense.krwAmount);
+    }
+    return totals;
+  }, new Map<string, number>())
+).map(([currency, amount]) => formatMoney(amount, currency));
 ---
 
-<BaseLayout title={post.data.title} description={post.data.excerpt}>
+<BaseLayout title={post.data.title} description={post.data.excerpt} noindex={isHiddenPost}>
   <article class="post">
     <header class="post-header">
       <a href="/" class="back-link">← 목록으로</a>
-      <div class="date-info">
+      <div 
+        class="date-info"
+        data-start={startDate.toISOString().slice(0, 10)}
+        data-end={endDate.toISOString().slice(0, 10)}
+      >
         <time datetime={post.data.date.toISOString()}>
           {post.data.date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
           {post.data.endDate && post.data.endDate.getTime() !== post.data.date.getTime() 
             ? ` ~ ${post.data.endDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}` 
             : ''}
         </time>
-        <span class="duration-badge">{durationText}</span>
-        {isFuture && <span class="dday-badge">{dDayText}</span>}
+        <span class={`duration-badge${showDuration ? '' : ' pending-badge'}`}>{durationBadgeText}</span>
+        {isDraftPost && <span class="draft-badge">작업중</span>}
+        <span class="dday-badge" data-dday-badge hidden></span>
       </div>
       <h1>{post.data.title}</h1>
       {post.data.tags && (
@@ -80,6 +177,14 @@ const dateGroups = Object.entries(groupedByDate);
           {post.data.tags.map(tag => (
             <span class="tag">#{tag}</span>
           ))}
+        </div>
+      )}
+      {!isHiddenPost && (
+        <div class="clip-actions">
+          <a href={clipStudioUrl.toString()} class="clip-action" target="_blank" rel="noopener noreferrer">
+            <span>영상 클립 만들기</span>
+            <small>clip.dongholab.com</small>
+          </a>
         </div>
       )}
     </header>
@@ -90,6 +195,108 @@ const dateGroups = Object.entries(groupedByDate);
         <MapContainer client:only="react" locations={mapLocations} showRoute={true} />
       </div>
     </section>
+
+    {flights.length > 0 && (
+      <section class="flight-section">
+        <h2>✈️ 항공편</h2>
+        <div class="flight-grid">
+          {flights.map(flight => {
+            const routeText = [flight.from, flight.to].filter(Boolean).join(' → ');
+            const timeText = [flight.departureTime, flight.arrivalTime].filter(Boolean).join(' → ');
+            const directionLabel = flight.direction ? flightDirectionLabels[flight.direction] : undefined;
+
+            return (
+              <article class="flight-card">
+                <div class="flight-card-top">
+                  <div>
+                    <p class="flight-label">{directionLabel || flight.airline || '항공편'}</p>
+                    <h3>
+                      <a href={getFlightPrimaryUrl(flight)} target="_blank" rel="noopener noreferrer">
+                        {flight.flightNo}
+                        <span class="link-icon">↗</span>
+                      </a>
+                    </h3>
+                  </div>
+                  {flight.date && <time datetime={flight.date}>{flight.date}</time>}
+                </div>
+
+                <div class="flight-meta">
+                  {flight.airline && <span>{flight.airline}</span>}
+                  {routeText && <span>{routeText}</span>}
+                  {timeText && <span>{timeText}</span>}
+                </div>
+
+                {flight.note && <p class="flight-note">{flight.note}</p>}
+
+                <div class="flight-links">
+                  <a href={getFlightAwareUrl(flight.flightNo)} target="_blank" rel="noopener noreferrer">
+                    FlightAware
+                  </a>
+                  <a href={getFlightSearchUrl(flight)} target="_blank" rel="noopener noreferrer">
+                    Google 검색
+                  </a>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+    {expenses.length > 0 && (
+      <section class="expense-section">
+        <div class="section-title-row">
+          <h2>💳 비용 기록</h2>
+          <div class="expense-totals">
+            <span>{expenses.length}개 항목</span>
+            {expenseTotals.map(total => total && <span>{total}</span>)}
+          </div>
+        </div>
+
+        <div class="expense-grid">
+          {expenses.map(expense => {
+            const category = expenseCategoryLabels[expense.category] || expenseCategoryLabels.etc;
+            const quantityText = expense.quantity && expense.unit
+              ? `${expense.quantity}${expense.unit}`
+              : undefined;
+
+            return (
+              <article class="expense-card">
+                <div class="expense-card-top">
+                  <div>
+                    <p class="expense-category">{category.icon} {category.label}</p>
+                    <h3>{expense.title}</h3>
+                  </div>
+                  <strong>{getExpenseAmountText(expense)}</strong>
+                </div>
+
+                <div class="expense-meta">
+                  {expense.date && <span>{expense.date}</span>}
+                  {quantityText && <span>{quantityText}</span>}
+                  {expense.payment && <span>{expense.payment}</span>}
+                  {expense.bookingSource && <span>{expense.bookingSource}</span>}
+                  {expense.linkedLocation && <span>{expense.linkedLocation}</span>}
+                  {expense.relatedFlightNo && <span>{expense.relatedFlightNo}</span>}
+                </div>
+
+                {expense.items && expense.items.length > 0 && (
+                  <ul class="expense-items">
+                    {expense.items.map(item => (
+                      <li>
+                        <span>{item.name}{item.quantity ? ` x ${item.quantity}` : ''}</span>
+                        <strong>{formatMoney(item.amount, item.currency || expense.currency)}</strong>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {expense.note && <p class="expense-note">{expense.note}</p>}
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    )}
 
     <section class="route-details">
       <h2>📍 방문 장소</h2>
@@ -154,12 +361,88 @@ const dateGroups = Object.entries(groupedByDate);
       <Content />
     </section>
 
-    <section class="comments-section">
-      <h2>💬 댓글</h2>
-      <Comments />
-    </section>
+    {!isHiddenPost && (
+      <section class="comments-section">
+        <h2>💬 댓글</h2>
+        <Comments />
+      </section>
+    )}
   </article>
 </BaseLayout>
+
+<script>
+  function parseLocalDate(value: string) {
+    const [year, month, day] = value.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  const dateInfo = document.querySelector('.date-info') as HTMLElement | null;
+  const badge = document.querySelector('[data-dday-badge]') as HTMLElement | null;
+
+  if (dateInfo && badge && dateInfo.dataset.start) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startDate = parseLocalDate(dateInfo.dataset.start);
+    const endDate = parseLocalDate(dateInfo.dataset.end || dateInfo.dataset.start);
+    const dDay = Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const isCurrent = startDate <= today && today <= endDate;
+    const isPlanned = today <= endDate;
+
+    if (isPlanned) {
+      badge.hidden = false;
+      badge.textContent = isCurrent ? '여행 중' : (dDay === 0 ? 'D-Day!' : `D-${dDay}`);
+    }
+  }
+
+  const renderMermaidDiagrams = async () => {
+    const blocks = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        '.post-content pre[data-language="mermaid"] > code, .post-content pre > code.language-mermaid'
+      )
+    );
+    if (blocks.length === 0) return;
+
+    const { default: mermaid } = await import(
+      /* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs'
+    );
+
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'strict',
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#eef2ff',
+        primaryTextColor: '#1e293b',
+        primaryBorderColor: '#4361ee',
+        lineColor: '#64748b',
+        secondaryColor: '#ecfdf5',
+        tertiaryColor: '#fff7ed',
+        fontFamily: 'Noto Sans KR, system-ui, sans-serif',
+      },
+    });
+
+    for (const [index, block] of blocks.entries()) {
+      const pre = block.parentElement;
+      const source = block.textContent?.trim();
+      if (!pre || !source) continue;
+
+      const diagram = document.createElement('div');
+      diagram.className = 'mermaid-diagram';
+      diagram.setAttribute('role', 'img');
+
+      try {
+        const { svg } = await mermaid.render(`post-mermaid-${index}-${Date.now()}`, source);
+        diagram.innerHTML = svg;
+        pre.replaceWith(diagram);
+      } catch {
+        pre.classList.add('mermaid-error');
+      }
+    }
+  };
+
+  renderMermaidDiagrams();
+</script>
 
 <style>
   .post {
@@ -203,6 +486,23 @@ const dateGroups = Object.entries(groupedByDate);
     border-radius: 4px;
     font-size: 0.75rem;
     font-weight: 600;
+  }
+
+  .duration-badge.pending-badge {
+    background: linear-gradient(135deg, #64748b, #475569);
+  }
+
+  .draft-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 23px;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 800;
   }
 
   .dday-badge {
@@ -280,11 +580,46 @@ const dateGroups = Object.entries(groupedByDate);
     border-radius: 4px;
   }
 
-  .route-map {
+  .clip-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+
+  .clip-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border: 1px solid rgba(67, 97, 238, 0.22);
+    border-radius: 8px;
+    background: rgba(67, 97, 238, 0.07);
+    color: var(--color-primary);
+    font-size: 0.9rem;
+    font-weight: 800;
+    padding: 0.75rem 0.9rem;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+
+  .clip-action small {
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .clip-action:hover {
+    background: rgba(67, 97, 238, 0.12);
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+  }
+
+  .route-map,
+  .flight-section,
+  .expense-section {
     margin-bottom: 2rem;
   }
 
-  .route-map h2, .route-details h2 {
+  .route-map h2, .route-details h2, .flight-section h2, .expense-section h2 {
     font-size: 1.25rem;
     margin-bottom: 1rem;
   }
@@ -293,6 +628,220 @@ const dateGroups = Object.entries(groupedByDate);
     height: 400px;
     border-radius: 12px;
     overflow: hidden;
+  }
+
+  .flight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+
+  .flight-card {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .flight-card-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .flight-label {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+  }
+
+  .flight-card h3 {
+    font-size: 1.3rem;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .flight-card h3 a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--color-primary);
+  }
+
+  .flight-card time {
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: right;
+  }
+
+  .flight-meta,
+  .flight-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .flight-meta {
+    margin-bottom: 0.85rem;
+  }
+
+  .flight-meta span {
+    background: #f1f5f9;
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.28rem 0.5rem;
+  }
+
+  .flight-note {
+    color: var(--color-text-muted);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0 0 0.85rem;
+  }
+
+  .flight-links a {
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    color: var(--color-text);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.35rem 0.55rem;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+
+  .flight-links a:hover {
+    background: rgba(67, 97, 238, 0.08);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .section-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .section-title-row h2 {
+    margin-bottom: 0;
+  }
+
+  .expense-totals {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+
+  .expense-totals span {
+    background: #f1f5f9;
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .expense-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+
+  .expense-card {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .expense-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .expense-category {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+  }
+
+  .expense-card h3 {
+    font-size: 1.05rem;
+    line-height: 1.35;
+    margin: 0;
+  }
+
+  .expense-card-top > strong {
+    color: var(--color-primary);
+    flex-shrink: 0;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    text-align: right;
+  }
+
+  .expense-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .expense-meta span {
+    background: #f8fafc;
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 0.25rem 0.45rem;
+  }
+
+  .expense-items {
+    display: grid;
+    gap: 0.35rem;
+    list-style: none;
+    margin: 0 0 0.85rem;
+    padding: 0;
+  }
+
+  .expense-items li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 0.84rem;
+    padding-bottom: 0.35rem;
+  }
+
+  .expense-items li:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .expense-items strong {
+    color: var(--color-text);
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  .expense-note {
+    color: var(--color-text-muted);
+    font-size: 0.86rem;
+    line-height: 1.55;
+    margin: 0;
   }
 
   .route-details {
@@ -408,6 +957,30 @@ const dateGroups = Object.entries(groupedByDate);
 
   .post-content :global(p) { margin-bottom: 1rem; }
 
+  .post-content :global(.mermaid-diagram) {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    margin: 1.5rem 0 2rem;
+    overflow-x: auto;
+    padding: 1rem;
+  }
+
+  .post-content :global(.mermaid-diagram svg) {
+    display: block;
+    height: auto;
+    max-width: 100%;
+    min-width: 640px;
+  }
+
+  .post-content :global(pre.mermaid-error) {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    overflow-x: auto;
+    padding: 1rem;
+  }
+
   .comments-section {
     border-top: 1px solid var(--color-border);
     padding-top: 2rem;
@@ -453,5 +1026,205 @@ const dateGroups = Object.entries(groupedByDate);
 
   .location-link:hover .link-icon {
     opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    .post {
+      max-width: 100%;
+    }
+
+    .post-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .back-link {
+      margin-bottom: 0.75rem;
+    }
+
+    .date-info {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: flex-start;
+    }
+
+    .post-header time {
+      width: 100%;
+      line-height: 1.5;
+    }
+
+    .post-header h1 {
+      font-size: 1.6rem;
+      line-height: 1.3;
+      margin-bottom: 0.75rem;
+    }
+
+    .tags {
+      gap: 0.375rem;
+    }
+
+    .route-map,
+    .flight-section,
+    .expense-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .route-map h2, .route-details h2, .flight-section h2, .expense-section h2, .comments-section h2 {
+      font-size: 1.1rem;
+    }
+
+    .map-wrapper {
+      height: 320px;
+      border-radius: 10px;
+    }
+
+    .flight-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .flight-card {
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .flight-card-top {
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+
+    .flight-card h3 {
+      font-size: 1.15rem;
+    }
+
+    .section-title-row {
+      display: block;
+    }
+
+    .expense-totals {
+      justify-content: flex-start;
+      margin-top: 0.75rem;
+    }
+
+    .expense-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .expense-card {
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .expense-card-top {
+      display: block;
+    }
+
+    .expense-card-top > strong {
+      display: block;
+      margin-top: 0.45rem;
+      text-align: left;
+    }
+
+    .date-header {
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+    }
+
+    .location-card {
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+    }
+
+    .location-header {
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .location-number {
+      width: 32px;
+      height: 32px;
+      font-size: 13px;
+    }
+
+    .location-title {
+      min-width: 0;
+    }
+
+    .location-title h3 {
+      font-size: 1.05rem;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .location-note {
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+
+    .location-images {
+      grid-template-columns: 1fr;
+    }
+
+    .content-section {
+      padding: 0.75rem;
+      border-radius: 8px;
+    }
+
+    .content-section p {
+      font-size: 0.875rem;
+    }
+
+    .post-content {
+      padding-top: 1.5rem;
+      margin-bottom: 2rem;
+      line-height: 1.75;
+      overflow-wrap: anywhere;
+    }
+
+    .post-content :global(h1) {
+      font-size: 1.45rem;
+    }
+
+    .post-content :global(h2) {
+      font-size: 1.25rem;
+    }
+
+    .post-content :global(h3) {
+      font-size: 1.1rem;
+    }
+
+    .post-content :global(table) {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .post-content :global(.mermaid-diagram) {
+      margin: 1.25rem 0 1.5rem;
+      padding: 0.75rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .post-content :global(ul),
+    .post-content :global(ol) {
+      padding-left: 1.25rem;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .post-header h1 {
+      font-size: 1.4rem;
+    }
+
+    .map-wrapper {
+      height: 280px;
+    }
+
+    .location-card {
+      padding: 0.875rem;
+    }
   }
 </style>

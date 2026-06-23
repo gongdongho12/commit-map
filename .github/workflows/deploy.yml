@@ -33,6 +33,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare build metadata
+        run: |
+          APP_VERSION="$(node -p "require('./package.json').version")+build.${GITHUB_RUN_NUMBER}"
+          BUILD_COMMIT="${GITHUB_SHA::7}"
+          BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
+          echo "APP_VERSION=${APP_VERSION}" >> "$GITHUB_ENV"
+          echo "BUILD_COMMIT=${BUILD_COMMIT}" >> "$GITHUB_ENV"
+          echo "BUILD_DATE=${BUILD_DATE}" >> "$GITHUB_ENV"
+
       - name: Build with Astro
         run: npm run build
 

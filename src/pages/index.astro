@@ -3,7 +3,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { MapContainer } from '../components/map/MapContainer';
 
-const posts = await getCollection('posts');
+const allPosts = await getCollection('posts');
+const isHiddenPost = (post: typeof allPosts[number]) => (
+  post.data.visibility === 'hidden'
+);
+const isDraftPost = (post: typeof allPosts[number]) => Boolean(post.data.draft);
+const posts = allPosts.filter(post => {
+  // visibility: hidden은 공유용/비공개 글이라 목록에서 제외한다.
+  if (isHiddenPost(post)) return false;
+  return true;
+});
 
 // 각 포스트별 루트 데이터 (나라 정보 포함)
 const routes = posts.map((post, index) => ({
@@ -28,23 +37,9 @@ const routes = posts.map((post, index) => ({
 }));
 
 // 날짜순 정렬
-const sortedPosts = posts.sort((a, b) => 
+const sortedPosts = [...posts].sort((a, b) => 
   new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
-
-// 오늘 날짜 기준으로 과거/미래 분류
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-
-const pastTrips = sortedPosts.filter(post => {
-  const endDate = post.data.endDate || post.data.date;
-  return endDate < today;
-});
-
-const futurePlans = sortedPosts.filter(post => {
-  const startDate = post.data.date;
-  return startDate >= today;
-}).sort((a, b) => a.data.date.getTime() - b.data.date.getTime()); // 미래는 가까운 순
 
 // 나라별 카운트
 const countryCounts = posts.reduce((acc, post) => {
@@ -62,6 +57,15 @@ const countryCounts = posts.reduce((acc, post) => {
   });
   return acc;
 }, {} as Record<string, number>);
+
+const currentYear = new Date().getFullYear();
+const totalTravelDays = posts.reduce((acc, post) => {
+  const startDate = post.data.date;
+  const endDate = post.data.endDate || startDate;
+  return acc + Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+}, 0);
+const totalLocations = posts.reduce((acc, post) => acc + post.data.locations.length, 0);
+const currentYearTrips = posts.filter(post => post.data.date.getFullYear() === currentYear).length;
 
 // 여행 유형 아이콘
 const tripTypes: Record<string, string> = {
@@ -82,6 +86,29 @@ const tripTypes: Record<string, string> = {
   <section class="hero">
     <h1>여행의 발자취</h1>
     <p>마크다운으로 기록하고, 지도에서 다시 만나다</p>
+  </section>
+
+  <section class="stats-section" aria-label="여행 요약">
+    <div class="stat-item">
+      <span class="stat-label">전체 여행</span>
+      <strong data-stat-value={posts.length}>{posts.length}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">방문 국가</span>
+      <strong data-stat-value={Object.keys(countryCounts).length}>{Object.keys(countryCounts).length}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">기록 장소</span>
+      <strong data-stat-value={totalLocations}>{totalLocations}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">여행일</span>
+      <strong data-stat-value={totalTravelDays}>{totalTravelDays}</strong>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">올해 여행</span>
+      <strong id="current-year-trips" data-stat-value={currentYearTrips} data-fallback-year={currentYear}>{currentYearTrips}</strong>
+    </div>
   </section>
 
   <!-- 나라별 태그 클라우드 -->
@@ -116,59 +143,16 @@ const tripTypes: Record<string, string> = {
     </div>
   </section>
 
-  {futurePlans.length > 0 && (
-    <section class="posts-section plans-section">
-      <h2>🗓️ 여행 계획</h2>
-      <div class="posts-grid" id="plans-grid">
-        {futurePlans.slice(0, 12).map(post => {
-          const countries = (post.data.countries && post.data.countries.length > 0) 
-            ? post.data.countries 
-            : (post.data.country ? [post.data.country] : []);
-          
-          const startDate = post.data.date;
-          const endDate = post.data.endDate || startDate;
-          const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-          const nights = days - 1;
-          const durationText = nights > 0 ? `${nights}박 ${days}일` : '당일치기';
-          
-          // D-day 계산
-          const dDay = Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-          const dDayText = dDay === 0 ? 'D-Day!' : `D-${dDay}`;
-          
-          return (
-            <a href={`/posts/${post.id.replace(/\.md$/, '')}/`} class="post-card-link plan-card-link" data-countries={countries.join(',')}>
-              <article class="post-card plan-card">
-                <div class="post-card-header">
-                  <span class="post-country">{post.data.country}</span>
-                  <span class="dday-badge">{dDayText}</span>
-                </div>
-                <time datetime={post.data.date.toISOString()}>
-                  {post.data.date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}
-                  {post.data.endDate && post.data.endDate.getTime() !== post.data.date.getTime() 
-                    ? ` ~ ${post.data.endDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}` 
-                    : ''}
-                  <span class="duration-badge">{durationText}</span>
-                </time>
-                <h3>{post.data.title}</h3>
-                {post.data.excerpt && <p class="post-excerpt">{post.data.excerpt}</p>}
-                <div class="post-meta">
-                  <span class="location-count">📍 {post.data.locations.length}개 장소</span>
-                  {post.data.tripType?.map(type => (
-                    <span class="trip-type">{tripTypes[type]}</span>
-                  ))}
-                </div>
-              </article>
-            </a>
-          );
-        })}
-      </div>
-    </section>
-  )}
+  <section class="posts-section plans-section" id="plans-section" hidden>
+    <h2>🗓️ 여행 계획</h2>
+    <div class="posts-grid" id="plans-grid"></div>
+  </section>
 
   <section class="posts-section">
     <h2>✈️ 최근 여행</h2>
     <div class="posts-grid" id="posts-grid">
-      {pastTrips.slice(0, 12).map(post => {
+      {sortedPosts.map(post => {
+        const isDraft = isDraftPost(post);
         const countries = (post.data.countries && post.data.countries.length > 0) 
           ? post.data.countries 
           : (post.data.country ? [post.data.country] : []);
@@ -181,10 +165,22 @@ const tripTypes: Record<string, string> = {
         const durationText = nights > 0 ? `${nights}박 ${days}일` : '당일치기';
         
         return (
-          <a href={`/posts/${post.id.replace(/\.md$/, '')}/`} class="post-card-link" data-countries={countries.join(',')}>
-            <article class="post-card">
+          <a 
+            href={`/posts/${post.id.replace(/\.md$/, '')}/`} 
+            class={`post-card-link trip-card${isDraft ? ' draft-card-link' : ''}`}
+            data-countries={countries.join(',')}
+            data-start={startDate.toISOString().slice(0, 10)}
+            data-end={endDate.toISOString().slice(0, 10)}
+            data-visibility={post.data.visibility || 'public'}
+          >
+            <article class={`post-card${isDraft ? ' draft-card' : ''}`}>
               <div class="post-card-header">
-              <span class="post-country">{post.data.country}</span>
+                <span class="post-country">{post.data.country}</span>
+                <span class="card-badges">
+                  {isDraft && <span class="draft-badge">작업중</span>}
+                  <span class="dday-badge" data-dday-badge hidden></span>
+                </span>
+              </div>
               <time datetime={post.data.date.toISOString()}>
                 {post.data.date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
                 {post.data.endDate && post.data.endDate.getTime() !== post.data.date.getTime() 
@@ -192,45 +188,304 @@ const tripTypes: Record<string, string> = {
                   : ''}
                 <span class="duration-badge">{durationText}</span>
               </time>
-            </div>
-            <h3>{post.data.title}</h3>
-            {post.data.excerpt && <p class="post-excerpt">{post.data.excerpt}</p>}
-            <div class="post-meta">
-              <span class="location-count">📍 {post.data.locations.length}개 장소</span>
-              {post.data.tripType?.map(type => (
-                <span class="trip-type">{tripTypes[type]}</span>
-              ))}
-            </div>
-            {post.data.tags && (
-              <div class="post-tags">
-                {post.data.tags.slice(0, 4).map(tag => (
-                  <span class="tag">#{tag}</span>
+              <h3>{post.data.title}</h3>
+              {post.data.excerpt && <p class="post-excerpt">{post.data.excerpt}</p>}
+              <div class="post-meta">
+                <span class="location-count">📍 {post.data.locations.length}개 장소</span>
+                {post.data.tripType?.map(type => (
+                  <span class="trip-type">{tripTypes[type]}</span>
                 ))}
               </div>
-            )}
+              {post.data.tags && (
+                <div class="post-tags">
+                  {post.data.tags.slice(0, 4).map(tag => (
+                    <span class="tag">#{tag}</span>
+                  ))}
+                </div>
+              )}
             </article>
           </a>
         );
       })}
+    </div>
+    <div class="load-more" id="recent-load-more" hidden aria-live="polite">
+      <div class="load-more-status">
+        <span id="recent-count-info"></span>
+      </div>
+      <span class="load-more-progress" aria-hidden="true">
+        <span></span>
+      </span>
+      <button type="button" id="recent-more" hidden>더 보기</button>
     </div>
   </section>
 </BaseLayout>
 
 <script>
   let activeCountries = [];
+  let visibleRecentCount = 3;
+  const recentBatchSize = 3;
+  const recentLoadDelayMs = 650;
+  let recentLoadObserver = null;
+  let isLoadingMoreRecent = false;
+  let recentLoadTimeoutId = null;
+
+  function parseLocalDate(value) {
+    const [year, month, day] = value.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  function getTodayStart() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  }
+
+  function updateTripDateState() {
+    const plansSection = document.getElementById('plans-section');
+    const plansGrid = document.getElementById('plans-grid');
+    const postsGrid = document.getElementById('posts-grid');
+    if (!plansSection || !plansGrid || !postsGrid) return;
+
+    const today = getTodayStart();
+    const cards = Array.from(document.querySelectorAll('.trip-card'));
+    const futureCards = [];
+    const pastCards = [];
+
+    cards.forEach(card => {
+      const startValue = card.getAttribute('data-start');
+      const endValue = card.getAttribute('data-end') || startValue;
+      if (!startValue || !endValue) return;
+
+      const startDate = parseLocalDate(startValue);
+      const endDate = parseLocalDate(endValue);
+      const dDay = Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const isCurrent = startDate <= today && today <= endDate;
+      const isPlanned = today <= endDate;
+      const badge = card.querySelector('[data-dday-badge]');
+      const article = card.querySelector('.post-card');
+
+      if (badge) {
+        if (isPlanned) {
+          badge.hidden = false;
+          badge.textContent = isCurrent ? '여행 중' : (dDay === 0 ? 'D-Day!' : `D-${dDay}`);
+        } else {
+          badge.hidden = true;
+          badge.textContent = '';
+        }
+      }
+
+      card.classList.toggle('plan-card-link', isPlanned);
+      article?.classList.toggle('plan-card', isPlanned);
+
+      if (isPlanned) {
+        futureCards.push(card);
+      } else {
+        pastCards.push(card);
+      }
+    });
+
+    futureCards.sort((a, b) => {
+      return parseLocalDate(a.getAttribute('data-start')).getTime() - parseLocalDate(b.getAttribute('data-start')).getTime();
+    });
+    pastCards.sort((a, b) => {
+      return parseLocalDate(b.getAttribute('data-start')).getTime() - parseLocalDate(a.getAttribute('data-start')).getTime();
+    });
+
+    futureCards.forEach(card => plansGrid.appendChild(card));
+    pastCards.forEach(card => postsGrid.appendChild(card));
+    plansSection.hidden = futureCards.length === 0;
+  }
+
+  function updateRecentList() {
+    const postsGrid = document.getElementById('posts-grid');
+    const loadMore = document.getElementById('recent-load-more');
+    const countInfo = document.getElementById('recent-count-info');
+    const moreBtn = document.getElementById('recent-more');
+    if (!postsGrid || !loadMore || !countInfo || !moreBtn) return;
+
+    const cards = Array.from(postsGrid.querySelectorAll('.trip-card'));
+    const visibleCards = cards.filter(card => card.getAttribute('data-filter-match') !== 'false');
+    visibleRecentCount = Math.min(Math.max(visibleRecentCount, recentBatchSize), visibleCards.length || recentBatchSize);
+
+    cards.forEach(card => {
+      card.style.display = 'none';
+    });
+
+    visibleCards.forEach((card, index) => {
+      card.style.display = index < visibleRecentCount ? 'block' : 'none';
+    });
+
+    const shownCount = Math.min(visibleRecentCount, visibleCards.length);
+    const remainingCount = Math.max(visibleCards.length - shownCount, 0);
+    loadMore.hidden = remainingCount === 0;
+    loadMore.classList.toggle('is-loading', isLoadingMoreRecent);
+    moreBtn.textContent = `더 보기 (${remainingCount}개 남음)`;
+    countInfo.textContent = isLoadingMoreRecent
+      ? '다음 여행 불러오는 중...'
+      : (remainingCount > 0 ? `${shownCount} / ${visibleCards.length}` : '');
+  }
+
+  function cancelRecentAutoLoad() {
+    if (recentLoadTimeoutId) {
+      window.clearTimeout(recentLoadTimeoutId);
+      recentLoadTimeoutId = null;
+    }
+
+    isLoadingMoreRecent = false;
+  }
+
+  function revealMoreRecent() {
+    visibleRecentCount += recentBatchSize;
+    updateRecentList();
+  }
+
+  function queueRevealMoreRecent() {
+    if (isLoadingMoreRecent) return;
+
+    isLoadingMoreRecent = true;
+    updateRecentList();
+
+    recentLoadTimeoutId = window.setTimeout(() => {
+      recentLoadTimeoutId = null;
+      revealMoreRecent();
+      isLoadingMoreRecent = false;
+      updateRecentList();
+      handleRecentAutoLoad();
+    }, recentLoadDelayMs);
+  }
+
+  function handleRecentAutoLoad() {
+    const loadMore = document.getElementById('recent-load-more');
+    if (!loadMore || loadMore.hidden) return;
+
+    const markerTop = loadMore.getBoundingClientRect().top;
+    if (markerTop <= window.innerHeight + 240) {
+      queueRevealMoreRecent();
+    }
+  }
+
+  function setupRecentAutoLoad() {
+    const loadMore = document.getElementById('recent-load-more');
+    const moreBtn = document.getElementById('recent-more');
+    if (!loadMore || !moreBtn) return;
+
+    moreBtn.hidden = true;
+
+    if ('IntersectionObserver' in window) {
+      recentLoadObserver = new IntersectionObserver((entries) => {
+        const shouldLoad = entries.some(entry => entry.isIntersecting);
+        if (shouldLoad) queueRevealMoreRecent();
+      }, {
+        rootMargin: '0px 0px 240px 0px',
+        threshold: 0.01,
+      });
+
+      recentLoadObserver.observe(loadMore);
+    }
+
+    window.addEventListener('scroll', handleRecentAutoLoad, { passive: true });
+    window.addEventListener('resize', handleRecentAutoLoad);
+    handleRecentAutoLoad();
+  }
+
+  function updateCurrentYearStats() {
+    const currentYearTrips = document.getElementById('current-year-trips');
+    if (!currentYearTrips) return;
+
+    const year = new Date().getFullYear();
+    const cards = Array.from(document.querySelectorAll('.trip-card'));
+    const tripCount = cards.filter(card => {
+      const startValue = card.getAttribute('data-start');
+      return startValue ? parseLocalDate(startValue).getFullYear() === year : false;
+    }).length;
+
+    currentYearTrips.textContent = String(tripCount);
+    currentYearTrips.setAttribute('data-stat-value', String(tripCount));
+    currentYearTrips.setAttribute('data-fallback-year', String(year));
+  }
+
+  function animateStatNumber(element) {
+    if (!(element instanceof HTMLElement) || element.dataset.statAnimated === 'true') return;
+
+    const target = Number(element.dataset.statValue || element.textContent || 0);
+    if (!Number.isFinite(target)) return;
+
+    element.dataset.statAnimated = 'true';
+
+    const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (shouldReduceMotion || target <= 0) {
+      element.textContent = target.toLocaleString('ko-KR');
+      return;
+    }
+
+    const duration = 760;
+    const start = performance.now();
+    const easeOutCubic = (progress) => 1 - Math.pow(1 - progress, 3);
+
+    const step = (now) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const current = Math.round(target * easeOutCubic(progress));
+      element.textContent = current.toLocaleString('ko-KR');
+
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+
+    element.textContent = '0';
+    window.requestAnimationFrame(step);
+  }
+
+  function setupStatCountUp() {
+    const statNumbers = Array.from(document.querySelectorAll('[data-stat-value]'));
+    if (statNumbers.length === 0) return;
+
+    if (!('IntersectionObserver' in window)) {
+      statNumbers.forEach(animateStatNumber);
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries, currentObserver) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        animateStatNumber(entry.target);
+        currentObserver.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.35,
+    });
+
+    statNumbers.forEach(stat => observer.observe(stat));
+  }
 
   function applyFilters() {
+    cancelRecentAutoLoad();
+
     // Filter posts (consider all associated countries, split hyphen-separated)
     // Cast to NodeListOf<HTMLElement> to access style property
     const cards = document.querySelectorAll('.post-card-link');
+    let visiblePlanCount = 0;
     cards.forEach(card => {
       // @ts-ignore
       const raw = card.dataset.countries?.split(',') || [];
       const countries = raw.flatMap(c => c.split('-').map(s => s.trim()));
       const matches = activeCountries.length === 0 || activeCountries.some(ac => countries.includes(ac));
-      // @ts-ignore
-      card.style.display = matches ? 'block' : 'none';
+      card.setAttribute('data-filter-match', matches ? 'true' : 'false');
+      if (card.parentElement?.id === 'plans-grid') {
+        // @ts-ignore
+        card.style.display = matches ? 'block' : 'none';
+        if (matches) visiblePlanCount++;
+      }
     });
+
+    const plansSection = document.getElementById('plans-section');
+    const plansGrid = document.getElementById('plans-grid');
+    if (plansSection && plansGrid) {
+      plansSection.hidden = plansGrid.children.length === 0 || visiblePlanCount === 0;
+    }
+
+    updateRecentList();
 
     // Notify Map Component
     window.dispatchEvent(new CustomEvent('map-filter-change', {
@@ -251,6 +506,11 @@ const tripTypes: Record<string, string> = {
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    updateCurrentYearStats();
+    setupStatCountUp();
+    updateTripDateState();
+    applyFilters();
+
     // Country tag click handling (max 2 selections)
     document.querySelectorAll('.country-tag').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -260,9 +520,12 @@ const tripTypes: Record<string, string> = {
           // Clear all filters
           activeCountries = [];
           document.querySelectorAll('.country-tag').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          visibleRecentCount = recentBatchSize;
           applyFilters();
           return;
         }
+        document.querySelector('[data-country="all"]')?.classList.remove('active');
         const idx = activeCountries.indexOf(country);
         if (idx > -1) {
           activeCountries.splice(idx, 1);
@@ -272,6 +535,10 @@ const tripTypes: Record<string, string> = {
             }
         // toggle button active class
         btn.classList.toggle('active', activeCountries.includes(country));
+        if (activeCountries.length === 0) {
+          document.querySelector('[data-country="all"]')?.classList.add('active');
+        }
+        visibleRecentCount = recentBatchSize;
         applyFilters();
       });
     });
@@ -283,9 +550,14 @@ const tripTypes: Record<string, string> = {
         activeCountries = [];
         // remove active class from all buttons
         document.querySelectorAll('.country-tag').forEach(b => b.classList.remove('active'));
+        document.querySelector('[data-country="all"]')?.classList.add('active');
+        visibleRecentCount = recentBatchSize;
         applyFilters();
       });
     }
+
+    document.getElementById('recent-more')?.addEventListener('click', revealMoreRecent);
+    setupRecentAutoLoad();
   });
 </script>
 
@@ -312,6 +584,42 @@ const tripTypes: Record<string, string> = {
 
   .tag-section {
     margin-bottom: 1.5rem;
+  }
+
+  .stats-section {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0 auto 1.5rem;
+  }
+
+  .stat-item {
+    display: flex;
+    min-width: 0;
+    min-height: 86px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-bg-secondary);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+  }
+
+  .stat-label {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .stat-item strong {
+    color: var(--color-text);
+    font-size: 1.85rem;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
   }
 
   .tag-cloud {
@@ -435,6 +743,14 @@ const tripTypes: Record<string, string> = {
     font-size: 0.875rem;
   }
 
+  .card-badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
   .post-country {
     background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
     color: white;
@@ -500,6 +816,93 @@ const tripTypes: Record<string, string> = {
     gap: 0.5rem;
   }
 
+  .load-more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    font-weight: 700;
+    min-height: 48px;
+  }
+
+  .load-more[hidden] {
+    display: none;
+  }
+
+  .load-more-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+  }
+
+  .load-more-progress {
+    display: block;
+    width: min(220px, 48vw);
+    min-width: 0;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(67, 97, 238, 0.12);
+    opacity: 0;
+    transform: translateY(-2px);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  .load-more-progress span {
+    display: block;
+    width: 42%;
+    min-width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    transform: translateX(-110%);
+  }
+
+  .load-more.is-loading .load-more-progress {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .load-more.is-loading .load-more-progress span {
+    animation: loading-bar 0.9s ease-in-out infinite;
+  }
+
+  .load-more button {
+    min-height: 40px;
+    padding: 0 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+
+  .load-more button:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    box-shadow: 0 4px 14px rgba(67, 97, 238, 0.12);
+  }
+
+  .load-more span {
+    text-align: center;
+  }
+
+  @keyframes loading-bar {
+    to {
+      transform: translateX(250%);
+    }
+  }
+
   .tag {
     font-size: 0.75rem;
     color: var(--color-accent);
@@ -521,6 +924,44 @@ const tripTypes: Record<string, string> = {
   .plan-card:hover {
     border-color: #f59e0b;
     box-shadow: 0 8px 30px rgba(245, 158, 11, 0.15);
+  }
+
+  .post-card.draft-card {
+    background: linear-gradient(135deg, rgba(241, 245, 249, 0.9), rgba(226, 232, 240, 0.7));
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+
+  .post-card.draft-card:hover {
+    border-color: #64748b;
+    box-shadow: 0 8px 28px rgba(100, 116, 139, 0.16);
+  }
+
+  .post-card.draft-card .post-country {
+    background: #64748b;
+  }
+
+  .post-card.draft-card h3 {
+    color: #334155;
+  }
+
+  .post-card.draft-card .tag,
+  .post-card.draft-card .location-count {
+    background: #e2e8f0;
+    color: #475569;
+  }
+
+  .draft-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 0.15rem 0.45rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 0.7rem;
+    font-weight: 800;
   }
 
   .plan-card time {
@@ -549,9 +990,68 @@ const tripTypes: Record<string, string> = {
 
   /* 모바일 반응형 스타일 */
   @media (max-width: 768px) {
+    .hero {
+      padding: 1.5rem 0.5rem 1.25rem;
+      text-align: left;
+    }
+
+    .hero h1 {
+      font-size: 1.75rem;
+      line-height: 1.25;
+    }
+
+    .hero p {
+      font-size: 0.95rem;
+    }
+
+    .tag-section {
+      margin: 0 -1rem 1rem;
+      padding: 0 1rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .stats-section {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.625rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-item {
+      min-height: 76px;
+      padding: 0.875rem;
+      border-radius: 10px;
+    }
+
+    .stat-item strong {
+      font-size: 1.55rem;
+    }
+
+    .tag-cloud {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      width: max-content;
+      min-width: 100%;
+      padding-bottom: 0.25rem;
+    }
+
+    .country-tag {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    .filter-info {
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      line-height: 1.4;
+    }
+
     .posts-section {
       padding: 1.25rem;
       margin-bottom: 1.5rem;
+      border-radius: 12px;
     }
 
     .posts-grid {
@@ -563,24 +1063,29 @@ const tripTypes: Record<string, string> = {
       padding: 1.25rem;
     }
 
-    .hero {
-      padding: 2rem 1rem 1.5rem;
-    }
-
-    .hero h1 {
-      font-size: 1.75rem;
-    }
-
-    .hero p {
-      font-size: 1rem;
-    }
-
     #map-wrapper {
-      height: 350px;
+      height: 340px;
+      border-radius: 10px;
     }
   }
 
   @media (max-width: 480px) {
+    .stats-section {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stat-item:last-child {
+      grid-column: 1 / -1;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+    }
+
+    .stat-item strong {
+      font-size: 1.45rem;
+    }
+
     .posts-section {
       padding: 1rem;
       border-radius: 12px;
@@ -610,8 +1115,13 @@ const tripTypes: Record<string, string> = {
       gap: 0.25rem;
     }
 
-    .tag-cloud {
-      padding: 0 0.5rem;
+    .load-more {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .load-more button {
+      width: 100%;
     }
 
     .country-tag {

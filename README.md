@@ -51,6 +51,16 @@ npm run dev
 
 브라우저에서 `http://localhost:4321` 접속! 🎉
 
+### 버전 관리
+
+서비스의 기본 버전은 `package.json`의 `version`을 기준으로 합니다. GitHub Pages 배포에서는 GitHub Actions의 실행 번호를 붙여 `0.0.1+build.123`처럼 배포마다 자동으로 증가하는 버전을 표시합니다. 빌드하면 푸터와 meta 태그에 버전, 빌드 커밋, 빌드 시간이 함께 표시됩니다.
+
+```bash
+npm run version:patch  # 0.0.1 -> 0.0.2
+npm run version:minor  # 0.0.1 -> 0.1.0
+npm run version:major  # 0.0.1 -> 1.0.0
+```
+
 ### 3️⃣ 나만의 여행 추가
 
 `src/content/posts/` 폴더에 마크다운 파일 생성:
