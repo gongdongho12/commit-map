@@ -161,8 +161,8 @@ const tripTypes: Record<string, string> = {
         const startDate = post.data.date;
         const endDate = post.data.endDate || startDate;
         const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        const nights = days - 1;
-        const durationText = nights > 0 ? `${nights}박 ${days}일` : '당일치기';
+        const nights = post.data.nights ?? days - 1;
+        const durationText = days === 1 && nights === 0 ? '당일치기' : `${nights}박 ${days}일`;
         
         return (
           <a 

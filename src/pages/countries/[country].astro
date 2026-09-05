@@ -154,8 +154,8 @@ const tripTypes: Record<string, { icon: string; label: string }> = {
         const isDraft = isDraftPost(post);
         const postCountries = getPostCountries(post);
         const durationDays = getDurationDays(post);
-        const nights = durationDays - 1;
-        const durationText = nights > 0 ? `${nights}박 ${durationDays}일` : '당일치기';
+        const nights = post.data.nights ?? durationDays - 1;
+        const durationText = durationDays === 1 && nights === 0 ? '당일치기' : `${nights}박 ${durationDays}일`;
         const matchingLocations = getMatchingLocationCount(post, decodedCountry);
 
         return (

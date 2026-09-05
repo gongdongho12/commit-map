@@ -2,6 +2,7 @@
 title: "오사카 요도가와 불꽃축제 · 조이패스 2박 4일 1차 계획"
 date: 2026-10-16
 endDate: 2026-10-19
+nights: 2
 country: "일본"
 tripType: ["culture", "food", "sightseeing", "healing", "shopping"]
 draft: true
@@ -202,7 +203,7 @@ timeline
 
 숙소는 **CHECK inn Osaka Shinsekai · 1-9-5 Haginochaya, Nishinari-ku**다. 비슷한 이름의 CHECK inn Osaka Shin-Imamiya와 다른 숙소이므로 주소를 대조한다. [숙소 주소·동명 숙소 구분](https://www.hafh.com/en/properties/28089).
 
-체크인 → **다루마 쓰텐카쿠점(1-6-8 Ebisuhigashi)** 식사 → 쓰텐카쿠 주변 산책 → 여유가 있으면 덴노지 MIO 쿠폰 교환·사용으로 연결한다. 다루마는 평일 11~22:30, 주말·공휴일 10:30~22:30, 주문 마감 30분 전이며 예약은 받지 않는다. [공식 매장 안내](https://www.kushikatu-daruma.com/location/tsutenkaku). MIO는 상점보다 교환 창구가 먼저 닫을 수 있어 늦으면 18일로 넘긴다.
+체크인 → **다루마 쓰텐카쿠점(1-6-8 Ebisuhigashi)** 식사 → 쓰텐카쿠 주변 산책 → 여유가 있으면 덴노지 MIO 쿠폰 교환·사용으로 연결한다. 다루마는 평일 11:00∼22:30, 주말·공휴일 10:30∼22:30, 주문 마감 30분 전이며 예약은 받지 않는다. [공식 매장 안내](https://www.kushikatu-daruma.com/location/tsutenkaku). MIO는 상점보다 교환 창구가 먼저 닫을 수 있어 늦으면 18일로 넘긴다.
 
 **KE737 야간 도착이면:** 첫날은 입국·숙소 이동에만 쓴다. 입국 소요 시간에 따라 난카이 막차를 놓칠 수 있어 [난카이 공식 시간표](https://www.howto-osaka.com/en/)와 [간사이공항 교통 안내](https://www.kansai-airport.or.jp/en/access)를 확인하고 대체 교통을 준비한다. 자정 이후 도착 가능 여부와 체크인 절차는 호텔에 사전 확인한다. 식사는 출국 전 또는 공항에서 해결한다.
 

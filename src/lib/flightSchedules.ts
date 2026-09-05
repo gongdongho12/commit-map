@@ -131,12 +131,10 @@ const findSchedule = (flight: FlightRecord) => {
     (!from || normalizeCode(schedule.from) === from)
     && (!to || normalizeCode(schedule.to) === to)
   ));
-  const scopedCandidates = routeMatched.length > 0 ? routeMatched : candidates;
-
-  return scopedCandidates.find(schedule => (
-    (!schedule.validFrom || !flight.date || schedule.validFrom <= flight.date)
-    && (!schedule.validTo || !flight.date || flight.date <= schedule.validTo)
-  )) || scopedCandidates[0];
+  return routeMatched.find(schedule => (
+    (!schedule.validFrom || (flight.date && schedule.validFrom <= flight.date))
+    && (!schedule.validTo || (flight.date && flight.date <= schedule.validTo))
+  ));
 };
 
 export const resolveFlightSchedule = <T extends FlightRecord>(flight: T) => {
