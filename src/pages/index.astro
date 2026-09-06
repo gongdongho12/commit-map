@@ -2,6 +2,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { MapContainer } from '../components/map/MapContainer';
+import { getTripMapLocations } from '../lib/tripMapLocations';
+import { resolveFlightSchedule } from '../lib/flightSchedules';
 
 const allPosts = await getCollection('posts');
 const isHiddenPost = (post: typeof allPosts[number]) => (
@@ -22,18 +24,17 @@ const routes = posts.map((post, index) => ({
   excerpt: post.data.excerpt,
   country: (post.data.countries && post.data.countries.length > 0) ? undefined : post.data.country,
   countries: post.data.countries || [post.data.country],
-  locations: post.data.locations.map((loc, locIndex) => ({
+  locations: getTripMapLocations(post.data.locations.map((loc, locIndex) => ({
     lat: loc.lat,
     lng: loc.lng,
     name: loc.name,
     slug: post.id.replace(/\.md$/, ''),
-    country: loc.country || post.data.country,
     order: loc.order ?? locIndex + 1,
     note: loc.note,
     type: loc.type,
     // Add country from location or fallback to post country if single country post
     country: loc.country || (post.data.countries?.length ? undefined : post.data.country),
-  })),
+  })), { ...post.data, flights: (post.data.flights || []).map(resolveFlightSchedule) }),
 }));
 
 // 날짜순 정렬

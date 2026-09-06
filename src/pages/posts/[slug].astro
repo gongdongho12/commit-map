@@ -5,6 +5,7 @@ import Comments from '../../components/Comments.astro';
 import { MapContainer } from '../../components/map/MapContainer';
 import { buildClipPayloadPath } from '../../lib/clipPayload';
 import { resolveFlightSchedule } from '../../lib/flightSchedules';
+import { getTripMapLocations } from '../../lib/tripMapLocations';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -43,7 +44,9 @@ const locations = post.data.locations.map((loc, index) => ({
   images: loc.images,
 }));
 
-const mapLocations = locations.map(l => ({
+const mapLocations = getTripMapLocations(locations, {
+  ...post.data, flights: (post.data.flights || []).map(resolveFlightSchedule),
+}).map(l => ({
   lat: l.lat, lng: l.lng, name: l.name, order: l.order, note: l.note, type: l.type,
   link: l.link, visitDate: l.visitDate,
 }));
