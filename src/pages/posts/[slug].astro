@@ -15,7 +15,17 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
+const itineraryLinks = headings
+  .filter(heading => heading.depth === 2 && (
+    heading.text === '일정 요약' || heading.text === '시간 조절 범위'
+    || /^\d{1,2}\/\d{1,2}\s/.test(heading.text)
+  ))
+  .map(heading => ({
+    href: `#${heading.slug}`,
+    label: heading.text === '일정 요약' ? '일정표'
+      : heading.text === '시간 조절 범위' ? '시간 조절' : heading.text.split(' · ')[0],
+  }));
 
 // 🔍 서버사이드 디버그: raw location 데이터 확인
 console.log('[DEBUG] First location raw:', JSON.stringify(post.data.locations[0], null, 2));
@@ -189,7 +199,15 @@ const expenseTotals = Array.from(
       )}
     </header>
 
-    <section class="route-map">
+    <nav class="trip-nav" aria-label="여행 정보 바로가기">
+      {itineraryLinks.map(link => <a href={link.href}>{link.label}</a>)}
+      <a href="#trip-map">지도</a>
+      {flights.length > 0 && <a href="#trip-flights">항공편</a>}
+      {expenses.length > 0 && <a href="#trip-expenses">비용</a>}
+      <a href="#trip-locations">장소</a>
+    </nav>
+
+    <section class="route-map" id="trip-map">
       <h2>🗺️ 여행 경로</h2>
       <div class="map-wrapper">
         <MapContainer client:only="react" locations={mapLocations} showRoute={true} />
@@ -197,7 +215,7 @@ const expenseTotals = Array.from(
     </section>
 
     {flights.length > 0 && (
-      <section class="flight-section">
+      <section class="flight-section" id="trip-flights">
         <h2>✈️ 항공편</h2>
         <div class="flight-grid">
           {flights.map(flight => {
@@ -244,7 +262,7 @@ const expenseTotals = Array.from(
     )}
 
     {expenses.length > 0 && (
-      <section class="expense-section">
+      <section class="expense-section" id="trip-expenses">
         <div class="section-title-row">
           <h2>💳 비용 기록</h2>
           <div class="expense-totals">
@@ -298,7 +316,11 @@ const expenseTotals = Array.from(
       </section>
     )}
 
-    <section class="route-details">
+    <section class="post-content">
+      <Content />
+    </section>
+
+    <section class="route-details" id="trip-locations">
       <h2>📍 방문 장소</h2>
       {dateGroups.map(([date, locs]) => {
         return (
@@ -355,10 +377,6 @@ const expenseTotals = Array.from(
         </div>
       );
     })}
-    </section>
-
-    <section class="post-content">
-      <Content />
     </section>
 
     {!isHiddenPost && (
@@ -445,6 +463,37 @@ const expenseTotals = Array.from(
 </script>
 
 <style>
+  .trip-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 1.5rem;
+  }
+
+  .trip-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-bg-secondary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .trip-nav a:hover,
+  .trip-nav a:focus-visible {
+    border-color: var(--color-primary);
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  section[id],
+  .post-content :global(h2[id]) {
+    scroll-margin-top: 90px;
+  }
+
   .post {
     max-width: 900px;
     margin: 0 auto;
