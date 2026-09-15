@@ -20,11 +20,13 @@ const { Content, headings } = await render(post);
 const itineraryLinks = headings
   .filter(heading => heading.depth === 2 && (
     heading.text === '일정 요약' || heading.text === '시간 조절 범위'
+    || heading.text === '투어 후보 비교'
     || /^\d{1,2}\/\d{1,2}\s/.test(heading.text)
   ))
   .map(heading => ({
     href: `#${heading.slug}`,
     label: heading.text === '일정 요약' ? '일정표'
+      : heading.text === '투어 후보 비교' ? '투어 비교'
       : heading.text === '시간 조절 범위' ? '시간 조절' : heading.text.split(' · ')[0],
   }));
 
@@ -1008,6 +1010,25 @@ const expenseTotals = Array.from(
   }
 
   .post-content :global(p) { margin-bottom: 1rem; }
+
+  .post-content :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .post-content :global(th),
+  .post-content :global(td) {
+    padding: 0.7rem 0.85rem;
+    border-bottom: 1px solid var(--color-border);
+    text-align: left;
+    vertical-align: top;
+    word-break: keep-all;
+  }
+
+  .post-content :global(th) {
+    background: var(--color-bg-secondary);
+  }
 
   .post-content :global(.mermaid-diagram) {
     background: var(--color-bg-secondary);
