@@ -216,7 +216,7 @@ excerpt: "첫날 밤 숙소 앞 POYA에서 DARLIE 치약을 미리 쇼핑해 캐
 
 | 현지 시간 | 할 일 | 이동·대기 배치 |
 |---|---|---|
-| 12:00∼13:15 | 가오슝 도착·입국·이지카드 수령 | [클룩 이지카드 (400 TWD 충전형)](https://www.klook.com/ko/activity/5777-public-transport-easycard-taipei/?spm=SearchResult.SearchResult_LIST&clickId=e6c1c63fb8) 공항 수령(또는 공항 MRT 창구/편의점 즉시 구매·충전) |
+| 12:00∼13:15 | 가오슝 도착·e-Gate 등록 & 입국·이지카드 수령 | 온라인 사전신고 후 공항 등록대에서 e-Gate 등록(1분), [클룩 이지카드 (400 TWD 충전형)](https://www.klook.com/ko/activity/5777-public-transport-easycard-taipei/?spm=SearchResult.SearchResult_LIST&clickId=e6c1c63fb8) 공항 수령(또는 공항 MRT 창구/편의점 즉시 구매·충전) |
 | 13:15∼14:15 | MRT로 호텔 이동·짐 보관 | 이지카드로 R4 공항 → R10/O5 미려도 환승 → O6 신이국소 태그 탑승, 도보 포함 60분 |
 | 14:15∼15:00 | 호텔 근처 가벼운 점심 | 딘타이펑을 위해 간단히 먹기 |
 | 15:00∼16:00 | 체크인·샤워·휴식 | 도착 직후 북쪽까지 바로 이동하지 않기 |
@@ -229,6 +229,14 @@ excerpt: "첫날 밤 숙소 앞 POYA에서 DARLIE 치약을 미리 쇼핑해 캐
 | 20:45∼21:15 | 호텔 복귀 & **캐리어 패킹** | 치약(젤류)은 위탁수하물 캐리어에 바로 넣고 취침 준비 |
 
 [호텔 → 딘타이펑](https://www.google.com/maps/dir/?api=1&origin=URBAN+HOTEL33+Kaohsiung&destination=Din+Tai+Fung+Hanshin+Arena&travelmode=transit) · [딘타이펑 → 루이펑](https://www.google.com/maps/dir/?api=1&origin=Din+Tai+Fung+Hanshin+Arena&destination=Ruifeng+Night+Market&travelmode=walking).
+
+> [!TIP]
+> **가오슝 공항 e-Gate(자동출입국심사) 등록 & 연말 타이베이 하이패스 팁**
+> - **연말 타이베이 여행 대비**: 타이베이(타오위안 공항)는 입국 줄이 길기로 유명하지만, 한적한 가오슝 공항 입국장에서 e-Gate를 등록해두면 **여권 유효기간 만료일까지 대만 전역 공항에서 평생 유효**합니다. 연말 타이베이 방문 시 대기 없이 자동출입국 게이트로 30초 만에 통과할 수 있습니다.
+> - **진행 3단계**:
+>   1. **출국 전 온라인 사전 신청**: [대만 이민서 온라인 입국신고서(Online Arrival Card)](https://niaspeedy.immigration.gov.tw/webacard/)에서 여권 및 항공편 정보 입력 후 제출.
+>   2. **가오슝 공항 현장 등록**: 입국심사장 내 **e-Gate 등록 카운터**에서 여권 제출 후 얼굴 사진 촬영 및 양손 검지 지문 등록 (약 1분 소요, 모자·안경·마스크 탈의).
+>   3. **당일 즉시 이용**: 등록 직후 바로 옆 **e-Gate 자동게이트**로 이동하여 여권 스캔 + 지문/얼굴 인식으로 30초 만에 입국 완료!
 
 > [!NOTE]
 > **클룩 이지카드 400 TWD 충전형 이용 & 공항 수령 팁**
