@@ -231,7 +231,7 @@ excerpt: "첫날 밤 숙소 앞 POYA에서 DARLIE 치약을 미리 쇼핑해 캐
 ## 9/24 목 · 체크인 후 딘타이펑, 천사지파이 & 현지 마트(PX Mart/POYA) 장보기
 
 * **출국 전야 (9/23 수)**: 오전 09:45 비행기(7C6123) 출발에 맞추기 위해 김포공항 바로 앞 송정역 **[다산하우스](https://naver.me/xjgcCwsW)에서 1박(18,000원)** 투숙. 이른 아침 첫차 이동 부담 없이 푹 자고 지하철 1정거장(도보 10~15분)으로 김포공항 국제선 청사에 07:30경 여유롭게 도착한다.
-* **출국 아침 (9/24 목)**: 07:30 수속 후 **신세계면세점 인도장**에서 사전 주문 면세품을 픽업하고, 새로 오픈한 **[스카이허브 프리미엄 라운지](https://www.prioritypass.com/ko-KR/lounges/south-korea/gimpo-international/gmp5-sky-hub-lounge-premium)**에서 따뜻한 조식 뷔페와 모닝커피를 즐긴 뒤 탑승한다.
+* **출국 아침 (9/24 목)**: 07:30 수속 후 **신세계면세점 인도장**에서 사전 주문 면세품을 픽업하고, 새로 오픈한 **[스카이허브 프리미엄 라운지](https://www.prioritypass.com/ko-KR/lounges/south-korea/gimpo-international/gmp5-sky-hub-lounge-premium)**를 직접 둘러보며 시설과 조식을 리뷰하고 따뜻한 뷔페와 모닝커피를 즐긴 뒤 탑승한다.
 
 둘째 날과 셋째 날이 하루 종일 꽉 찬 외부 일정으로 채워져 있으므로, 무게와 부피가 나가는 **DARLIE(달리) 치약과 대만 간식(만한대찬 우육면, 밀크티, 젤리 등)**을 첫날 밤 호텔 복귀길에 숙소 인근 대형 마트(PX Mart / POYA)에서 미리 장봐서 캐리어에 패킹해둔다. 이렇게 하면 26일 바다 수영 후 무거운 쇼핑백을 들고 다닐 필요가 없어 일정이 한결 여유로워진다.
 
@@ -240,7 +240,7 @@ excerpt: "첫날 밤 숙소 앞 POYA에서 DARLIE 치약을 미리 쇼핑해 캐
 | 07:15∼07:30 | 다산하우스 출발 → 김포공항 이동 | 송정역에서 김포공항역 지하철 1정거장(또는 도보 10~15분) |
 | 07:30∼08:15 | 7C6123 탑승수속 & 출국심사 | 제주항공 위탁수하물 부치기, 보안검색 및 출국심사 통과 |
 | 08:15∼08:35 | **신세계면세점 인도장 픽업** | 사전 주문한 면세품 수령 및 정리 |
-| 08:35∼09:20 | **[스카이허브 프리미엄 라운지](https://www.prioritypass.com/ko-KR/lounges/south-korea/gimpo-international/gmp5-sky-hub-lounge-premium)** | 3층 출국장 신규 라운지(PP/제휴카드). 핫푸드 뷔페 조식 & 커피, 여유로운 휴식 |
+| 08:35∼09:20 | **[스카이허브 프리미엄 라운지](https://www.prioritypass.com/ko-KR/lounges/south-korea/gimpo-international/gmp5-sky-hub-lounge-premium) 리뷰 & 조식** | 3층 출국장 신규 프리미엄 라운지(PP/제휴카드). 핫푸드 뷔페 조식, 공간 리뷰 및 여유로운 휴식 |
 | 09:20∼09:45 | 탑승 게이트 이동 & 탑승 | 09:45 김포 출발 (7C6123) → 12:00 가오슝 도착 (비행 약 2시간 45분) |
 | 12:00∼13:15 | 가오슝 도착·e-Gate 등록 & 입국·이지카드 수령 | 온라인 사전신고 후 공항 등록대에서 e-Gate 등록(1분), [클룩 이지카드 (400 TWD 충전형)](https://www.klook.com/ko/activity/5777-public-transport-easycard-taipei/?spm=SearchResult.SearchResult_LIST&clickId=e6c1c63fb8) 공항 수령(또는 공항 MRT 창구/편의점 즉시 구매·충전) |
 | 13:15∼14:15 | MRT로 호텔 이동·짐 보관 | 이지카드로 R4 공항 → R10/O5 미려도 환승 → O6 신이국소 태그 탑승, 도보 포함 60분 |
