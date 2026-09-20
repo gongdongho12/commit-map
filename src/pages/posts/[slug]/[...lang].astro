@@ -1,34 +1,65 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
-import Comments from '../../components/Comments.astro';
-import { MapContainer } from '../../components/map/MapContainer';
-import { buildClipPayloadPath } from '../../lib/clipPayload';
-import { resolveFlightSchedule } from '../../lib/flightSchedules';
-import { getTripMapLocations } from '../../lib/tripMapLocations';
+import Comments from '../../../components/Comments.astro';
+import { MapContainer } from '../../../components/map/MapContainer';
+import { buildClipPayloadPath } from '../../../lib/clipPayload';
+import { resolveFlightSchedule } from '../../../lib/flightSchedules';
+import { getTripMapLocations } from '../../../lib/tripMapLocations';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
-  return posts.map(post => ({
-    params: { slug: post.id.replace(/\.md$/, '') },
-    props: { post },
-  }));
+  return posts.flatMap(post => {
+    const slug = post.id.replace(/\.md$/, '');
+    return [
+      { params: { slug, lang: undefined }, props: { post, initialLang: undefined } },
+      { params: { slug, lang: 'en' }, props: { post, initialLang: 'en' } },
+      { params: { slug, lang: 'ko' }, props: { post, initialLang: 'ko' } },
+    ];
+  });
 }
 
-const { post } = Astro.props;
+const { post, initialLang } = Astro.props;
 const { Content, headings } = await render(post);
+const dayOfWeekEnMap: Record<string, string> = {
+  '월': 'Mon', '화': 'Tue', '수': 'Wed', '목': 'Thu', '금': 'Fri', '토': 'Sat', '일': 'Sun'
+};
+
+const formatItineraryLabel = (text: string) => {
+  if (text.includes('일정 요약') || text.includes('Trip Summary')) {
+    return { ko: '일정표', en: 'Summary' };
+  }
+  if (text.includes('투어 후보 비교') || text.includes('Tour Comparison')) {
+    return { ko: '투어 비교', en: 'Tours' };
+  }
+  if (text.includes('시간 조절 범위') || text.includes('Flexible Time')) {
+    return { ko: '시간 조절', en: 'Schedule' };
+  }
+  const dateMatch = text.match(/^(\d{1,2}\/\d{1,2})\s*\(([월화수목금토일])\)/);
+  if (dateMatch) {
+    const [, date, day] = dateMatch;
+    const dayEn = dayOfWeekEnMap[day] || day;
+    return { ko: `${date} (${day})`, en: `${date} (${dayEn})` };
+  }
+  const raw = text.split(' · ')[0];
+  return { ko: raw, en: raw };
+};
+
 const itineraryLinks = headings
   .filter(heading => heading.depth === 2 && (
-    heading.text === '일정 요약' || heading.text === '시간 조절 범위'
-    || heading.text === '투어 후보 비교'
+    heading.text.includes('일정 요약') || heading.text.includes('Trip Summary')
+    || heading.text.includes('투어 후보 비교')
+    || heading.text.includes('시간 조절 범위')
     || /^\d{1,2}\/\d{1,2}\s/.test(heading.text)
   ))
-  .map(heading => ({
-    href: `#${heading.slug}`,
-    label: heading.text === '일정 요약' ? '일정표'
-      : heading.text === '투어 후보 비교' ? '투어 비교'
-      : heading.text === '시간 조절 범위' ? '시간 조절' : heading.text.split(' · ')[0],
-  }));
+  .map(heading => {
+    const labels = formatItineraryLabel(heading.text);
+    return {
+      href: `#${heading.slug}`,
+      labelKo: labels.ko,
+      labelEn: labels.en,
+    };
+  });
 
 // 🔍 서버사이드 디버그: raw location 데이터 확인
 console.log('[DEBUG] First location raw:', JSON.stringify(post.data.locations[0], null, 2));
@@ -168,9 +199,26 @@ const expenseTotals = Array.from(
 ---
 
 <BaseLayout title={post.data.title} description={post.data.excerpt} noindex={isHiddenPost}>
-  <article class="post">
+  <script is:inline>
+    (function() {
+      try {
+        const saved = localStorage.getItem('commit-map-lang');
+        const query = new URLSearchParams(window.location.search).get('lang');
+        const path = window.location.pathname;
+        let lang = (path.endsWith('/en') || path.endsWith('/en/')) ? 'en'
+          : (path.endsWith('/ko') || path.endsWith('/ko/')) ? 'ko'
+          : (query || saved || (navigator.language && navigator.language.toLowerCase().startsWith('ko') ? 'ko' : 'en'));
+        if (!['en', 'ko', 'all'].includes(lang)) lang = 'en';
+        document.documentElement.setAttribute('data-lang-mode', lang);
+      } catch (e) {}
+    })();
+  </script>
+  <article class={`post${initialLang ? ` mode-${initialLang}` : ''}`} data-post-slug={postSlug} data-initial-lang={initialLang}>
     <header class="post-header">
-      <a href="/" class="back-link">← 목록으로</a>
+      <a href="/" class="back-link">
+        <span class="lang-ko">← 목록으로</span>
+        <span class="lang-en">← Back to Trips</span>
+      </a>
       <div 
         class="date-info"
         data-start={startDate.toISOString().slice(0, 10)}
@@ -182,11 +230,17 @@ const expenseTotals = Array.from(
             ? ` ~ ${post.data.endDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}` 
             : ''}
         </time>
-        <span class={`duration-badge${showDuration ? '' : ' pending-badge'}`}>{durationBadgeText}</span>
-        {isDraftPost && <span class="draft-badge">작업중</span>}
+        <span class={`duration-badge${showDuration ? '' : ' pending-badge'}`}>
+          <span class="lang-ko">{durationBadgeText}</span>
+          <span class="lang-en">{showDuration ? (days === 1 && nights === 0 ? 'Day Trip' : `${nights}N ${days}D`) : 'Pending'}</span>
+        </span>
+        {isDraftPost && <span class="draft-badge"><span class="lang-ko">작업중</span><span class="lang-en">Draft</span></span>}
         <span class="dday-badge" data-dday-badge hidden></span>
       </div>
-      <h1>{post.data.title}</h1>
+      <h1>
+        <span class="lang-ko">{post.data.title}</span>
+        <span class="lang-en">{post.data.titleEn || post.data.title}</span>
+      </h1>
       {post.data.tags && (
         <div class="tags">
           {post.data.tags.map(tag => (
@@ -204,16 +258,33 @@ const expenseTotals = Array.from(
       )}
     </header>
 
+    <div class="lang-switch-bar" id="lang-switch-bar">
+      <span class="lang-switch-title">
+        <span class="lang-ko">🌐 언어 선택:</span>
+        <span class="lang-en">🌐 Language:</span>
+      </span>
+      <div class="lang-switch-btns">
+        <button type="button" class="lang-switch-btn active" data-lang-target="all">모두 보기 (Dual)</button>
+        <button type="button" class="lang-switch-btn" data-lang-target="en">🇺🇸 English</button>
+        <button type="button" class="lang-switch-btn" data-lang-target="ko">🇰🇷 한국어</button>
+      </div>
+    </div>
+
     <nav class="trip-nav" aria-label="여행 정보 바로가기">
-      {itineraryLinks.map(link => <a href={link.href}>{link.label}</a>)}
-      <a href="#trip-map">지도</a>
-      {flights.length > 0 && <a href="#trip-flights">항공편</a>}
-      {expenses.length > 0 && <a href="#trip-expenses">비용</a>}
-      <a href="#trip-locations">장소</a>
+      {itineraryLinks.map(link => (
+        <a href={link.href}>
+          <span class="lang-ko">{link.labelKo}</span>
+          <span class="lang-en">{link.labelEn}</span>
+        </a>
+      ))}
+      <a href="#trip-map"><span class="lang-ko">지도</span><span class="lang-en">Map</span></a>
+      {flights.length > 0 && <a href="#trip-flights"><span class="lang-ko">항공편</span><span class="lang-en">Flights</span></a>}
+      {expenses.length > 0 && <a href="#trip-expenses"><span class="lang-ko">비용</span><span class="lang-en">Expenses</span></a>}
+      <a href="#trip-locations"><span class="lang-ko">장소</span><span class="lang-en">Locations</span></a>
     </nav>
 
     <section class="route-map" id="trip-map">
-      <h2>🗺️ 여행 경로</h2>
+      <h2>🗺️ <span class="lang-ko">여행 경로</span><span class="lang-en">Trip Route Map</span></h2>
       <div class="map-wrapper">
         <MapContainer client:only="react" locations={mapLocations} showRoute={true} />
       </div>
@@ -221,7 +292,7 @@ const expenseTotals = Array.from(
 
     {flights.length > 0 && (
       <section class="flight-section" id="trip-flights">
-        <h2>✈️ 항공편</h2>
+        <h2>✈️ <span class="lang-ko">항공편</span><span class="lang-en">Flights</span></h2>
         <div class="flight-grid">
           {flights.map(flight => {
             const routeText = [flight.from, flight.to].filter(Boolean).join(' → ');
@@ -269,7 +340,7 @@ const expenseTotals = Array.from(
     {expenses.length > 0 && (
       <section class="expense-section" id="trip-expenses">
         <div class="section-title-row">
-          <h2>💳 비용 기록</h2>
+          <h2>💳 <span class="lang-ko">비용 기록</span><span class="lang-en">Trip Expenses</span></h2>
           <div class="expense-totals">
             <span>{expenses.length}개 항목</span>
             {expenseTotals.map(total => total && <span>{total}</span>)}
@@ -326,7 +397,7 @@ const expenseTotals = Array.from(
     </section>
 
     <section class="route-details" id="trip-locations">
-      <h2>📍 방문 장소</h2>
+      <h2>📍 <span class="lang-ko">방문 장소</span><span class="lang-en">Visited Places</span></h2>
       {dateGroups.map(([date, locs]) => {
         return (
           <div class="date-group">
@@ -386,7 +457,7 @@ const expenseTotals = Array.from(
 
     {!isHiddenPost && (
       <section class="comments-section">
-        <h2>💬 댓글</h2>
+        <h2>💬 <span class="lang-ko">댓글</span><span class="lang-en">Comments</span></h2>
         <Comments />
       </section>
     )}
@@ -465,9 +536,230 @@ const expenseTotals = Array.from(
   };
 
   renderMermaidDiagrams();
+
+  const initLanguageSwitcher = () => {
+    const postArticle = document.querySelector<HTMLElement>('.post');
+    const postContent = document.querySelector<HTMLElement>('.post-content');
+    const switchBar = document.getElementById('lang-switch-bar');
+    if (!postArticle || !postContent || !switchBar) return;
+
+    // Scan for legacy KO: / EN: tags if any
+    const candidates = Array.from(postContent.querySelectorAll<HTMLElement>('li, p, div, h2, h3, h4, blockquote'));
+    candidates.forEach((el) => {
+      const text = el.textContent?.trim() || '';
+      const strong = el.querySelector('strong');
+      const strongText = strong?.textContent?.trim() || '';
+      if (/^(KO\s*:|\[KO\]|\(KO\))/i.test(text) || strongText === 'KO') {
+        el.setAttribute('data-lang-item', 'ko');
+        if (strongText === 'KO') {
+          if (strong && strong.nextSibling && strong.nextSibling.nodeType === Node.TEXT_NODE && strong.nextSibling.textContent) {
+            strong.nextSibling.textContent = strong.nextSibling.textContent.replace(/^[\s:]+/, '');
+          }
+          strong?.remove();
+        }
+      } else if (/^(EN\s*:|\[EN\]|\(EN\))/i.test(text) || strongText === 'EN') {
+        el.setAttribute('data-lang-item', 'en');
+        if (strongText === 'EN') {
+          if (strong && strong.nextSibling && strong.nextSibling.nodeType === Node.TEXT_NODE && strong.nextSibling.textContent) {
+            strong.nextSibling.textContent = strong.nextSibling.textContent.replace(/^[\s:]+/, '');
+          }
+          strong?.remove();
+        }
+      }
+    });
+
+    const buttons = Array.from(switchBar.querySelectorAll<HTMLButtonElement>('.lang-switch-btn'));
+    
+    // Determine language based on priority:
+    // 1. URL path (/en/ or /ko/) or postArticle.dataset.initialLang
+    // 2. Query param ?lang=en or ?lang=ko
+    // 3. localStorage ('commit-map-lang')
+    // 4. Browser default: navigator.language.toLowerCase().startsWith('ko') ? 'ko' : 'en'
+    const pathname = window.location.pathname;
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryLang = urlParams.get('lang');
+    const pathLang = (pathname.endsWith('/en') || pathname.endsWith('/en/')) ? 'en'
+      : (pathname.endsWith('/ko') || pathname.endsWith('/ko/')) ? 'ko'
+      : postArticle.dataset.initialLang;
+
+    const saved = localStorage.getItem('commit-map-lang');
+    const browserLang = (navigator.language && navigator.language.toLowerCase().startsWith('ko')) ? 'ko' : 'en';
+
+    let currentLang = pathLang || queryLang || saved || browserLang;
+    if (!['en', 'ko', 'all'].includes(currentLang)) {
+      currentLang = browserLang;
+    }
+
+    const applyLang = (lang: string, updateUrl: boolean = false) => {
+      currentLang = lang;
+      localStorage.setItem('commit-map-lang', lang);
+
+      postArticle.classList.toggle('mode-en', lang === 'en');
+      postArticle.classList.toggle('mode-ko', lang === 'ko');
+      postArticle.classList.toggle('mode-all', lang === 'all');
+
+      postContent.classList.toggle('mode-en', lang === 'en');
+      postContent.classList.toggle('mode-ko', lang === 'ko');
+      postContent.classList.toggle('mode-all', lang === 'all');
+
+      document.documentElement.setAttribute('data-lang-mode', lang);
+
+      buttons.forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.langTarget === lang);
+      });
+
+      const koItems = postArticle.querySelectorAll<HTMLElement>('[data-lang-item="ko"], .lang-ko');
+      const enItems = postArticle.querySelectorAll<HTMLElement>('[data-lang-item="en"], .lang-en');
+
+      if (lang === 'en') {
+        koItems.forEach((el) => { el.style.display = 'none'; });
+        enItems.forEach((el) => { el.style.display = ''; });
+      } else if (lang === 'ko') {
+        koItems.forEach((el) => { el.style.display = ''; });
+        enItems.forEach((el) => { el.style.display = 'none'; });
+      } else {
+        koItems.forEach((el) => { el.style.display = ''; });
+        enItems.forEach((el) => { el.style.display = ''; });
+      }
+
+      if (updateUrl) {
+        const postSlug = postArticle.dataset.postSlug;
+        if (postSlug) {
+          const targetPath = (lang === 'en' || lang === 'ko')
+            ? `/posts/${postSlug}/${lang}/`
+            : `/posts/${postSlug}/`;
+          
+          if (window.location.pathname !== targetPath) {
+            window.history.replaceState(null, '', targetPath + window.location.search + window.location.hash);
+          }
+        }
+      }
+    };
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.langTarget || 'all';
+        applyLang(target, true);
+      });
+    });
+
+    applyLang(currentLang, false);
+  };
+
+  initLanguageSwitcher();
 </script>
 
 <style>
+  .lang-switch-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--color-bg-secondary, #f8fafc);
+    border: 1px solid var(--color-border, #e2e8f0);
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    margin: 0 0 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .lang-switch-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-text, #1e293b);
+  }
+
+  .lang-switch-btns {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .lang-switch-btn {
+    border: 1px solid var(--color-border, #cbd5e1);
+    background: var(--color-bg, #ffffff);
+    color: var(--color-text-secondary, #64748b);
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .lang-switch-btn:hover {
+    border-color: var(--color-primary, #2563eb);
+    color: var(--color-primary, #2563eb);
+  }
+
+  .lang-switch-btn.active {
+    background: var(--color-primary, #2563eb);
+    border-color: var(--color-primary, #2563eb);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  }
+
+  /* COMPLETE SEPARATION OF LANGUAGES */
+  :global(.post.mode-en .lang-ko),
+  :global(.post-content.mode-en .lang-ko),
+  :global(.post.mode-en [data-lang-item="ko"]),
+  :global(.post-content.mode-en [data-lang-item="ko"]),
+  :global([data-lang-mode="en"] .lang-ko) {
+    display: none !important;
+  }
+
+  :global(.post.mode-ko .lang-en),
+  :global(.post-content.mode-ko .lang-en),
+  :global(.post.mode-ko [data-lang-item="en"]),
+  :global(.post-content.mode-ko [data-lang-item="en"]),
+  :global([data-lang-mode="ko"] .lang-en) {
+    display: none !important;
+  }
+
+  :global(.post.mode-en .lang-en),
+  :global(.post-content.mode-en .lang-en) {
+    color: var(--color-text, #1e293b);
+  }
+
+  :global(.post.mode-ko .lang-ko),
+  :global(.post-content.mode-ko .lang-ko) {
+    color: var(--color-text, #1e293b);
+  }
+
+  /* Dual Mode (mode-all) */
+  :global(.post.mode-all div.lang-ko),
+  :global(.post-content.mode-all div.lang-ko) {
+    color: var(--color-text, #1e293b);
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+  }
+
+  :global(.post.mode-all div.lang-en),
+  :global(.post-content.mode-all div.lang-en) {
+    color: var(--color-text-secondary, #64748b);
+    font-size: 0.94em;
+    line-height: 1.55;
+    margin-bottom: 0.75rem;
+    padding-left: 0.2rem;
+  }
+
+  :global(.post.mode-all span.lang-ko + span.lang-en::before) {
+    content: " / ";
+    color: #94a3b8;
+    margin: 0 0.25rem;
+  }
+
+  :global(.post.mode-all span.lang-en) {
+    color: var(--color-text-secondary, #64748b);
+    font-size: 0.93em;
+  }
+
+  :global(.badge-tag) {
+    display: inline-block;
+    margin-left: 0.35rem;
+    font-size: 0.8em;
+    vertical-align: middle;
+  }
+
   .trip-nav {
     display: flex;
     flex-wrap: wrap;
