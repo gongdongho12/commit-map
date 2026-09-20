@@ -76,6 +76,18 @@ expenses:
     amount: 28000
     currency: "KRW"
     note: "은박지 즉석 조리기 라면 4,500원 + 유명 프랜차이즈 반반 치킨 배달"
+  - category: shopping
+    title: "국립중앙박물관 K-굿즈(뮷즈) 쇼핑 (NMK MU:DS Souvenirs)"
+    date: "2026-10-12"
+    amount: 35000
+    currency: "KRW"
+    note: "반가사유상 미니어처, 고려청자 텀블러, 나전칠기 자개 소품 등 고품격 전통 K-굿즈"
+  - category: food
+    title: "이태원 '버거스낵' 수제 스매시버거 또는 화덕 피자 (Itaewon Burger Snack)"
+    date: "2026-10-12"
+    amount: 22000
+    currency: "KRW"
+    note: "녹사평역 경리단길 입구. 성시경 '먹을텐데' 극찬 카라멜라이징 양파 & 육즙 패티 버거스낵"
   - category: activity
     title: "양주 나리농원 핑크뮬리 & 가을꽃 축제 입장권 (Yangju Nari Park)"
     date: "2026-10-12"
@@ -275,35 +287,60 @@ locations:
     visitDate: "10/11"
     link: "https://map.naver.com/p/search/%EC%97%AC%EC%9D%98%EB%8F%84%ED%95%9C%EA%B0%95%EA%B3%B5%EC%9B%90"
     note: "10/11 14:00 (옵션 B). 따릉이 자전거 대여 ➔ 63빌딩 앞 시원한 강변 라이딩 ➔ 즉석 은박지 한강 라면 피크닉"
-  - name: "여의도 선착장 ➔ 한강 수상버스 (Yeouido River Bus Pier)"
-    lat: 37.5298
-    lng: 126.9345
+  - name: Hangang River Bus (Yeouido Dock)
+    nameKo: 한강 버스 선착장 (여의도)
+    lat: 37.5285
+    lng: 126.9341
     type: transport
     order: 23
     visitDate: "10/11"
     link: "https://map.naver.com/p/search/%EC%97%AC%EC%9D%98%EB%8F%84%20%EC%84%A0%EC%B0%A9%EC%9E%A5"
     note: "10/11 16:30 (옵션 B). 여의도 선착장에서 시간 맞춰 한강 수상버스(리버버스) 탑승 ➔ 잠실 선착장까지 낭만 크루즈 이동 🛳️"
+  - name: "국립중앙박물관 & 뮷즈 K-굿즈 (National Museum of Korea & MU:DS)"
+    lat: 37.5240
+    lng: 126.9803
+    type: museum
+    order: 24
+    visitDate: "10/12"
+    link: "https://map.naver.com/p/search/%EA%B5%AD%EB%A6%BD%EC%A4%91%EC%95%99%EB%B0%95%EB%AC%BC%EA%B4%80"
+    note: "10/12 Day 6 서울 옵션. 4호선/경의중앙선 이촌역. 상설 전시 전액 무료 관람 & 국보 반가사유상 미니어처, 고려청자 텀블러, 자개 공예 뮷즈(MU:DS) 쇼핑"
+  - name: "용산역 & HDC 신라면세점 (Yongsan Station & Shilla I'Park Duty Free)"
+    lat: 37.5298
+    lng: 126.9647
+    type: shopping
+    order: 25
+    visitDate: "10/12"
+    link: "https://map.naver.com/p/search/%EC%9A%A9%EC%82%B0%EC%97%AD%20%EC%95%84%EC%9D%B4%ED%8C%8C%ED%81%AC%EB%AA%B0"
+    note: "10/12 Day 6 서울 옵션. 용산역 아이파크몰 3–7층 초대형 도심 면세점 쇼핑 & 복합 엔터테인먼트 쇼핑몰"
+  - name: "이태원 & 버거스낵 (Itaewon & Burger Snack)"
+    lat: 37.5345
+    lng: 126.9940
+    type: restaurant
+    order: 26
+    visitDate: "10/12"
+    link: "https://map.naver.com/p/search/%EB%B2%84%EA%B1%B0%EC%8A%A4%EB%82%B5"
+    note: "10/12 Day 6 서울 옵션. 6호선 녹사평/이태원역. 카라멜라이징 양파 육즙 수제 스매시버거 '버거스낵', 피자 맛집, 이국적인 펍 & 클럽 나이트라이프"
   - name: "양주 나리농원 (Yangju Nari Park)"
     lat: 37.7946
     lng: 127.0864
     type: nature
-    order: 24
+    order: 27
     visitDate: "10/12"
     link: "https://map.naver.com/p/search/%EC%96%91%EC%A3%BC%EB%82%98%EB%A6%AC%EB%84%88%EC%9B%90"
-    note: "10/12 오전 10:30. 10월 절정의 핑크빛 핑크뮬리, 붉은 댑싸리, 천일홍 가을꽃 대군락지 포토존"
+    note: "10/12 Day 6 근교 옵션 (국제운전면허증 렌터카 추천). 10월 절정의 핑크뮬리, 댑싸리, 천일홍 가을꽃 바다"
   - name: "니지모리 스튜디오 (Nijimori Studio)"
     lat: 37.9042
     lng: 127.1082
     type: attraction
-    order: 25
+    order: 28
     visitDate: "10/12"
     link: "https://map.naver.com/p/search/%EB%8B%88%EC%A7%80%EB%AA%A8%EB%A6%AC%EC%8A%A4%ED%8A%9C%EB%94%94%EC%98%A4"
-    note: "10/12 오후 13:00–18:00. 동두천 일본 에도 시대 테마 마을. 기모노 대여, 일본 라멘 미식, 저녁 홍등 점등 낭만 야경"
+    note: "10/12 Day 6 근교 옵션. 동두천 에도 일본 테마 마을. 라멘 점심, 기모노 체험, 저녁 홍등 점등 야경"
   - name: "삼성역 코엑스 별마당 도서관 (Starfield Library, Samseong Station)"
     lat: 37.5101
     lng: 127.0598
     type: attraction
-    order: 26
+    order: 29
     visitDate: "10/13"
     link: "https://map.naver.com/p/search/%EB%B3%84%EB%A7%88%EB%8B%B9%EB%8F%84%EC%84%9C%EA%B4%80"
     note: "10/13 오전 10:30. 지하철 2호선 삼성역 5·6번 출구 코엑스몰. 13m 초대형 서가 포토존 & K-POP 스퀘어"
@@ -311,7 +348,7 @@ locations:
     lat: 37.5144
     lng: 127.0573
     type: temple
-    order: 27
+    order: 30
     visitDate: "10/13"
     link: "https://map.naver.com/p/search/%EB%B4%89%EC%9D%80%EC%82%AC"
     note: "10/13 오전 12:00. 코엑스 맞은편, 현대적인 강남 빌딩 숲 속 1,200년 천년고찰"
@@ -319,7 +356,7 @@ locations:
     lat: 37.5133
     lng: 127.1001
     type: shopping
-    order: 28
+    order: 31
     visitDate: "10/11, 10/13"
     link: "https://map.naver.com/p/search/%EB%A1%AF%EB%8D%B0%EB%A9%B4%EC%84%B8%EC%A0%90%20%EC%9B%94%EB%93%9C%ED%83%80%EC%9B%8C%EC%A0%90"
     note: "롯데면세점 외국인 여행객 티머니(T-Money) 카드 발급 혜택 & 123층 서울스카이 전망대(옵션) (Day 5 수상버스 연계 또는 Day 7)"
@@ -327,7 +364,7 @@ locations:
     lat: 37.5126
     lng: 127.1025
     type: attraction
-    order: 29
+    order: 32
     visitDate: "10/11, 10/13"
     link: "https://map.naver.com/p/search/%EC%84%9D%EC%B4%8C%ED%98%B8%EC%88%98"
     note: "롯데월드타워 아래 단풍 호숫가 수변 산책로 힐링"
@@ -335,7 +372,7 @@ locations:
     lat: 37.5019
     lng: 127.0257
     type: shopping
-    order: 30
+    order: 33
     visitDate: "10/13"
     link: "https://map.naver.com/p/search/%EC%98%AC%EB%A6%AC%EB%B8%8C%EC%98%81%20%EA%B0%95%EB%82%A8%ED%83%80%EC%9A%B4"
     note: "10/13 16:00. 강남역 10번 출구. 3개 층 규모의 초대형 시그니처 플래그십, 프리미엄 뷰티 & 맨즈케어 전문존"
@@ -343,21 +380,29 @@ locations:
     lat: 37.5550
     lng: 126.9708
     type: shopping
-    order: 31
+    order: 34
     visitDate: "10/13"
     link: "https://map.naver.com/p/search/%EB%A1%AF%EB%8D%B0%EB%A7%88%ED%8A%B8%20%EC%A0%9C%ED%83%80%ED%94%8C%EB%A0%89%EC%8A%A4%20%EC%84%9C%EC%9A%B8%EC%88%B2%EC%A0%90"
     note: "10/13 18:00. K-라면, 김, 과자, 홍삼 기념품 총정리 쇼핑 (현장 즉시 택스리펀 및 박스 포장)"
-tags: ["서울", "경복궁", "한복체험", "서순라길", "더쌍화", "창경궁", "물빛연화", "야장", "종로3가", "성수", "올리브영", "올리브영강남타운", "홍대", "K뷰티", "남산타워", "남산케이블카", "반포한강공원", "여의도한강공원", "한강라면", "따릉이", "한강수상버스", "양주나리농원", "핑크뮬리", "니지모리스튜디오", "강남", "삼성역", "코엑스", "별마당도서관", "봉은사", "잠실", "롯데월드타워", "롯데면세점", "Seoul", "COEX", "NSeoulTower", "Ddareungi", "RiverBus", "LotteWorldTower"]
-excerpt: "10/6 저녁 도착부터 10/14 출국까지! 경복궁 동생과 함께하는 한복 체험, 서순라길 돌담길 & '더쌍화' 한방 힐링, 10/8 Dongho와 함께하는 창경궁 물빛연화 & 종로3가 야장, 남산 케이블카, 여의도/반포 한강 따릉이 & 라면 피크닉, 한강 수상버스 크루즈, 잠실 롯데면세점 티머니 & 롯데타워, 코엑스 별마당 도서관, 강남 올리브영 시그니처까지 완벽하게 분리된 영·한 자연 듀얼 가이드."
+tags: ["서울", "경복궁", "한복체험", "서순라길", "더쌍화", "창경궁", "물빛연화", "야장", "종로3가", "성수", "올리브영", "올리브영강남타운", "홍대", "K뷰티", "남산타워", "남산케이블카", "반포한강공원", "여의도한강공원", "한강라면", "따릉이", "한강수상버스", "국립중앙박물관", "뮷즈", "용산역", "이태원", "버거스낵", "양주나리농원", "핑크뮬리", "니지모리스튜디오", "강남", "삼성역", "코엑스", "별마당도서관", "봉은사", "잠실", "롯데월드타워", "롯데면세점", "Seoul", "COEX", "NSeoulTower", "Ddareungi", "RiverBus", "Itaewon", "NationalMuseum"]
+excerpt: "10/6 저녁 도착부터 10/14 출국까지! 경복궁 동생과 함께하는 한복 체험, 서순라길 돌담길 & '더쌍화' 한방 힐링, 10/8 Dongho와 함께하는 창경궁 물빛연화 & 종로3가 야장, 남산 케이블카, 여의도/반포 한강 따릉이 & 라면 피크닉, 한강 수상버스 크루즈, 국립중앙박물관 K-굿즈(뮷즈) & 이태원 버거스낵 클러스터, 잠실 롯데면세점 티머니 & 롯데타워, 코엑스 별마당 도서관, 강남 올리브영 시그니처까지 완벽하게 분리된 영·한 자연 듀얼 가이드."
 ---
 
 <div class="lang-ko"><strong>친구를 위해 한국의 트렌디한 감성과 역사적 낭만을 빈틈없이 채운 서울 & 근교 8박 9일 추천 일정표입니다.</strong></div>
 <div class="lang-en"><strong>A complete 9-day Seoul & Gyeonggi travel guide crafted for an unforgettable autumn journey combining trendy K-culture, historic charms, scenic Pink Muhly flowers, exotic Edo-themed Nijimori Studio, and vibrant night pocha dining.</strong></div>
 
 > [!TIP]
-> **<span class="lang-ko">💡 여행 전 안내: 유연한 추천 플랜입니다!</span><span class="lang-en">💡 Pre-Trip Notice: This is an Adaptable Plan Template!</span>**  
-> <div class="lang-ko">이 일정은 최적의 동선과 테마를 고려해 구성한 '추천 플랜(Plan)'입니다! 친구분의 숙소 위치는 확정되는 대로 맞춰 이동하시면 되며, 날씨나 개인 컨디션에 따라 언제든 일자별 순서를 바꾸거나 쉬어갈 수 있습니다.</div>
-> <div class="lang-en">This is an adaptable template (just a plan!), not a rigid schedule! Feel free to adjust the pace based on weather, energy levels, and personal interests. Your hotel check-in and check-out can be done freely based on wherever you choose to stay.</div>
+> **<span class="lang-ko">💡 여행 전 안내: 유연한 추천 플랜 & 서울 vs 근교 꿀팁!</span><span class="lang-en">💡 Pre-Trip Notice: Flexible Plan & Seoul vs Suburbs Advice!</span>**  
+> <div class="lang-ko">
+> 1. <strong>서울만 돌아도 9일이 부족합니다!</strong>: 성수, 홍대, 경복궁, 서순라길, 남산타워, 한남동, 여의도, 반포, 코엑스, 이태원, 용산 등 서울 시내에만 볼거리와 미식이 넘쳐나기 때문에 8박 9일도 서울 안에서만 즐기기에 빠듯할 정도입니다.<br>
+> 2. <strong>근교(양주/동두천)를 가실 경우</strong>: 서울 외곽 대중교통은 배차 간격이 길기 때문에, 꼭 근교에 가고 싶다면 <strong>국제운전면허증(IDP)을 챙겨와서 렌터카를 대여</strong>해 쾌적하게 드라이브하시는 것을 강력 추천합니다!<br>
+> 3. <strong>렌트가 부담스럽다면?</strong>: Day 6에 서울 밖으로 나가지 않고 <strong>국립중앙박물관(K-굿즈 뮷즈 쇼핑) ➔ 용산역 신라면세점 ➔ 이태원(수제버거 '버거스낵' & 펍/클럽)</strong>으로 완벽한 서울 도심 하루를 즐기실 수 있습니다!
+> </div>
+> <div class="lang-en">
+> 1. <strong>Seoul is more than enough for 9 days!</strong>: With vibrant districts like Seongsu, Hongdae, Gyeongbokgung, Seosulla-gil, Namsan Tower, Hannam-dong, Hangang parks, COEX, Itaewon, and Yongsan, 9 days will barely feel like enough time even staying purely inside Seoul.<br>
+> 2. <strong>If heading to the suburbs (Yangju/Dongducheon)</strong>: Suburban transit has longer headways. If you wish to explore outside Seoul, we strongly recommend bringing an <strong>International Driving Permit (IDP) and renting a car</strong> for maximum comfort and freedom!<br>
+> 3. <strong>Prefer staying in Seoul?</strong>: Day 6 can seamlessly pivot into the <strong>National Museum of Korea (iconic MU:DS K-goods) ➔ Yongsan Duty Free ➔ Itaewon (Burger Snack & nightlife/clubs)</strong> cluster!
+> </div>
 
 ---
 
@@ -372,12 +417,14 @@ excerpt: "10/6 저녁 도착부터 10/14 출국까지! 경복궁 동생과 함�
 | <span class="lang-ko">🟡 <strong>현장/원격 웨이팅</strong></span><span class="lang-en">🟡 <strong>Walk-in Waiting List</strong></span> | <span class="lang-ko"><strong>성수 팝업스토어 & 런던베이글뮤지엄/아티스트베이커리</strong></span><span class="lang-en"><strong>Seongsu Pop-ups & London Bagel / Artist Bakery</strong></span> | <span class="lang-ko"><strong>캐치테이블(CatchTable) 앱 원격 줄서기</strong> 또는 매장 앞 태블릿 현장 대기 등록 후 대기 시간 동안 주변 산책.</span><span class="lang-en"><strong>Remote waitlisting via CatchTable app</strong> or register at on-site tablet kiosks upon arrival.</span> |
 | <span class="lang-ko">🟢 <strong>현장 대여 / 자유 관람</strong></span><span class="lang-en">🟢 <strong>Walk-in / Rental on Site</strong></span> | <span class="lang-ko"><strong>경복궁 한복 대여 (10/8 목)</strong></span><span class="lang-en"><strong>Gyeongbokgung Hanbok Rental (Oct 8 Thu)</strong></span> | <span class="lang-ko">예약 불필요! 안국역/경복궁역 인근 대여점에서 현장 대여 (2–4시간 대여). <strong>💡 한복 착용 시 경복궁·창경궁 등 서울 고궁 입장료 100% 무료!</strong></span><span class="lang-en">No advance booking needed! Rent directly near Anguk / Gyeongbokgung Station. <strong>💡 Free palace admission when wearing Hanbok!</strong></span> |
 | <span class="lang-ko">🟢 <strong>현장 발권 / 일반 입장 (자유 관람)</strong></span><span class="lang-en">🟢 <strong>Walk-in / Free Public Viewing</strong></span> | <span class="lang-ko"><strong>창경궁 물빛연화 4–8경 (10/8 목)</strong></span><span class="lang-en"><strong>Changgyeonggung Mulbit Yeonhwa Zones 4–8 (Oct 8 Thu)</strong></span> | <span class="lang-ko">사전 예매 불필요! <strong>한복 착용 시 무료 입장</strong>, 또는 <strong>현장 매표(1,000원) / 교통카드 게이트 직접 태그</strong>로 입장. 예약석(1–3경) 외 <strong>4–8경(제4경 대온실, 제5경 소춘당지, 제6경 산책로, 제7–8경 진출로)은 일반 관람객에게 전면 개방</strong>되어 자유롭게 관람 가능 (20:00 입장 마감).</span><span class="lang-en">No advance Ticketlink ticket required! <strong>Free admission in Hanbok</strong>, or tap T-money/credit card (1,000 KRW). <strong>Zones 4–8 (Grand Greenhouse, Small Pond, and forest illuminated pathways) are completely open to the general public</strong> (Entry closes at 20:00).</span> |
+| <span class="lang-ko">🟢 <strong>자유 무료 관람 (상설전)</strong></span><span class="lang-en">🟢 <strong>Free Walk-in (Permanent Gallery)</strong></span> | <span class="lang-ko"><strong>국립중앙박물관 & 뮷즈 MU:DS 샵 (10/12 월 서울 옵션)</strong></span><span class="lang-en"><strong>National Museum of Korea & MU:DS (Oct 12 Mon Seoul Option)</strong></span> | <span class="lang-ko">예약 불필요! 상설 전시는 <strong>전액 무료 관람</strong>. 박물관 1층 문화상품점(뮷즈 샵)에서 고품격 K-기념품 자유 쇼핑.</span><span class="lang-en">No booking required! Permanent galleries are <strong>100% FREE</strong>. Shop exclusive modern K-cultural goods at the MU:DS shop.</span> |
+| <span class="lang-ko">🟢 <strong>자유 방문 (상시 개방)</strong></span><span class="lang-en">🟢 <strong>Free Walk-in Access</strong></span> | <span class="lang-ko"><strong>용산역 신라면세점 & 이태원 '버거스낵' (10/12 월)</strong></span><span class="lang-en"><strong>Yongsan Duty Free & Itaewon Burger Snack (Oct 12 Mon)</strong></span> | <span class="lang-ko">예약 불필요. 용산역 아이파크몰 면세점 쇼핑 후 이태원으로 이동해 성시경 극찬 수제 스매시버거 '버거스낵' 및 나이트라이프 즐기기.</span><span class="lang-en">Walk-in. Shop at Yongsan Shilla I'Park Duty Free, then explore Itaewon for juicy smash burgers at Burger Snack and vibrant night clubs.</span> |
 | <span class="lang-ko">🟢 <strong>자유 방문 (상시 개방)</strong></span><span class="lang-en">🟢 <strong>Free Walk-in Access</strong></span> | <span class="lang-ko"><strong>서순라길 돌담길 & 종로 '더쌍화' (10/8 목)</strong></span><span class="lang-en"><strong>Seosulla-gil Stone Wall & 'The Ssanghwa' (Oct 8 Thu)</strong></span> | <span class="lang-ko">별도 예약 없음. 종묘 서쪽 돌담길 산책 & 사진 촬영, '더쌍화' 한방 카페에서 황실쌍화차 세트 현장 주문.</span><span class="lang-en">No reservation required. Stroll and take photos along the stone wall, and order the Royal Ssanghwa Tea Set on-site.</span> |
 | <span class="lang-ko">🟢 <strong>현장 발권 / 사전 할인</strong></span><span class="lang-en">🟢 <strong>Walk-in / Discount Ticket</strong></span> | <span class="lang-ko"><strong>남산타워 케이블카 & N서울타워 (10/10 토)</strong></span><span class="lang-en"><strong>Namsan Cable Car & N Seoul Tower (Oct 10 Sat)</strong></span> | <span class="lang-ko">명동역 3번 출구 남산 오르미(경사형 무료 엘리베이터) 탑승 후 매표소에서 <strong>케이블카 왕복(15,000원)</strong> 현장 발권. N서울타워 전망대는 현장 또는 모바일 할인 예매 가능.</span><span class="lang-en">Take free Namsan Oreumi elevator from Myeongdong Station Exit 3, then purchase <strong>round-trip cable car ticket (15,000 KRW)</strong> at the counter.</span> |
 | <span class="lang-ko">🟢 <strong>모바일 간편 결제 / 자유 대여</strong></span><span class="lang-en">🟢 <strong>Mobile QR Rent / Walk-in</strong></span> | <span class="lang-ko"><strong>반포/여의도 한강공원 따릉이 자전거 (10/11 일)</strong></span><span class="lang-en"><strong>Hangang Seoul Bike Ddareungi Rental (Oct 11 Sun)</strong></span> | <span class="lang-ko">사전 예약 불필요! 스마트폰으로 따릉이 영문 웹(bikeseoul.com) 접속 ➔ 외국인 비회원 1–2시간권(1,000–2,000원) 해외 신용카드 결제 ➔ 자전거 안장 뒤 QR코드 스캔 즉시 잠금 해제.</span><span class="lang-en">No registration required! Open bikeseoul.com on phone ➔ Buy 1–2 hr foreigner pass (1,000–2,000 KRW) with international card ➔ Scan QR code to unlock.</span> |
 | <span class="lang-ko">🟢 <strong>현장 발권 / 대중교통</strong></span><span class="lang-en">🟢 <strong>Walk-in / Transit Cruise</strong></span> | <span class="lang-ko"><strong>한강 수상버스 (리버버스) 여의도 ➔ 잠실 (10/11 일 옵션 B)</strong></span><span class="lang-en"><strong>Hangang River Bus: Yeouido ➔ Jamsil (Oct 11 Sun Option B)</strong></span> | <span class="lang-ko">사전 예약 불필요! 여의도 선착장에서 시간 맞춰 승선권 발권 또는 교통카드 태그로 탑승. 강 위에서 서울 스카이라인을 조망하며 잠실로 이동.</span><span class="lang-en">Walk-in transit cruise! Board at Yeouido Pier using transit card or kiosk ticket for a scenic water cruise to Jamsil.</span> |
-| <span class="lang-ko">🟢 <strong>현장 발권 (자유 방문)</strong></span><span class="lang-en">🟢 <strong>Walk-in / Ticket on Site</strong></span> | <span class="lang-ko"><strong>양주 나리농원 핑크뮬리 (10/12 월)</strong></span><span class="lang-en"><strong>Yangju Nari Park Pink Muhly (Oct 12 Mon)</strong></span> | <span class="lang-ko">사전 예약 불필요. 매표소 앞 <strong>무인 발권기에서 1인 2,000원 결제</strong> 후 즉시 입장.</span><span class="lang-en">No advance booking needed. Buy 2,000 KRW ticket at entrance kiosk for immediate entry.</span> |
-| <span class="lang-ko">🟢 <strong>현장 발권 (자유 방문)</strong></span><span class="lang-en">🟢 <strong>Walk-in / Ticket on Site</strong></span> | <span class="lang-ko"><strong>동두천 니지모리 스튜디오 (10/12 월)</strong></span><span class="lang-en"><strong>Nijimori Studio Edo Village (Oct 12 Mon)</strong></span> | <span class="lang-ko">사전 예약 불필요. 입구 <strong>키오스크에서 1인 20,000원 결제</strong> 후 즉시 입장 (만 19세 이상 성인 전용, 신분증 지참).</span><span class="lang-en">No reservation needed. Buy 20,000 KRW ticket at entrance kiosk (Adults only 19+, ID required).</span> |
+| <span class="lang-ko">🟢 <strong>현장 발권 (자유 방문)</strong></span><span class="lang-en">🟢 <strong>Walk-in / Ticket on Site</strong></span> | <span class="lang-ko"><strong>양주 나리농원 핑크뮬리 (10/12 월 근교 옵션)</strong></span><span class="lang-en"><strong>Yangju Nari Park Pink Muhly (Oct 12 Mon Suburbs Option)</strong></span> | <span class="lang-ko">사전 예약 불필요. 매표소 앞 <strong>무인 발권기에서 1인 2,000원 결제</strong> 후 즉시 입장 (국제면허증 렌터카 권장).</span><span class="lang-en">No advance booking needed. Buy 2,000 KRW ticket at entrance kiosk for immediate entry (Rental car with IDP recommended).</span> |
+| <span class="lang-ko">🟢 <strong>현장 발권 (자유 방문)</strong></span><span class="lang-en">🟢 <strong>Walk-in / Ticket on Site</strong></span> | <span class="lang-ko"><strong>동두천 니지모리 스튜디오 (10/12 월 근교 옵션)</strong></span><span class="lang-en"><strong>Nijimori Studio Edo Village (Oct 12 Mon Suburbs Option)</strong></span> | <span class="lang-ko">사전 예약 불필요. 입구 <strong>키오스크에서 1인 20,000원 결제</strong> 후 즉시 입장 (만 19세 이상 성인 전용, 신분증 지참).</span><span class="lang-en">No reservation needed. Buy 20,000 KRW ticket at entrance kiosk (Adults only 19+, ID required).</span> |
 | <span class="lang-ko">🟢 <strong>자유 무료 입장 & 외국인 혜택</strong></span><span class="lang-en">🟢 <strong>Free Walk-in & Foreigner Perks</strong></span> | <span class="lang-ko"><strong>잠실 롯데면세점 월드타워점 & 롯데타워 (10/11 또는 10/13)</strong></span><span class="lang-en"><strong>Jamsil Lotte Duty Free & Seoul Sky (Oct 11 or 13)</strong></span> | <span class="lang-ko">롯데월드몰 8·9층 면세점 고객센터 방문 시 <strong>외국인 여행객 대상 커스텀 티머니(T-Money) 카드 무료 증정 및 할인 쿠폰북 수령!</strong> 123층 서울스카이 전망대는 현장 또는 모바일 예매 이용.</span><span class="lang-en">Visit 8F/9F Customer Desk with foreign passport for a <strong>Free Custom T-Money Card & coupon book!</strong> Ascend Seoul Sky observation deck freely.</span> |
 | <span class="lang-ko">🟢 <strong>자유 무료 입장</strong></span><span class="lang-en">🟢 <strong>Free Walk-in Access</strong></span> | <span class="lang-ko"><strong>강남 삼성역 코엑스 별마당 도서관 & 봉은사 (10/13 화)</strong></span><span class="lang-en"><strong>COEX Starfield Library & Bongeunsa (Oct 13 Tue)</strong></span> | <span class="lang-ko">별도 입장료 및 예약 없음! 운영 시간 내 언제든 자유 관람 및 13m 서가 사진 촬영 가능.</span><span class="lang-en">No entrance fees or reservations. Stroll and photograph freely anytime during open hours.</span> |
 | <span class="lang-ko">🟢 <strong>자유 방문 (상시 개방)</strong></span><span class="lang-en">🟢 <strong>Free Walk-in Access</strong></span> | <span class="lang-ko"><strong>강남역 올리브영 강남타운 시그니처 (10/13 화)</strong></span><span class="lang-en"><strong>Olive Young Gangnam Town Signature (Oct 13 Tue)</strong></span> | <span class="lang-ko">예약 불필요. 강남역 10번 출구, 3개 층 규모의 초대형 시그니처 플래그십 매장. 5% 즉시 세금 환급(Tax Refund).</span><span class="lang-en">Walk-in shopping. 3-story mega flagship with dedicated men's grooming and instant tax refunds.</span> |
@@ -407,9 +454,15 @@ excerpt: "10/6 저녁 도착부터 10/14 출국까지! 경복궁 동생과 함�
 * 🧺 **<span class="lang-ko">Day 5 (10/11 일) : Hannam Lifestyle, Hangang Ddareungi Bike & River Bus (한남동 · 한강 따릉이 자전거 & 라면 피크닉 / 수상버스 🛳️)</span><span class="lang-en">Day 5 (Oct 11 Sun) : Hannam Lifestyle, Hangang Ddareungi Bike & River Bus Cruise</span>** <span class="badge-tag"><span class="lang-ko">🟢 자유 방문</span><span class="lang-en">🟢 Walk-in</span></span>
   <div class="lang-ko"><strong>옵션 A (반포 코스)</strong>: 한남동 디자이너 쇼룸 ➔ 반포 한강공원 따릉이 라이딩 ➔ 즉석 은박지 한강 라면 + 배달 치킨 ➔ 반포대교 무지개분수 야경.<br><strong>옵션 B (여의도 & 수상버스 ➔ 잠실 연계 코스)</strong>: 여의도 한강공원 따릉이 자전거 라이딩 ➔ 즉석 한강 라면 피크닉 ➔ 여의도 선착장에서 한강 수상버스(리버버스) 탑승하여 잠실 선착장 크루즈 ➔ 잠실 롯데면세점 외국인 웰컴 티머니 카드 발급 & 123층 롯데타워/석촌호수 조망!</div>
   <div class="lang-en"><strong>Option A (Classic Banpo)</strong>: Hannam-dong showrooms ➔ Banpo Hangang Park Ddareungi bike ride ➔ Tin-foil instant ramyeon + delivery chicken picnic ➔ Moonlight Rainbow Fountain.<br><strong>Option B (Yeouido & River Bus to Jamsil Express)</strong>: Yeouido Hangang Park Ddareungi bike ride ➔ Instant Hangang ramyeon picnic ➔ Board Hangang River Bus at Yeouido Pier for a scenic cruise to Jamsil Pier ➔ Jamsil Lotte Duty Free (free foreign visitor T-Money card & vouchers) & 123F Lotte World Tower Seoul Sky / Seokchon Lake!</div>
-* 🌸 **<span class="lang-ko">Day 6 (10/12 월) : Autumn Pink Muhly & Exotic Japanese Village (양주 나리농원 핑크뮬리 & 니지모리 스튜디오)</span><span class="lang-en">Day 6 (Oct 12 Mon) : Autumn Pink Muhly & Exotic Japanese Village (Yangju & Nijimori)</span>** <span class="badge-tag"><span class="lang-ko">🟢 현장 발권</span><span class="lang-en">🟢 Walk-in</span></span>
-  <div class="lang-ko">서울 근교 가을 감성 나들이! ➔ 10월 절정의 양주 나리농원 핑크뮬리·천일홍 꽃바다 산책 & 인생샷 ➔ 동두천 니지모리 스튜디오로 이동 ➔ 정통 일본 라멘 점심 ➔ 에도 시대 마을 기모노 체험 & 카페 ➔ 은은한 저녁 홍등 야경 ➔ 서울 복귀.</div>
-  <div class="lang-en">Autumn escape to Gyeonggi-do! ➔ Yangju Nari Park: stroll through dreamlike fields of glowing Pink Muhly, Globe Amaranth & red Kochia ➔ Head to Nijimori Studio in Dongducheon: authentic Japanese ramen, Edo-period village walk, Kimono/Yukata dressing & magical lantern night view ➔ Return to Seoul.</div>
+* 🏛️ **<span class="lang-ko">Day 6 (10/12 월) : [선택] 용산 K-굿즈 & 이태원 버거스낵 vs 근교 핑크뮬리 로드트립</span><span class="lang-en">Day 6 (Oct 12 Mon) : [Choice] Yongsan K-Goods & Itaewon vs Suburbs Roadtrip</span>** <span class="badge-tag"><span class="lang-ko">🟢 자유 방문 / 현장 발권</span><span class="lang-en">🟢 Walk-in / Tickets</span></span>
+  <div class="lang-ko">
+  <strong>코스 1 (서울 도심 추천): 국립중앙박물관 K-굿즈(뮷즈) ➔ 용산역 신라면세점 ➔ 이태원 '버거스낵' & 펍/클럽 나이트라이프!</strong> (국보 반가사유상 미니어처/자개 굿즈 털기 ➔ 성시경 극찬 수제버거 & 화덕피자 ➔ 이국적인 웨스턴 무드 & 클럽 파티).<br>
+  <strong>코스 2 (근교 가을 로드트립 - 국제운전면허증 렌터카 추천)</strong>: 10월 절정 양주 나리농원 핑크뮬리 바다 ➔ 동두천 니지모리 스튜디오 일본 에도 마을 & 라멘.
+  </div>
+  <div class="lang-en">
+  <strong>Option 1 (Seoul Inside - Recommended): National Museum of Korea (MU:DS K-Goods) ➔ Yongsan Station Duty Free ➔ Itaewon (Burger Snack & Nightlife)!</strong> (Shop iconic Pensive Bodhisattva miniatures & mother-of-pearl crafts ➔ Savor legendary smash burgers at Burger Snack ➔ Experience vibrant international bars & clubs).<br>
+  <strong>Option 2 (Suburban Autumn Roadtrip - IDP Car Rental Recommended)</strong>: Yangju Nari Park glowing Pink Muhly ocean ➔ Nijimori Studio Edo-period village.
+  </div>
 * 🏙️ **<span class="lang-ko">Day 7 (10/13 화) : Gangnam Landmarks, Olive Young Town, Lotte Mart & Farewell Night (코엑스 · 별마당 도서관 · 봉은사 · 올리브영 강남타운 & 마지막 밤)</span><span class="lang-en">Day 7 (Oct 13 Tue) : Gangnam Landmarks, Olive Young Town, Lotte Mart & Farewell Night</span>** <span class="badge-tag"><span class="lang-ko">🟢 자유 방문</span><span class="lang-en">🟢 Walk-in</span></span>
   <div class="lang-ko">지하철 2호선 삼성역 코엑스몰 & 13m 웅장한 별마당 도서관 ➔ 코엑스 맞은편 1,200년 천년고찰 봉은사 ➔ (Day 5에 잠실을 다녀왔다면 여유롭게 압구정 로데오/도산공원 산책, 안 다녀왔다면 잠실 롯데면세점 티머니/롯데타워 투어) ➔ 2호선 강남역 <strong>3개 층 규모의 초대형 '올리브영 강남타운 시그니처' 뷰티 쇼핑</strong> ➔ 서울역 롯데마트에서 K-과자·라면·김 박스 포장 쇼핑 ➔ 서울에서의 마지막 밤 로컬 디너.</div>
   <div class="lang-en">Line 2 Samseong Station COEX Mall & towering 13m Starfield Library ➔ Ancient Bongeunsa Buddhist Temple right across COEX ➔ (If Jamsil was already visited on Day 5 via River Bus, explore trendy Apgujeong Rodeo / Dosan Park; otherwise visit Jamsil Lotte Duty Free & Seoul Sky) ➔ Ride Line 2 to Gangnam Station for <strong>colossal 3-story 'Olive Young Gangnam Town Signature' beauty haul</strong> ➔ Lotte Mart Seoul Station mega-souvenir grocery box haul ➔ Relaxed farewell local dinner on your last night in Seoul.</div>
@@ -455,13 +508,11 @@ timeline
                   : 16:30 즉석 은박지 한강 라면 파티 🍜
                   : 17:30 [옵션 B] 한강 수상버스 (여의도 ➔ 잠실) 크루즈 & 롯데면세점 티머니 / 서울스카이
                   : 19:30 [옵션 A] 반포대교 달빛무지개분수 & 세빛섬 야경
-  10/12 월 (Day 6) : 09:30 서울 ➔ 양주 나리농원 이동 (지하철 1호선/택시)
-                  : 10:30 양주 나리농원 핑크뮬리 & 천일홍 꽃바다 산책
-                  : 12:30 나리농원 ➔ 니지모리 스튜디오 이동 (차량 35분)
-                  : 13:15 정통 일본 라멘 & 교자 점심
-                  : 14:30 에도 시대 마을 산책, 기모노 대여 & 마차 카페
-                  : 17:30 낭만적인 저녁 홍등 점등 & 야경 감상
-                  : 18:30 서울 복귀 & 저녁 식사
+  10/12 월 (Day 6) : [옵션 1 서울 추천] 국립중앙박물관 K-굿즈(뮷즈) 쇼핑 (상설 무료)
+                  : 용산역 HDC 신라면세점 쇼핑
+                  : 이태원 버거스낵 (수제 스매시버거) 또는 화덕 피자
+                  : 이태원 펍 & 클럽 나이트라이프 웨스턴 무드 즐기기
+                  : [옵션 2 근교] 렌터카(국제면허증) ➔ 양주 나리농원 핑크뮬리 & 니지모리 스튜디오
   10/13 화 (Day 7) : 10:30 강남 삼성역 코엑스 & 별마당 도서관 13m 서가 포토존
                   : 12:00 코엑스 맞은편 봉은사 천년 사찰 산책
                   : 13:30 압구정 로데오/도산공원 또는 잠실 롯데타워/석촌호수
@@ -485,7 +536,7 @@ timeline
 | **10/9** | <span class="lang-ko">금</span><span class="lang-en">Fri</span> | <span class="lang-ko"><strong>홍대 K-뷰티</strong></span><span class="lang-en"><strong>Hongdae K-Beauty</strong></span> | <span class="lang-ko">🔴 <strong>예약 필수</strong></span><span class="lang-en">🔴 <strong>Booking Req.</strong></span> | <span class="lang-ko"><strong>홍대 미용실 헤어/스파 (예약)</strong> ➔ 연트럴파크 점심 ➔ 소품샵/쇼핑 ➔ 삼겹살</span><span class="lang-en"><strong>Hongdae Hair/Spa (Booked)</strong> ➔ Yeonnam Lunch ➔ Shopping ➔ K-BBQ</span> |
 | **10/10** | <span class="lang-ko">토</span><span class="lang-en">Sat</span> | <span class="lang-ko"><strong>명동 & 남산타워 & 광장시장</strong></span><span class="lang-en"><strong>Myeongdong & Namsan</strong></span> | <span class="lang-ko">🟢 자유 방문</span><span class="lang-en">🟢 Walk-in</span> | <span class="lang-ko">명동성당/몰또 ➔ 명동 쇼핑 ➔ <strong>남산타워 케이블카 & N서울타워</strong> ➔ <strong>광장시장 먹방</strong> ➔ DDP</span><span class="lang-en">Myeongdong Cathedral ➔ <strong>Namsan Cable Car & N Seoul Tower</strong> ➔ <strong>Gwangjang Market</strong> ➔ DDP</span> |
 | **10/11** | <span class="lang-ko">일</span><span class="lang-en">Sun</span> | <span class="lang-ko"><strong>한남동 & 한강 피크닉 / 수상버스</strong></span><span class="lang-en"><strong>Hannam & Hangang River Bus</strong></span> | <span class="lang-ko">🟢 자유 방문</span><span class="lang-en">🟢 Walk-in</span> | <span class="lang-ko">한남동 쇼룸 ➔ <strong>여의도/반포 한강공원 (따릉이 자전거 라이딩 🚴‍♀️ + 즉석 라면) ➔ 수상버스 ➔ 잠실 롯데면세점(티머니)</strong></span><span class="lang-en">Hannam Showrooms ➔ <strong>Hangang Park (Ddareungi Cycling + Ramyeon) ➔ River Bus ➔ Jamsil Lotte Duty Free</strong></span> |
-| **10/12** | <span class="lang-ko">월</span><span class="lang-en">Mon</span> | <span class="lang-ko"><strong>핑크뮬리 & 니지모리</strong></span><span class="lang-en"><strong>Pink Muhly & Nijimori</strong></span> | <span class="lang-ko">🟢 <strong>현장 발권</strong></span><span class="lang-en">🟢 <strong>Walk-in</strong></span> | <span class="lang-ko"><strong>양주 나리농원 핑크뮬리 바다 (현장 2천원) ➔ 동두천 니지모리 스튜디오 (현장 2만원)</strong></span><span class="lang-en"><strong>Yangju Nari Park (2k KRW) ➔ Dongducheon Nijimori Studio (20k KRW)</strong></span> |
+| **10/12** | <span class="lang-ko">월</span><span class="lang-en">Mon</span> | <span class="lang-ko"><strong>[서울] 국립중앙박물관 & 이태원<br>vs [근교] 핑크뮬리</strong></span><span class="lang-en"><strong>[Seoul] NMK K-Goods & Itaewon<br>vs [Suburbs] Pink Muhly</strong></span> | <span class="lang-ko">🟢 <strong>자유 방문 (상설 무료)</strong></span><span class="lang-en">🟢 <strong>Walk-in (Free Entry)</strong></span> | <span class="lang-ko"><strong>[서울 추천] 국립중앙박물관 K-굿즈(뮷즈) ➔ 용산역 신라면세점 ➔ 이태원 '버거스낵' & 클럽</strong><br><em>[근교 옵션] 국제면허증 렌터카 ➔ 양주 나리농원 ➔ 니지모리 스튜디오</em></span><span class="lang-en"><strong>[Seoul Recommended] National Museum of Korea (MU:DS K-Goods) ➔ Yongsan Duty Free ➔ Itaewon (Burger Snack & Clubs)</strong><br><em>[Suburbs Option] IDP Car Rental ➔ Yangju Nari Park ➔ Nijimori Studio</em></span> |
 | **10/13** | <span class="lang-ko">화</span><span class="lang-en">Tue</span> | <span class="lang-ko"><strong>강남 랜드마크 & 뷰티 쇼핑</strong></span><span class="lang-en"><strong>Gangnam Landmarks & Beauty</strong></span> | <span class="lang-ko">🟢 자유 방문</span><span class="lang-en">🟢 Walk-in</span> | <span class="lang-ko"><strong>삼성역 코엑스 별마당 도서관 ➔ 봉은사 ➔ 도산공원/잠실 ➔ 올리브영 강남타운 시그니처 ➔ 롯데마트 ➔ 로컬 석식</strong></span><span class="lang-en"><strong>COEX Starfield Library ➔ Bongeunsa ➔ Dosan/Jamsil ➔ Olive Young Gangnam Town ➔ Lotte Mart</strong></span> |
 | **10/14** | <span class="lang-ko">수</span><span class="lang-en">Wed</span> | <span class="lang-ko"><strong>자율 체크아웃 & 귀국</strong></span><span class="lang-en"><strong>Check-out & Flight</strong></span> | <span class="lang-ko">🟢 자유 방문</span><span class="lang-en">🟢 Walk-in</span> | <span class="lang-ko">숙소 자율 체크아웃 ➔ AREX ➔ 공항 세관 환급 ➔ 출국</span><span class="lang-en">Self Check-out ➔ AREX ➔ Airport Tax Refund ➔ Departure</span> |
 
@@ -510,6 +561,7 @@ timeline
 | <span class="lang-ko"><strong>기후동행카드</strong></span><span class="lang-en"><strong>Climate Card</strong></span> | <span class="lang-ko">외국인 관광객용 단기권 (1/2/3/5/7일권). 서울 시내 지하철·시내버스를 무제한 탑승.</span><span class="lang-en">Unlimited ride transit pass for Seoul subways & public buses (1/2/3/5/7 day passes available).</span> | <span class="lang-ko">• 편의점에서 실물 카드(3,000원) 구매 후 지하철 무인 충전기에서 현금 충전.<br>• 서울 시외 구간(양주, 동두천 등)은 별도 요금 적용.</span><span class="lang-en">• Buy physical card (3,000 KRW) at convenience stores and top-up at subway kiosks with cash.<br>• Excludes suburban stops outside Seoul boundary.</span> |
 | <span class="lang-ko"><strong>T-Money 카드</strong></span><span class="lang-en"><strong>T-Money Card</strong></span> | <span class="lang-ko">한국의 만능 충전식 교통카드. 지하철, 버스, 편의점, 택시 결제 가능.</span><span class="lang-en">Standard rechargeable transit card accepted across all subways, buses, taxis, and convenience stores.</span> | <span class="lang-ko">• 편의점에서 손쉽게 구매 및 현금 충전 가능.<br>• 양주, 동두천 등 한국 전역에서 그대로 사용 가능!<br>• <strong>💡 잠실 롯데면세점 월드타워점 외국인 고객센터에서 무료 증정 혜택 제공!</strong></span><span class="lang-en">• Easy to buy and top up with cash at any convenience store.<br>• Works everywhere in Korea including Yangju and Dongducheon!<br>• <strong>💡 Claim a free custom card at Jamsil Lotte Duty Free customer desk!</strong></span> |
 | <span class="lang-ko"><strong>해외 카드 결제</strong></span><span class="lang-en"><strong>Overseas Cards</strong></span> | <span class="lang-ko">대부분 매장에서 VISA, Mastercard, AMEX가 문제없이 결제됩니다.</span><span class="lang-en">Most restaurants, cafés, and retail shops accept foreign credit cards without hassle.</span> | <span class="lang-ko">• 포장마차(야장) 및 전통시장 일부 노점은 <strong>현금 결제</strong> 선호. 비상금으로 5–10만 원 현금 소지 권장!</span><span class="lang-en">• Traditional market stalls and street pochas prefer <strong>cash (KRW notes)</strong>. Keep 50,000–100,000 KRW cash handy!</span> |
+| <span class="lang-ko"><strong>국제운전면허증 (IDP)</strong></span><span class="lang-en"><strong>Int'l Driving Permit (IDP)</strong></span> | <span class="lang-ko">근교(양주, 가평, 동두천)를 렌터카로 여행할 경우 본국 면허증 + 국제면허증 필수.</span><span class="lang-en">Essential along with your home country driver's license if renting a car for suburban road trips.</span> | <span class="lang-ko">• 서울 시내는 대중교통이 최고지만, 근교 외곽은 렌터카가 훨씬 편리합니다. 렌트 계획이 있다면 출국 전 발급 필수!</span><span class="lang-en">• While subways are king inside Seoul, driving a rental car is ideal for suburban scenic areas. Bring an IDP if you plan to drive!</span> |
 
 ---
 
@@ -522,8 +574,8 @@ timeline
   <div class="lang-ko">네이버의 인공지능 번역 앱. 식당 메뉴판 사진을 찍으면 즉시 번역해주며 한국어 음성 대화 번역이 가장 자연스럽습니다.</div>
   <div class="lang-en">The best AI translation tool for Korean. Snap photos of menus for instant translation and enjoy natural voice conversation features.</div>
 * 🚕 **<span class="lang-ko">카카오 T (Kakao T)</span><span class="lang-en">Kakao T (Taxi)</span>**
-  <div class="lang-ko">한국의 우버(Uber). 길거리에서 택시가 안 잡힐 때 필수이며 해외 신용카드 등록이 지원됩니다. (10/12 양주 나리농원 ➔ 니지모리 스튜디오 이동 시 택시 호출에 매우 유용!)</div>
-  <div class="lang-en">Korea's premier ride-hailing app (like Uber). Accepts international credit cards and is super useful when taking a cab from Yangju Nari Park to Nijimori Studio!</div>
+  <div class="lang-ko">한국의 우버(Uber). 길거리에서 택시가 안 잡힐 때 필수이며 해외 신용카드 등록이 지원됩니다.</div>
+  <div class="lang-en">Korea's premier ride-hailing app (like Uber). Accepts international credit cards and is super useful when getting around with luggage.</div>
 
 ---
 
@@ -667,23 +719,36 @@ timeline
 
 ---
 
-## <span class="lang-ko">10/12 (월) · Day 6 : 가을빛 핑크뮬리 & 니지모리 스튜디오</span><span class="lang-en">Oct 12 (Mon) · Day 6 : Autumn Pink Muhly & Nijimori Studio</span> <span class="badge-tag"><span class="lang-ko">🟢 현장 발권</span><span class="lang-en">🟢 Walk-in</span></span>
+## <span class="lang-ko">10/12 (월) · Day 6 : [선택 1] 용산 K-굿즈 & 이태원 버거스낵 vs [선택 2] 가을 근교 로드트립</span><span class="lang-en">Oct 12 (Mon) · Day 6 : [Option 1] Yongsan K-Goods & Itaewon vs [Option 2] Autumn Suburbs Roadtrip</span> <span class="badge-tag"><span class="lang-ko">🟢 자유 방문</span><span class="lang-en">🟢 Walk-in</span></span>
 
-> <div class="lang-ko">주말 인파를 피해 한적한 월요일 평일에 떠나는 서울 근교 감성 여행! 양주 나리농원의 환상적인 핑크빛 핑크뮬리 바다와 동두천 니지모리 스튜디오의 고풍스러운 에도 시대 일본 마을을 함께 즐기는 완벽한 가을 데이 트립 코스입니다.</div>
-> <div class="lang-en">A dreamy autumn day trip away from weekend crowds! Immerse yourself in the glowing ocean of Pink Muhly flowers at Yangju Nari Park, then step back in time to feudal Japan at Nijimori Studio in Dongducheon.</div>
+> <div class="lang-ko">
+> <strong>💡 일정 선택 안내</strong>: 서울 시내만으로도 9일이 빠듯하므로 무리하게 교외로 나가지 않고 <strong>옵션 1(용산 & 이태원)을 강력 추천</strong>합니다! 만약 꼭 양주/동두천 근교를 가고 싶다면 한국 지하철보다는 <strong>국제운전면허증(IDP)을 지참하여 렌터카를 대여해 드라이브</strong>하시는 것이 훨씬 여유롭습니다.
+> </div>
+> <div class="lang-en">
+> <strong>💡 Course Advice</strong>: Since Seoul itself is deeply packed with attractions, <strong>Option 1 (Yongsan & Itaewon) is strongly recommended</strong> for a relaxed, culture-rich experience! If you genuinely wish to explore suburban Gyeonggi-do (Option 2), bringing an <strong>International Driving Permit (IDP) and renting a car</strong> is far more comfortable than suburban trains.
+> </div>
 
-* 🌸 **<span class="lang-ko">10:30 ~ 12:30 | 양주 나리농원 핑크뮬리 & 가을꽃 바다 산책</span><span class="lang-en">10:30 ~ 12:30 | Yangju Nari Park Pink Muhly & Flower Fields</span>** <span class="badge-tag"><span class="lang-ko">🟢 현장 발권 (2,000원)</span><span class="lang-en">🟢 Walk-in (2k KRW)</span></span>
-  <div class="lang-ko">지하철 1호선 양주역 2번 출구에서 카카오T 택시(약 10분, 8,000원) 이용. 매표소 앞 무인 발권기에서 2,000원 티켓 발권. 10월 절정인 분홍빛 핑크뮬리, 보랏빛 천일홍, 붉은 댑싸리 꽃바다 속에서 인생 사진 남기기!</div>
-  <div class="lang-en">Take Subway Line 1 to Yangju Station (Exit 2) ➔ Hop in a quick Kakao T taxi (approx. 10 mins, ~8,000 KRW) to Yangju Nari Park. Buy a 2,000 KRW ticket at the kiosk. Wander through endless fields of glowing pastel pink muhly grass, purple globe amaranth, and crimson round kochia!</div>
-* 🚗 **<span class="lang-ko">12:30 ~ 13:15 | 양주 ➔ 동두천 니지모리 스튜디오 이동</span><span class="lang-en">12:30 ~ 13:15 | Transfer: Yangju ➔ Nijimori Studio</span>**
-  <div class="lang-ko">양주 나리농원에서 카카오T 택시 호출(약 30~35분 소요, 약 25,000원~30,000원)하여 동두천 니지모리 스튜디오로 바로 이동 (이동이 매우 쾌적하고 편리합니다).</div>
-  <div class="lang-en">Hail a Kakao T taxi directly from Yangju Nari Park to Nijimori Studio in Dongducheon (approx. 30–35 mins ride, around 25,000–30,000 KRW). Direct and effortless!</div>
-* ⛩️ **<span class="lang-ko">13:15 ~ 18:00 | 동두천 니지모리 스튜디오 에도 마을 투어</span><span class="lang-en">13:15 ~ 18:00 | Nijimori Studio Edo Period Village Tour</span>** <span class="badge-tag"><span class="lang-ko">🟢 현장 발권 (20,000원 / 성인 전용 19+)</span><span class="lang-en">🟢 Walk-in (20k KRW / Adults 19+)</span></span>
-  <div class="lang-ko">입구 키오스크에서 20,000원 티켓 결제 (성인 전용 19+). 마을 내 전통 일본 라멘집에서 돈코츠/미소 라멘과 수제 야키교자 점심 식사. 기모노/유카타 대여 산책, 찻집에서 말차와 당고 즐기기, 17:30경 해질 무렵 마을 전체에 켜지는 붉은 홍등 야경 감상!</div>
-  <div class="lang-en">Purchase your 20,000 KRW ticket at the entrance kiosk (Adults only 19+). Savor piping hot Tonkotsu/Miso ramen and handmade gyoza for lunch. Rent Kimono or Yukata to stroll past vintage wooden shrines, red torii gates, and tranquil ponds. At 17:30 twilight, watch the village illuminate under glowing traditional red paper lanterns!</div>
-* 🍲 **<span class="lang-ko">18:30 ~ 20:30 | 서울 복귀 & 따뜻한 저녁 식사</span><span class="lang-en">18:30 ~ 20:30 | Return to Seoul & Dinner</span>** <span class="badge-tag"><span class="lang-ko">🟢 자유 방문</span><span class="lang-en">🟢 Walk-in</span></span>
-  <div class="lang-ko">니지모리 스튜디오에서 동두천중앙역으로 이동(택시 15분) ➔ 1호선 지하철 탑승 후 서울 복귀 ➔ 따뜻한 쇠고기 샤브샤브나 전골로 하루 여독 풀기.</div>
-  <div class="lang-en">Take a taxi to Dongducheon Jungang Station (15 mins) ➔ Ride Subway Line 1 back to central Seoul ➔ Enjoy a comforting hot pot or beef shabu-shabu dinner.</div>
+* 🌟 **<span class="lang-ko">[추천 옵션 1 : 서울 도심] 용산역 신라면세점 · 국립중앙박물관 K-굿즈(뮷즈) & 이태원 '버거스낵' + 클럽 나이트라이프</span><span class="lang-en">[Recommended Option 1 : Seoul Inside] National Museum of Korea (MU:DS K-Goods) · Yongsan Duty Free & Itaewon (Burger Snack + Clubs)</span>**
+  * 🏛️ **<span class="lang-ko">10:30 ~ 13:30 | 국립중앙박물관 상설전 관람 & '뮷즈(MU:DS)' K-굿즈 쇼핑</span><span class="lang-en">10:30 ~ 13:30 | National Museum of Korea & Iconic 'MU:DS' K-Goods</span>** `🟢 상설전 전액 무료`
+    <div class="lang-ko">4호선/경의중앙선 이촌역 2번 출구 박물관 나들길 직결. 세계적인 규모의 국립중앙박물관 상설전시관(무료 관람)을 여유롭게 산책! 특히 1층 문화상품점(뮷즈 샵)에서 한국인과 외국인 모두 열광하는 <strong>국보 반가사유상 컬러 미니어처, 고려청자 텀블러/케이스, 나전칠기 자개 소품 및 디자인 문구류</strong> 등 서울에서 가장 감각적인 최고급 전통 K-굿즈 쇼핑 🛍️.</div>
+    <div class="lang-en">Take Line 4 / Gyeongui-Jungang Line to Ichon Station (Exit 2). The grand permanent gallery is <strong>100% FREE</strong>! Don't miss the legendary <strong>MU:DS (Museum Goods) Shop</strong> on the 1st floor—world-famous for aesthetic, modern reimaginations of Korean treasures: pastel <strong>Pensive Bodhisattva mini statues</strong>, Celadon tumblers, and mother-of-pearl lacquerware!</div>
+  * 🛍️ **<span class="lang-ko">13:30 ~ 15:30 | 용산역 HDC 신라면세점 & 아이파크몰 투어</span><span class="lang-en">13:30 ~ 15:30 | Yongsan Station HDC Shilla I'Park Duty Free & Mall</span>** `🟢 자유 방문`
+    <div class="lang-ko">이촌역에서 1정거장(경의중앙선) 또는 택시 5분으로 용산역 도착. 아이파크몰 3–7층에 위치한 대규모 'HDC 신라면세점'에서 여권을 제시하고 럭셔리 브랜드 및 K-패션/뷰티 면세 쇼핑 즐기기.</div>
+    <div class="lang-en">Hop one train stop to Yongsan Station. Explore HDC Shilla I'Park Duty Free occupying floors 3 to 7 of I'Park Mall for tax-free luxury cosmetics, fashion, and lifestyle shopping.</div>
+  * 🍔 **<span class="lang-ko">16:00 ~ 18:30 | 이태원/녹사평 이동 ➔ 성시경 극찬 수제버거 '버거스낵(Burger Snack)' 또는 화덕 피자</span><span class="lang-en">16:00 ~ 18:30 | Itaewon / Noksapyeong: Burger Snack (Smash Burgers) or Pizza</span>** `🟢 자유 방문`
+    <div class="lang-ko">용산에서 6호선 녹사평역 또는 택시로 10분 이동. 이국적인 감성이 흐르는 이태원/경리단길 초입! 성시경의 유튜브 '먹을텐데'에서 극찬받은 수제 스매시버거 성지 <strong>'버거스낵(Burger Snack)'</strong> 방문! 철판에 바삭하게 눌러 구운 소고기 패티와 달콤하게 카라멜라이징된 양파가 폭발하는 육즙 버거 맛보기 (또는 보니스피자펍/모터시티 화덕 피자).</div>
+    <div class="lang-en">Take a 10-minute cab or subway to Noksapyeong / Itaewon Station. Treat your tastebuds at <strong>Burger Snack</strong>, Seoul's cult smash-burger haven celebrated by top foodies! Savor crispy lacy beef patties dripping with melted cheese and sweet caramelized onions on a buttery potato bun. (Alternative: artisan Detroit pizza at Motor City).</div>
+  * 🍸 **<span class="lang-ko">19:00 ~ 늦은 밤 | 이태원 웨스턴 펍, 루프탑 & 글로벌 클럽 나이트라이프</span><span class="lang-en">19:00 ~ Late | Itaewon International Pubs, Rooftops & World-Famous Nightclubs</span>** `🟢 자유 방문`
+    <div class="lang-ko">한국 속의 작은 지구마을 이태원! 세계 각국의 수제맥주 펍과 남산타워가 보이는 루프탑 바에서 칵테일을 즐기고, 밤이 깊어지면 활기찬 하우스/힙합 클럽에서 자유롭고 신나는 가을밤 파티 만끽하기.</div>
+    <div class="lang-en">Experience Itaewon's electric global nightlife! Sip craft beers at open-air sidewalk pubs, take in N Seoul Tower sunset views from rooftop lounges, and dance the night away at premier underground electronic or hip-hop clubs.</div>
+
+* 🚗 **<span class="lang-ko">[옵션 2 : 근교 로드트립] 양주 나리농원 핑크뮬리 & 동두천 니지모리 스튜디오 (국제면허증 렌터카 추천)</span><span class="lang-en">[Option 2 : Suburban Roadtrip] Yangju Pink Muhly & Nijimori Studio (Car Rental Recommended)</span>**
+  * 🌸 **<span class="lang-ko">10:30 ~ 12:30 | 양주 나리농원 핑크뮬리 & 가을꽃 바다 산책</span><span class="lang-en">10:30 ~ 12:30 | Yangju Nari Park Pink Muhly & Flower Fields</span>** `🟢 현장 발권 (2,000원)`
+    <div class="lang-ko">10월 절정인 분홍빛 핑크뮬리, 보랏빛 천일홍, 붉은 댑싸리 꽃바다 속에서 인생 사진 남기기!</div>
+    <div class="lang-en">Wander through endless fields of glowing pastel pink muhly grass, purple globe amaranth, and crimson round kochia!</div>
+  * ⛩️ **<span class="lang-ko">13:15 ~ 18:00 | 동두천 니지모리 스튜디오 에도 마을 투어</span><span class="lang-en">13:15 ~ 18:00 | Nijimori Studio Edo Period Village Tour</span>** `🟢 현장 발권 (20,000원 / 성인 19+)`
+    <div class="lang-ko">마을 내 전통 일본 라멘 점심, 기모노/유카타 대여 산책, 찻집 말차와 당고, 17:30경 해질 무렵 마을 전체에 켜지는 붉은 홍등 야경 감상 후 서울 복귀.</div>
+    <div class="lang-en">Tonkotsu ramen lunch, Kimono dressing, matcha sweets, and illuminated red lanterns at twilight before driving back to Seoul.</div>
 
 ---
 
@@ -729,7 +794,42 @@ timeline
 <div class="lang-ko">친구분의 취향과 체력, 그날의 날씨에 따라 일정을 더 풍성하고 유연하게 즐길 수 있도록 핵심 팁과 주변 추가 가볼 만한 곳들을 총정리했습니다! (Plan일 뿐이니 원하는 만큼 골라서 즐기시면 됩니다).</div>
 <div class="lang-en">Here is an exhaustive, practical pro-tip handbook designed to make navigating Seoul effortless, flexible, and fun—from renting city bikes without a Korean phone to claiming free duty-free T-Money perks and picking extra activities!</div>
 
-### <span class="lang-ko">🚴‍♀️ 1. 외국인 전용 서울자전거 '따릉이(Ddareungi)' 200% 대여 & 라이딩 꿀팁</span><span class="lang-en">🚴‍♀️ 1. Foreigner Guide to Seoul Bike (Ddareungi) Rental & Cycling</span>
+### <span class="lang-ko">🚗 1. 서울 vs 근교 여행: 국제운전면허증(IDP)과 렌터카 안내</span><span class="lang-en">🚗 1. Seoul vs Suburbs: Int'l Driving Permit & Car Rental Guide</span>
+
+* <div class="lang-ko"><strong>서울만 돌아도 9일이 부족합니다</strong>: 서울 시내에만 성수, 홍대, 경복궁, 서순라길, 남산타워, 한남동, 여의도, 반포, 코엑스, 이태원, 용산 등 가볼 만한 곳이 가득 차 있어 9일도 짧게 느껴집니다. 무리하게 외곽으로 이동하기보다 서울 도심의 다채로운 매력에 집중하는 것을 권장합니다.</div><div class="lang-en"><strong>Seoul is more than enough for 9 days</strong>: Seoul is brimming with iconic districts, world-class food, culture, and shopping. You can comfortably spend all 9 days inside Seoul without running out of exciting things to do.</div>
+* <div class="lang-ko"><strong>근교 여행 시 필수 준비물</strong>: 양주 나리농원이나 동두천 니지모리 스튜디오, 가평 남이섬 등 교외로 나가실 계획이라면 <strong>국제운전면허증(IDP, 본국 면허증과 함께 소지)</strong>을 반드시 준비해 오셔서 렌터카(롯데렌터카/SK렌터카 등)를 이용하시는 것이 대중교통 배차 대기 없이 훨씬 쾌적합니다.</div><div class="lang-en"><strong>Essential for Suburbs Roadtrip</strong>: If planning to explore outside Seoul (Yangju Pink Muhly, Nijimori Studio, Nami Island), bringing an <strong>International Driving Permit (IDP) and renting a car</strong> is strongly recommended over suburban buses/trains for flexibility and comfort.</div>
+
+---
+
+### <span class="lang-ko">🏛️ 2. 국립중앙박물관 K-굿즈(뮷즈 MU:DS) 쇼핑 & 용산 면세점 꿀팁</span><span class="lang-en">🏛️ 2. National Museum of Korea K-Goods (MU:DS) & Yongsan Duty Free</span>
+
+* <div class="lang-ko"><strong>국보급 K-굿즈의 성지 '뮷즈(MU:DS)'</strong>: 국립중앙박물관 1층에 위치한 기념품 샵은 한국 MZ세대와 외국인 관광객 모두에게 폭발적인 인기를 끌고 있는 최고급 문화 굿즈 브랜드입니다.</div><div class="lang-en"><strong>The Holy Grail of K-Cultural Goods: MU:DS</strong>: Located on the 1st floor of the National Museum of Korea, MU:DS offers the most sophisticated, beautifully designed souvenirs in the country.</div>
+* <div class="lang-ko"><strong>추천 쇼핑 리스트</strong>:
+  * <strong>반가사유상 미니어처 (Pensive Bodhisattva)</strong>: 국보 반가사유상을 현대적인 파스텔톤 컬러로 재해석한 오브제 (BTS RM의 작업실에도 놓여있어 세계적으로 유명해짐).
+  * <strong>고려청자 모티브 굿즈</strong>: 비취색 청자 문양 텀블러, 에어팟 케이스, 키링.
+  * <strong>자개 공예품 (Najeonchilgi)</strong>: 각도에 따라 영롱하게 빛나는 자개 스티커, 손거울, 트레이.</div><div class="lang-en"><strong>Must-Buy Souvenir List</strong>:
+  * <strong>Pensive Bodhisattva Miniature</strong>: Modern pop-art pastel mini statues of Korea’s National Treasure (famous worldwide after BTS RM featured one in his studio).
+  * <strong>Goryeo Celadon Items</strong>: Jade-green glazed celadon tumblers, phone accessories, and keyrings.
+  * <strong>Mother-of-Pearl (Najeonchilgi) Crafts</strong>: Shimmering mother-of-pearl phone stickers, compact mirrors, and lacquer trays.</div>
+* <div class="lang-ko"><strong>용산역 HDC 신라면세점</strong>: 박물관 관람 후 바로 인근 용산역 아이파크몰로 이동해 도심 면세점 쇼핑과 식사를 원스톱으로 즐길 수 있습니다.</div><div class="lang-en"><strong>Yongsan Station Shilla I'Park Duty Free</strong>: Just one quick stop from the museum, head into I'Park Mall for multi-level tax-free luxury shopping.</div>
+
+---
+
+### <span class="lang-ko">🍔 3. 이태원 웨스턴 무드 & 성시경 극찬 '버거스낵(Burger Snack)' 가이드</span><span class="lang-en">🍔 3. Itaewon Western Vibe & Cult Smash Burger 'Burger Snack' Guide</span>
+
+* <div class="lang-ko"><strong>이태원을 가야 하는 이유</strong>: 한국의 전통미와 K-팝 트렌드 외에, 자유롭고 이국적인 서양식 펍, 라운지 바, 그리고 서울 최고의 나이트라이프(클럽)를 경험하고 싶다면 단연 이태원이 최고입니다!</div><div class="lang-en"><strong>Why Visit Itaewon</strong>: If you crave an international Western vibe, buzzing open-air pubs, rooftop cocktails, and Seoul’s premier clubbing scene, Itaewon is the undisputed center!</div>
+* <div class="lang-ko"><strong>'버거스낵(Burger Snack)' 수제 스매시버거</strong>:
+  * 위치: 녹사평역 2번 출구 도보 5분 (용산구 녹사평대로46길 13, 경리단길 입구).
+  * 매력: 성시경의 유튜브 '먹을텐데'에서 극찬받은 수제버거 성지! 철판에 눌러 바삭하게 구운 패티와 달콤하게 카라멜라이징된 양파가 폭발적인 육즙을 자랑합니다.
+  * 피자 옵션: 이태원의 유명 화덕 피자 맛집인 보니스피자펍(Bonny's Pizza Pub) 또는 모터시티(Motor City) 디트로이트 피자도 최고의 선택지입니다.</div><div class="lang-en"><strong>Burger Snack (Smash Burgers)</strong>:
+  * Location: 5-min walk from Noksapyeong Station Exit 2 (13 Noksapyeong-daero 46-gil).
+  * Highlights: Hailed by famous food critics, this tiny diner crafts top-tier smash burgers with lacy crisp beef edges and rich caramelized onions.
+  * Pizza Options: Artisan Detroit pizza at Motor City or casual craft pies at Bonny’s Pizza Pub are equally iconic.</div>
+* <div class="lang-ko"><strong>이태원 클럽 & 나이트라이프</strong>: 해밀톤 호텔 뒷골목과 이태원 앤틱가구거리 주변에 하우스, 테크노, 힙합 클럽들이 밀집해 있어 신나는 가을밤 파티를 만끽할 수 있습니다.</div><div class="lang-en"><strong>Nightclubs & Lounges</strong>: The alleys behind Hamilton Hotel house Seoul’s trendiest electronic and hip-hop clubs running till dawn.</div>
+
+---
+
+### <span class="lang-ko">🚴‍♀️ 4. 외국인 전용 서울자전거 '따릉이(Ddareungi)' 200% 대여 & 라이딩 꿀팁</span><span class="lang-en">🚴‍♀️ 4. Foreigner Guide to Seoul Bike (Ddareungi) Rental & Cycling</span>
 
 * <div class="lang-ko"><strong>한국 번호 / 본인인증 불필요!</strong>: 외국인 관광객도 스마트폰 모바일 웹 브라우저만 있으면 1분 만에 대여 가능합니다.</div><div class="lang-en"><strong>No Korean phone number required!</strong>: Any foreign tourist can rent a bike in 1 minute using just a mobile web browser.</div>
 * <div class="lang-ko"><strong>대여 단계 (Step-by-Step)</strong>:
@@ -747,7 +847,7 @@ timeline
 
 ---
 
-### <span class="lang-ko">🚡 2. 남산 케이블카 & N서울타워 스마트 이용 가이드</span><span class="lang-en">🚡 2. Namsan Cable Car & N Seoul Tower Smart Guide</span>
+### <span class="lang-ko">🚡 5. 남산 케이블카 & N서울타워 스마트 이용 가이드</span><span class="lang-en">🚡 5. Namsan Cable Car & N Seoul Tower Smart Guide</span>
 
 * <div class="lang-ko"><strong>남산 오르미(Namsan Oreumi) 무료 탑승</strong>: 명동역 3번 출구 또는 회현역에서 남산 방향으로 올라가면, 도로변에서 케이블카 매표소까지 연결해 주는 <strong>통유리 경사형 야외 엘리베이터 '남산 오르미'</strong>를 무료로 탑승할 수 있어 오르막길을 편하게 올라갈 수 있습니다.</div><div class="lang-en"><strong>Free Namsan Oreumi Lift</strong>: Walk 7 mins from Myeongdong Station Exit 3 to ride the free inclined outdoor glass elevator 'Namsan Oreumi' straight to the cable car ticketing office without climbing steep stairs.</div>
 * <div class="lang-ko"><strong>케이블카 발권 & 요금</strong>: 케이블카 승강장 매표소에서 왕복 티켓(성인 15,000원) 현장 구매. (가을 단풍철에는 오후 2~4시경이 단풍 숲을 조망하기 가장 예쁩니다).</div><div class="lang-en"><strong>Cable Car Tickets</strong>: Buy round-trip tickets (15,000 KRW) at the counter. Riding between 14:00 and 16:00 gives the most radiant views of autumn foliage.</div>
@@ -755,7 +855,7 @@ timeline
 
 ---
 
-### <span class="lang-ko">💳 3. 잠실 롯데면세점 월드타워점 외국인 티머니(T-Money) 카드 무료 발급 & 롯데타워</span><span class="lang-en">💳 3. Jamsil Lotte Duty Free Free Foreigner T-Money Card & Lotte Tower</span>
+### <span class="lang-ko">💳 6. 잠실 롯데면세점 월드타워점 외국인 티머니(T-Money) 카드 무료 발급 & 롯데타워</span><span class="lang-en">💳 6. Jamsil Lotte Duty Free Free Foreigner T-Money Card & Lotte Tower</span>
 
 * <div class="lang-ko"><strong>외국인 관광객 전용 혜택</strong>: 잠실 롯데월드몰 8층 또는 9층에 위치한 <strong>롯데면세점 월드타워점 고객 서비스 데스크(Customer Service Desk)</strong> 방문.</div><div class="lang-en"><strong>Foreign Tourist Exclusive Perk</strong>: Visit the Customer Service Desk on the 8th or 9th floor of Lotte World Mall (Lotte Duty Free World Tower branch).</div>
 * <div class="lang-ko"><strong>준비물</strong>: 외국인 여권(Foreign Passport) 필수 지참.</div><div class="lang-en"><strong>Requirement</strong>: Valid foreign passport must be presented.</div>
@@ -764,7 +864,7 @@ timeline
 
 ---
 
-### <span class="lang-ko">🛳️ 4. 한강 낭만 수상버스(리버버스) & 이랜드 크루즈 유람선 가이드</span><span class="lang-en">🛳️ 4. Hangang River Bus & E-Land Sunset Cruise Guide</span>
+### <span class="lang-ko">🛳️ 7. 한강 낭만 수상버스(리버버스) & 이랜드 크루즈 유람선 가이드</span><span class="lang-en">🛳️ 7. Hangang River Bus & E-Land Sunset Cruise Guide</span>
 
 * <div class="lang-ko"><strong>한강 수상버스 (리버버스) 노선</strong>:
   * 여의도 ➔ 옥수 ➔ 뚝섬 ➔ 잠실 등 한강 주요 명소를 수상으로 연결하는 서울의 신개념 친환경 대중교통.
@@ -779,7 +879,7 @@ timeline
 
 ---
 
-### <span class="lang-ko">💄 5. 올리브영 N 성수 vs 올리브영 강남타운 시그니처 비교</span><span class="lang-en">💄 5. Olive Young N Seongsu vs Olive Young Gangnam Town Signature</span>
+### <span class="lang-ko">💄 8. 올리브영 N 성수 vs 올리브영 강남타운 시그니처 비교</span><span class="lang-en">💄 8. Olive Young N Seongsu vs Olive Young Gangnam Town Signature</span>
 
 * <div class="lang-ko"><strong>Day 1: 올리브영 N 성수 (Seongsu N)</strong>
   * 특징: 총 5개 층 규모의 미래형 K-뷰티 혁신 플래그십.
@@ -794,10 +894,11 @@ timeline
 
 ---
 
-### <span class="lang-ko">🗺️ 6. 권역별 인근 추가 추천 스팟</span><span class="lang-en">🗺️ 6. Flexible Nearby District Bucket List</span>
+### <span class="lang-ko">🗺️ 9. 권역별 인근 추가 추천 스팟</span><span class="lang-en">🗺️ 9. Flexible Nearby District Bucket List</span>
 
 | <span class="lang-ko">권역</span><span class="lang-en">District</span> | <span class="lang-ko">인근 추천 스팟</span><span class="lang-en">Nearby Spot</span> | <span class="lang-ko">특징 및 매력 포인트</span><span class="lang-en">Highlights</span> |
 |---|---|---|
+| <span class="lang-ko"><strong>용산/이태원</strong></span><span class="lang-en"><strong>Yongsan/Itaewon</strong></span> | <span class="lang-ko"><strong>경리단길 & 해방촌 신흥시장</strong></span><span class="lang-en"><strong>Gyeongnidan & Haebangchon</strong></span> | <span class="lang-ko">녹사평역 도보 10분. 남산타워 노을 뷰 루프탑 카페와 아티스틱한 독립 서점 골목.</span><span class="lang-en">Hilltop scenic alleys with stunning sunset views of N Seoul Tower, trendy bistros, and indie cafes.</span> |
 | <span class="lang-ko"><strong>성수/뚝섬</strong></span><span class="lang-en"><strong>Seongsu</strong></span> | <span class="lang-ko"><strong>뚝섬 한강공원 & 자벌레 쉼터</strong></span><span class="lang-en"><strong>Ttukseom Hangang Park</strong></span> | <span class="lang-ko">성수동 카페거리에서 도보 10분. 서울 야경과 한강 노을 감상 명소.</span><span class="lang-en">10 mins walk from Seongsu. Breathtaking sunset and water views.</span> |
 | <span class="lang-ko"><strong>종로/을지로</strong></span><span class="lang-en"><strong>Jongno</strong></span> | <span class="lang-ko"><strong>익선동 한옥마을 (Ikseon-dong)</strong></span><span class="lang-en"><strong>Ikseon-dong Hanok Alley</strong></span> | <span class="lang-ko">서순라길 바로 옆 골목. 100년 된 한옥들을 개조한 트렌디한 디저트 카페와 아기자기한 소품 골목.</span><span class="lang-en">Right next to Seosulla-gil. Century-old hanoks transformed into trendy cafés and bakeries.</span> |
 | <span class="lang-ko"><strong>명동/남산</strong></span><span class="lang-en"><strong>Myeongdong</strong></span> | <span class="lang-ko"><strong>남대문시장 칼국수 골목 & 호떡</strong></span><span class="lang-en"><strong>Namdaemun Market Food Alley</strong></span> | <span class="lang-ko">명동 도보 10분. 저렴하고 푸짐한 손칼국수+비빔냉면 세트와 바삭한 야채호떡.</span><span class="lang-en">10 mins from Myeongdong. Legendary handmade knife-cut noodle alley and vegetable hotteok.</span> |
