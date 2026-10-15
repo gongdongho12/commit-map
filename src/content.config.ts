@@ -95,6 +95,7 @@ const postsCollection = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
+    titleEn: z.string().optional(),
     date: z.coerce.date(),
     endDate: z.coerce.date().optional(),  // 여행 종료일
     nights: z.number().int().nonnegative().optional(), // 기내박 등을 제외한 숙박 수. 생략 시 날짜 차이 사용
