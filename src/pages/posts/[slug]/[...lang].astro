@@ -1,32 +1,62 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import LanguageSwitcher from '../../../components/LanguageSwitcher.astro';
 import { getCollection, render } from 'astro:content';
 import Comments from '../../../components/Comments.astro';
 import { MapContainer } from '../../../components/map/MapContainer';
 import { buildClipPayloadPath } from '../../../lib/clipPayload';
-import { resolveFlightSchedule } from '../../../lib/flightSchedules';
+import { localizeFlightAirline, resolveFlightSchedule } from '../../../lib/flightSchedules';
 import { getTripMapLocations } from '../../../lib/tripMapLocations';
+import { localizePostData } from '../../../lib/postTranslations';
+import { homeText, homePaths, homeLocales, HOME_LANGUAGES, type HomeLanguage } from '../../../lib/homeLanguages';
+import LanguagePreferenceRedirect from '../../../components/LanguagePreferenceRedirect.astro';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts');
+  const [posts, translations] = await Promise.all([getCollection('posts'), getCollection('postTranslations')]);
+  const byKey = new Map(translations.map(entry => [`${entry.data.postSlug}:${entry.data.lang}`, entry]));
+  if (byKey.size !== translations.length) throw new Error('Duplicate post translation language');
+  const postSlugs = new Set(posts.map(post => post.id.replace(/\.md$/, '')));
+  for (const entry of translations) {
+    if (!postSlugs.has(entry.data.postSlug)) throw new Error(`Translation has no original post: ${entry.data.postSlug}`);
+  }
   return posts.flatMap(post => {
     const slug = post.id.replace(/\.md$/, '');
+    const legacyEnglish = /class=["'][^"']*\blang-en\b|(?:^|\n)\s*(?:[-*>]\s*)*(?:\*\*)?(?:EN\s*:|\[EN\]|\(EN\))/im.test(post.body);
+    const availableLanguages = HOME_LANGUAGES.filter(lang => lang === 'ko' || byKey.has(`${slug}:${lang}`) || (lang === 'en' && legacyEnglish));
+    const languagePaths = availableLanguages.map(lang => {
+      const translation = byKey.get(`${slug}:${lang}`);
+      if (translation) localizePostData(post.data, translation.data);
+      return {
+        params: { slug, lang },
+        props: { post, translation, initialLang: lang, availableLanguages },
+      };
+    });
     return [
-      { params: { slug, lang: undefined }, props: { post, initialLang: undefined } },
-      { params: { slug, lang: 'en' }, props: { post, initialLang: 'en' } },
-      { params: { slug, lang: 'ko' }, props: { post, initialLang: 'ko' } },
+      { params: { slug, lang: undefined }, props: { post, initialLang: byKey.has(`${slug}:en`) ? 'ko' : 'all', availableLanguages } },
+      ...languagePaths,
     ];
   });
 }
 
-const { post, initialLang } = Astro.props;
-const { Content, headings } = await render(post);
+const { post: originalPost, translation, initialLang, availableLanguages } = Astro.props;
+const lang: HomeLanguage = initialLang === 'all' ? 'ko' : initialLang;
+const isTranslated = lang !== 'ko';
+const displayMode = initialLang === 'all' ? 'all' : isTranslated ? 'en' : 'ko';
+const hasEnglish = availableLanguages.includes('en');
+const post = {
+  ...originalPost,
+  data: isTranslated && translation ? localizePostData(originalPost.data, translation.data) : originalPost.data,
+};
+const { Content, headings } = await render(isTranslated && translation ? translation : originalPost);
+const locale = homeLocales[lang];
+const text = (ko: string, en: string) => homeText(lang, ko, en);
+const label = (en: string) => lang === 'ja' || lang === 'zh' ? homeText(lang, '', en) : en;
 const dayOfWeekEnMap: Record<string, string> = {
   '월': 'Mon', '화': 'Tue', '수': 'Wed', '목': 'Thu', '금': 'Fri', '토': 'Sat', '일': 'Sun'
 };
 
 const formatItineraryLabel = (text: string) => {
-  if (text.includes('일정 요약') || text.includes('Trip Summary')) {
+  if (text.includes('일정 요약') || text.includes('Trip Summary') || text.includes('旅程の概要') || text.includes('行程概要')) {
     return { ko: '일정표', en: 'Summary' };
   }
   if (text.includes('투어 후보 비교') || text.includes('Tour Comparison')) {
@@ -47,7 +77,7 @@ const formatItineraryLabel = (text: string) => {
 
 const itineraryLinks = headings
   .filter(heading => heading.depth === 2 && (
-    heading.text.includes('일정 요약') || heading.text.includes('Trip Summary')
+    heading.text.includes('일정 요약') || heading.text.includes('Trip Summary') || heading.text.includes('旅程の概要') || heading.text.includes('行程概要')
     || heading.text.includes('투어 후보 비교')
     || heading.text.includes('시간 조절 범위')
     || /^\d{1,2}\/\d{1,2}\s/.test(heading.text)
@@ -61,8 +91,6 @@ const itineraryLinks = headings
     };
   });
 
-// 🔍 서버사이드 디버그: raw location 데이터 확인
-console.log('[DEBUG] First location raw:', JSON.stringify(post.data.locations[0], null, 2));
 
 const locations = post.data.locations.map((loc, index) => ({
   lat: loc.lat,
@@ -77,9 +105,11 @@ const locations = post.data.locations.map((loc, index) => ({
   images: loc.images,
 }));
 
-const mapLocations = getTripMapLocations(locations, {
-  ...post.data, flights: (post.data.flights || []).map(resolveFlightSchedule),
-}).map(l => ({
+// Filter using original records so translated airport names cannot change route geometry.
+const sharedMapStops = new Set(getTripMapLocations(originalPost.data.locations, {
+  ...originalPost.data, flights: (originalPost.data.flights || []).map(resolveFlightSchedule),
+}));
+const mapLocations = locations.filter((_, index) => sharedMapStops.has(originalPost.data.locations[index])).map(l => ({
   lat: l.lat, lng: l.lng, name: l.name, order: l.order, note: l.note, type: l.type,
   link: l.link, visitDate: l.visitDate,
 }));
@@ -104,7 +134,7 @@ clipStudioUrl.searchParams.set('payloadUrl', clipPayloadUrl);
 
 // visitDate별 그룹핑
 const groupedByDate = locations.reduce((acc, loc) => {
-  const date = loc.visitDate || '날짜 미정';
+  const date = loc.visitDate || text('날짜 미정', 'Date pending');
   if (!acc[date]) acc[date] = [];
   acc[date].push(loc);
   return acc;
@@ -112,7 +142,7 @@ const groupedByDate = locations.reduce((acc, loc) => {
 
 const dateGroups = Object.entries(groupedByDate);
 
-const flights = (post.data.flights || []).map(resolveFlightSchedule);
+const flights = (post.data.flights || []).map(flight => localizeFlightAirline(resolveFlightSchedule(flight), isTranslated ? 'en' : 'ko'));
 const normalizeFlightNo = (flightNo: string) => flightNo.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 const flightAwareAirlineCodes: Record<string, string> = {
   '5J': 'CEB',
@@ -144,46 +174,46 @@ const getFlightPrimaryUrl = (flight: typeof flights[number]) => (
   flight.lookupUrl || getFlightAwareUrl(flight.flightNo)
 );
 const flightDirectionLabels: Record<string, string> = {
-  outbound: '출국',
-  return: '귀국',
-  transfer: '이동',
+  outbound: text('출국', 'Outbound'),
+  return: text('귀국', 'Return'),
+  transfer: text('이동', 'Transfer'),
 };
 
 const expenses = post.data.expenses || [];
 const expenseCategoryLabels: Record<string, { icon: string; label: string }> = {
-  flight: { icon: '✈️', label: '항공' },
-  ferry: { icon: '⛴️', label: '배편' },
-  train: { icon: '🚆', label: '철도' },
-  bus: { icon: '🚌', label: '버스' },
-  taxi: { icon: '🚕', label: '택시' },
-  'airport-transfer': { icon: '🚐', label: '공항 이동' },
-  hotel: { icon: '🏨', label: '숙소' },
-  food: { icon: '🍽️', label: '식사' },
-  activity: { icon: '🎟️', label: '액티비티' },
-  shopping: { icon: '🛍️', label: '쇼핑' },
-  insurance: { icon: '🛡️', label: '보험' },
-  etc: { icon: '💳', label: '기타' },
+  flight: { icon: '✈️', label: text('항공', 'Flight') },
+  ferry: { icon: '⛴️', label: text('배편', 'Ferry') },
+  train: { icon: '🚆', label: text('철도', 'Train') },
+  bus: { icon: '🚌', label: text('버스', 'Bus') },
+  taxi: { icon: '🚕', label: text('택시', 'Taxi') },
+  'airport-transfer': { icon: '🚐', label: text('공항 이동', 'Airport transfer') },
+  hotel: { icon: '🏨', label: text('숙소', 'Hotel') },
+  food: { icon: '🍽️', label: text('식사', 'Food') },
+  activity: { icon: '🎟️', label: text('액티비티', 'Activity') },
+  shopping: { icon: '🛍️', label: text('쇼핑', 'Shopping') },
+  insurance: { icon: '🛡️', label: text('보험', 'Insurance') },
+  etc: { icon: '💳', label: text('기타', 'Other') },
 };
 const formatMoney = (amount?: number, currency?: string) => {
   if (amount === undefined) return undefined;
   const targetCurrency = currency || 'KRW';
 
   try {
-    return new Intl.NumberFormat('ko-KR', {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: targetCurrency,
       maximumFractionDigits: ['KRW', 'JPY', 'IDR'].includes(targetCurrency) ? 0 : 2,
     }).format(amount);
   } catch {
-    return `${amount.toLocaleString('ko-KR')} ${targetCurrency}`;
+    return `${amount.toLocaleString(locale)} ${targetCurrency}`;
   }
 };
 const getExpenseAmountText = (expense: typeof expenses[number]) => {
   const primaryAmount = formatMoney(expense.amount, expense.currency);
   const krwAmount = formatMoney(expense.krwAmount, 'KRW');
 
-  if (primaryAmount && krwAmount && expense.currency !== 'KRW') return `${primaryAmount} · 약 ${krwAmount}`;
-  return primaryAmount || krwAmount || '금액 미입력';
+  if (primaryAmount && krwAmount && expense.currency !== 'KRW') return `${primaryAmount} · ${text('약', 'approx.')} ${krwAmount}`;
+  return primaryAmount || krwAmount || text('금액 미입력', 'Amount pending');
 };
 const expenseTotals = Array.from(
   expenses.reduce((totals, expense) => {
@@ -198,26 +228,17 @@ const expenseTotals = Array.from(
 ).map(([currency, amount]) => formatMoney(amount, currency));
 ---
 
-<BaseLayout title={post.data.title} description={post.data.excerpt} noindex={isHiddenPost}>
-  <script is:inline>
-    (function() {
-      try {
-        const saved = localStorage.getItem('commit-map-lang');
-        const query = new URLSearchParams(window.location.search).get('lang');
-        const path = window.location.pathname;
-        let lang = (path.endsWith('/en') || path.endsWith('/en/')) ? 'en'
-          : (path.endsWith('/ko') || path.endsWith('/ko/')) ? 'ko'
-          : (query || saved || (navigator.language && navigator.language.toLowerCase().startsWith('ko') ? 'ko' : 'en'));
-        if (!['en', 'ko', 'all'].includes(lang)) lang = 'en';
-        document.documentElement.setAttribute('data-lang-mode', lang);
-      } catch (e) {}
-    })();
+<BaseLayout title={isTranslated ? (translation?.data.title || post.data.titleEn || post.data.title) : post.data.title} description={post.data.excerpt} noindex={isHiddenPost} lang={lang}>
+  <Fragment slot="head">{!Astro.params.lang && <LanguagePreferenceRedirect postSlug={postSlug} />}</Fragment>
+  <LanguageSwitcher slot="header-actions" postSlug={postSlug} currentLang={initialLang} hasEnglish={hasEnglish} hasTranslation={Boolean(translation) || initialLang !== 'all'} availableLanguages={availableLanguages} />
+  <script is:inline define:vars={{ pageLang: displayMode }}>
+    document.documentElement.setAttribute('data-lang-mode', pageLang);
   </script>
-  <article class={`post${initialLang ? ` mode-${initialLang}` : ''}`} data-post-slug={postSlug} data-initial-lang={initialLang}>
+  <article class={`post mode-${displayMode}`} data-post-slug={postSlug} data-initial-lang={initialLang} data-display-mode={displayMode}>
     <header class="post-header">
-      <a href="/" class="back-link">
+      <a href={homePaths[lang]} class="back-link">
         <span class="lang-ko">← 목록으로</span>
-        <span class="lang-en">← Back to Trips</span>
+        <span class="lang-en">{label("← Back to Trips")}</span>
       </a>
       <div 
         class="date-info"
@@ -225,21 +246,21 @@ const expenseTotals = Array.from(
         data-end={endDate.toISOString().slice(0, 10)}
       >
         <time datetime={post.data.date.toISOString()}>
-          {post.data.date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+          {post.data.date.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
           {post.data.endDate && post.data.endDate.getTime() !== post.data.date.getTime() 
-            ? ` ~ ${post.data.endDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}` 
+            ? ` ~ ${post.data.endDate.toLocaleDateString(locale, { month: 'long', day: 'numeric' })}`
             : ''}
         </time>
         <span class={`duration-badge${showDuration ? '' : ' pending-badge'}`}>
           <span class="lang-ko">{durationBadgeText}</span>
-          <span class="lang-en">{showDuration ? (days === 1 && nights === 0 ? 'Day Trip' : `${nights}N ${days}D`) : 'Pending'}</span>
+          <span class="lang-en">{showDuration ? (days === 1 && nights === 0 ? label('Day Trip') : lang === 'ja' ? `${nights}泊${days}日` : lang === 'zh' ? `${nights}晚${days}天` : `${nights}N ${days}D`) : label('Pending')}</span>
         </span>
-        {isDraftPost && <span class="draft-badge"><span class="lang-ko">작업중</span><span class="lang-en">Draft</span></span>}
+        {isDraftPost && <span class="draft-badge"><span class="lang-ko">작업중</span><span class="lang-en">{label("Draft")}</span></span>}
         <span class="dday-badge" data-dday-badge hidden></span>
       </div>
       <h1>
         <span class="lang-ko">{post.data.title}</span>
-        <span class="lang-en">{post.data.titleEn || post.data.title}</span>
+        <span class="lang-en">{translation?.data.title || post.data.titleEn || post.data.title}</span>
       </h1>
       {post.data.tags && (
         <div class="tags">
@@ -251,48 +272,36 @@ const expenseTotals = Array.from(
       {!isHiddenPost && (
         <div class="clip-actions">
           <a href={clipStudioUrl.toString()} class="clip-action" target="_blank" rel="noopener noreferrer">
-            <span>영상 클립 만들기</span>
+            <span>{text('영상 클립 만들기', 'Create a video clip')}</span>
             <small>clip.dongholab.com</small>
           </a>
         </div>
       )}
     </header>
 
-    <div class="lang-switch-bar" id="lang-switch-bar">
-      <span class="lang-switch-title">
-        <span class="lang-ko">🌐 언어 선택:</span>
-        <span class="lang-en">🌐 Language:</span>
-      </span>
-      <div class="lang-switch-btns">
-        <button type="button" class="lang-switch-btn active" data-lang-target="all">모두 보기 (Dual)</button>
-        <button type="button" class="lang-switch-btn" data-lang-target="en">🇺🇸 English</button>
-        <button type="button" class="lang-switch-btn" data-lang-target="ko">🇰🇷 한국어</button>
-      </div>
-    </div>
-
-    <nav class="trip-nav" aria-label="여행 정보 바로가기">
+    <nav class="trip-nav" aria-label={text('여행 정보 바로가기', 'Trip sections')}>
       {itineraryLinks.map(link => (
         <a href={link.href}>
           <span class="lang-ko">{link.labelKo}</span>
-          <span class="lang-en">{link.labelEn}</span>
+          <span class="lang-en">{label(link.labelEn)}</span>
         </a>
       ))}
-      <a href="#trip-map"><span class="lang-ko">지도</span><span class="lang-en">Map</span></a>
-      {flights.length > 0 && <a href="#trip-flights"><span class="lang-ko">항공편</span><span class="lang-en">Flights</span></a>}
-      {expenses.length > 0 && <a href="#trip-expenses"><span class="lang-ko">비용</span><span class="lang-en">Expenses</span></a>}
-      <a href="#trip-locations"><span class="lang-ko">장소</span><span class="lang-en">Locations</span></a>
+      <a href="#trip-map"><span class="lang-ko">지도</span><span class="lang-en">{label("Map")}</span></a>
+      {flights.length > 0 && <a href="#trip-flights"><span class="lang-ko">항공편</span><span class="lang-en">{label("Flights")}</span></a>}
+      {expenses.length > 0 && <a href="#trip-expenses"><span class="lang-ko">비용</span><span class="lang-en">{label("Expenses")}</span></a>}
+      <a href="#trip-locations"><span class="lang-ko">장소</span><span class="lang-en">{label("Locations")}</span></a>
     </nav>
 
     <section class="route-map" id="trip-map">
-      <h2>🗺️ <span class="lang-ko">여행 경로</span><span class="lang-en">Trip Route Map</span></h2>
+      <h2>🗺️ <span class="lang-ko">여행 경로</span><span class="lang-en">{label("Trip Route Map")}</span></h2>
       <div class="map-wrapper">
-        <MapContainer client:only="react" locations={mapLocations} showRoute={true} />
+        <MapContainer client:only="react" locations={mapLocations} showRoute={true} lang={lang} />
       </div>
     </section>
 
     {flights.length > 0 && (
       <section class="flight-section" id="trip-flights">
-        <h2>✈️ <span class="lang-ko">항공편</span><span class="lang-en">Flights</span></h2>
+        <h2>✈️ <span class="lang-ko">항공편</span><span class="lang-en">{label("Flights")}</span></h2>
         <div class="flight-grid">
           {flights.map(flight => {
             const routeText = [flight.from, flight.to].filter(Boolean).join(' → ');
@@ -303,7 +312,7 @@ const expenseTotals = Array.from(
               <article class="flight-card">
                 <div class="flight-card-top">
                   <div>
-                    <p class="flight-label">{directionLabel || flight.airline || '항공편'}</p>
+                    <p class="flight-label">{directionLabel || flight.airline || text('항공편', 'Flight')}</p>
                     <h3>
                       <a href={getFlightPrimaryUrl(flight)} target="_blank" rel="noopener noreferrer">
                         {flight.flightNo}
@@ -327,7 +336,7 @@ const expenseTotals = Array.from(
                     FlightAware
                   </a>
                   <a href={getFlightSearchUrl(flight)} target="_blank" rel="noopener noreferrer">
-                    Google 검색
+                    {text('Google 검색', 'Google search')}
                   </a>
                 </div>
               </article>
@@ -340,9 +349,9 @@ const expenseTotals = Array.from(
     {expenses.length > 0 && (
       <section class="expense-section" id="trip-expenses">
         <div class="section-title-row">
-          <h2>💳 <span class="lang-ko">비용 기록</span><span class="lang-en">Trip Expenses</span></h2>
+          <h2>💳 <span class="lang-ko">비용 기록</span><span class="lang-en">{label("Trip Expenses")}</span></h2>
           <div class="expense-totals">
-            <span>{expenses.length}개 항목</span>
+            <span>{expenses.length}{text('개 항목', ' items')}</span>
             {expenseTotals.map(total => total && <span>{total}</span>)}
           </div>
         </div>
@@ -397,7 +406,7 @@ const expenseTotals = Array.from(
     </section>
 
     <section class="route-details" id="trip-locations">
-      <h2>📍 <span class="lang-ko">방문 장소</span><span class="lang-en">Visited Places</span></h2>
+      <h2>📍 <span class="lang-ko">방문 장소</span><span class="lang-en">{label("Visited Places")}</span></h2>
       {dateGroups.map(([date, locs]) => {
         return (
           <div class="date-group">
@@ -457,8 +466,8 @@ const expenseTotals = Array.from(
 
     {!isHiddenPost && (
       <section class="comments-section">
-        <h2>💬 <span class="lang-ko">댓글</span><span class="lang-en">Comments</span></h2>
-        <Comments />
+        <h2>💬 <span class="lang-ko">댓글</span><span class="lang-en">{label("Comments")}</span></h2>
+        <Comments lang={lang} term={`posts/${postSlug}/`} />
       </section>
     )}
   </article>
@@ -485,7 +494,7 @@ const expenseTotals = Array.from(
 
     if (isPlanned) {
       badge.hidden = false;
-      badge.textContent = isCurrent ? '여행 중' : (dDay === 0 ? 'D-Day!' : `D-${dDay}`);
+      badge.textContent = isCurrent ? (document.documentElement.lang === 'ja' ? '旅行中' : document.documentElement.lang === 'zh' ? '旅行中' : document.documentElement.lang === 'en' ? 'Traveling' : '여행 중') : (dDay === 0 ? 'D-Day!' : `D-${dDay}`);
     }
   }
 
@@ -512,7 +521,7 @@ const expenseTotals = Array.from(
         lineColor: '#64748b',
         secondaryColor: '#ecfdf5',
         tertiaryColor: '#fff7ed',
-        fontFamily: 'Noto Sans KR, system-ui, sans-serif',
+        fontFamily: getComputedStyle(document.documentElement).fontFamily || 'Noto Sans KR, system-ui, sans-serif',
       },
     });
 
@@ -540,8 +549,7 @@ const expenseTotals = Array.from(
   const initLanguageSwitcher = () => {
     const postArticle = document.querySelector<HTMLElement>('.post');
     const postContent = document.querySelector<HTMLElement>('.post-content');
-    const switchBar = document.getElementById('lang-switch-bar');
-    if (!postArticle || !postContent || !switchBar) return;
+    if (!postArticle || !postContent) return;
 
     // Scan for legacy KO: / EN: tags if any
     const candidates = Array.from(postContent.querySelectorAll<HTMLElement>('li, p, div, h2, h3, h4, blockquote'));
@@ -568,136 +576,16 @@ const expenseTotals = Array.from(
       }
     });
 
-    const buttons = Array.from(switchBar.querySelectorAll<HTMLButtonElement>('.lang-switch-btn'));
-    
-    // Determine language based on priority:
-    // 1. URL path (/en/ or /ko/) or postArticle.dataset.initialLang
-    // 2. Query param ?lang=en or ?lang=ko
-    // 3. localStorage ('commit-map-lang')
-    // 4. Browser default: navigator.language.toLowerCase().startsWith('ko') ? 'ko' : 'en'
-    const pathname = window.location.pathname;
-    const urlParams = new URLSearchParams(window.location.search);
-    const queryLang = urlParams.get('lang');
-    const pathLang = (pathname.endsWith('/en') || pathname.endsWith('/en/')) ? 'en'
-      : (pathname.endsWith('/ko') || pathname.endsWith('/ko/')) ? 'ko'
-      : postArticle.dataset.initialLang;
+    const currentLang = postArticle.dataset.displayMode || 'all';
+    document.documentElement.setAttribute('data-lang-mode', currentLang);
+    postContent.classList.add(`mode-${currentLang}`);
 
-    const saved = localStorage.getItem('commit-map-lang');
-    const browserLang = (navigator.language && navigator.language.toLowerCase().startsWith('ko')) ? 'ko' : 'en';
-
-    let currentLang = pathLang || queryLang || saved || browserLang;
-    if (!['en', 'ko', 'all'].includes(currentLang)) {
-      currentLang = browserLang;
-    }
-
-    const applyLang = (lang: string, updateUrl: boolean = false) => {
-      currentLang = lang;
-      localStorage.setItem('commit-map-lang', lang);
-
-      postArticle.classList.toggle('mode-en', lang === 'en');
-      postArticle.classList.toggle('mode-ko', lang === 'ko');
-      postArticle.classList.toggle('mode-all', lang === 'all');
-
-      postContent.classList.toggle('mode-en', lang === 'en');
-      postContent.classList.toggle('mode-ko', lang === 'ko');
-      postContent.classList.toggle('mode-all', lang === 'all');
-
-      document.documentElement.setAttribute('data-lang-mode', lang);
-
-      buttons.forEach((btn) => {
-        btn.classList.toggle('active', btn.dataset.langTarget === lang);
-      });
-
-      const koItems = postArticle.querySelectorAll<HTMLElement>('[data-lang-item="ko"], .lang-ko');
-      const enItems = postArticle.querySelectorAll<HTMLElement>('[data-lang-item="en"], .lang-en');
-
-      if (lang === 'en') {
-        koItems.forEach((el) => { el.style.display = 'none'; });
-        enItems.forEach((el) => { el.style.display = ''; });
-      } else if (lang === 'ko') {
-        koItems.forEach((el) => { el.style.display = ''; });
-        enItems.forEach((el) => { el.style.display = 'none'; });
-      } else {
-        koItems.forEach((el) => { el.style.display = ''; });
-        enItems.forEach((el) => { el.style.display = ''; });
-      }
-
-      if (updateUrl) {
-        const postSlug = postArticle.dataset.postSlug;
-        if (postSlug) {
-          const targetPath = (lang === 'en' || lang === 'ko')
-            ? `/posts/${postSlug}/${lang}/`
-            : `/posts/${postSlug}/`;
-          
-          if (window.location.pathname !== targetPath) {
-            window.history.replaceState(null, '', targetPath + window.location.search + window.location.hash);
-          }
-        }
-      }
-    };
-
-    buttons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const target = btn.dataset.langTarget || 'all';
-        applyLang(target, true);
-      });
-    });
-
-    applyLang(currentLang, false);
   };
 
   initLanguageSwitcher();
 </script>
 
 <style>
-  .lang-switch-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: var(--color-bg-secondary, #f8fafc);
-    border: 1px solid var(--color-border, #e2e8f0);
-    padding: 0.6rem 1rem;
-    border-radius: 12px;
-    margin: 0 0 1.25rem;
-    flex-wrap: wrap;
-  }
-
-  .lang-switch-title {
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--color-text, #1e293b);
-  }
-
-  .lang-switch-btns {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-  }
-
-  .lang-switch-btn {
-    border: 1px solid var(--color-border, #cbd5e1);
-    background: var(--color-bg, #ffffff);
-    color: var(--color-text-secondary, #64748b);
-    padding: 0.35rem 0.75rem;
-    border-radius: 8px;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .lang-switch-btn:hover {
-    border-color: var(--color-primary, #2563eb);
-    color: var(--color-primary, #2563eb);
-  }
-
-  .lang-switch-btn.active {
-    background: var(--color-primary, #2563eb);
-    border-color: var(--color-primary, #2563eb);
-    color: #ffffff;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
-  }
-
   /* COMPLETE SEPARATION OF LANGUAGES */
   :global(.post.mode-en .lang-ko),
   :global(.post-content.mode-en .lang-ko),
@@ -1316,6 +1204,15 @@ const expenseTotals = Array.from(
     text-align: left;
     vertical-align: top;
     word-break: keep-all;
+  }
+
+  /* keep-all is for Korean spacing; Japanese and Chinese have no spaces, so cells would never wrap */
+  .post-content :global(th:lang(ja)),
+  .post-content :global(td:lang(ja)),
+  .post-content :global(th:lang(zh)),
+  .post-content :global(td:lang(zh)) {
+    word-break: normal;
+    line-break: strict;
   }
 
   .post-content :global(th) {

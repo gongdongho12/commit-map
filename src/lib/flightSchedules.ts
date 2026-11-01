@@ -137,6 +137,20 @@ const findSchedule = (flight: FlightRecord) => {
   ));
 };
 
+// Registry airline names are Korean; English pages show these names instead.
+const airlineNamesEn: Record<string, string> = {
+  '대한항공': 'Korean Air',
+  '진에어': 'Jin Air',
+  '제주항공': 'Jeju Air',
+  '세부퍼시픽': 'Cebu Pacific',
+};
+
+export const localizeFlightAirline = <T extends FlightRecord>(flight: T, lang: 'ko' | 'en'): T => (
+  lang === 'en' && flight.airline && airlineNamesEn[flight.airline]
+    ? { ...flight, airline: airlineNamesEn[flight.airline] }
+    : flight
+);
+
 export const resolveFlightSchedule = <T extends FlightRecord>(flight: T) => {
   const schedule = findSchedule(flight);
   if (!schedule) return flight;

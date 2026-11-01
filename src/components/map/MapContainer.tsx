@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
+import { homeText, type HomeLanguage } from '../../lib/homeLanguages';
 import type { Location } from './providers/types';
 import { locationTypeIcons, specialTypes } from './providers/types';
 import 'leaflet/dist/leaflet.css';
@@ -18,6 +19,7 @@ interface MapContainerProps {
   showRoute?: boolean;
   worldView?: boolean;  // 전세계 뷰 모드
   className?: string;
+  lang?: HomeLanguage;
 }
 
 const routeColors = [
@@ -51,6 +53,8 @@ const locationTypeLabels: Record<string, string> = {
   church: '성당',
 };
 
+const translatedTypeLabels: Record<string, Record<string, string>> = {"ja": {"attraction": "名所", "hotel": "ホテル", "restaurant": "食事", "cafe": "カフェ", "transport": "交通", "airport": "空港", "shopping": "買い物", "nature": "自然", "temple": "寺院", "museum": "博物館", "zoo": "動物園", "theater": "公演", "market": "市場", "beach": "ビーチ", "mountain": "山", "viewpoint": "展望", "bar": "バー", "palace": "宮殿", "spa": "スパ", "gym": "ジム", "church": "教会"}, "zh": {"attraction": "景点", "hotel": "酒店", "restaurant": "餐饮", "cafe": "咖啡馆", "transport": "交通", "airport": "机场", "shopping": "购物", "nature": "自然", "temple": "寺庙", "museum": "博物馆", "zoo": "动物园", "theater": "剧院", "market": "市场", "beach": "海滩", "mountain": "山岳", "viewpoint": "观景台", "bar": "酒吧", "palace": "宫殿", "spa": "水疗", "gym": "健身房", "church": "教堂"}};
+
 const locationTypeOrder = [
   'attraction',
   'hotel',
@@ -82,8 +86,10 @@ export function MapContainer({
   routes,
   showRoute = false,
   worldView = false,
-  className = '' 
+  className = '',
+  lang = 'ko'
 }: MapContainerProps) {
+  const text = (ko: string, en: string) => homeText(lang, ko, en);
   const [isClient, setIsClient] = useState(false);
   const [MapComponents, setMapComponents] = useState<any>(null);
   const mapRef = useRef<any>(null);
@@ -169,7 +175,7 @@ export function MapContainer({
         type,
         count,
         icon: locationTypeIcons[type] || locationTypeIcons[fallbackLocationType] || '📍',
-        label: locationTypeLabels[type] || type,
+        label: translatedTypeLabels[lang]?.[type] || (lang === 'en' ? type.charAt(0).toUpperCase() + type.slice(1) : locationTypeLabels[type] || type),
       }))
       .sort((a, b) => {
         const aOrder = locationTypeOrder.indexOf(a.type);
@@ -178,9 +184,9 @@ export function MapContainer({
         const normalizedBOrder = bOrder === -1 ? Number.MAX_SAFE_INTEGER : bOrder;
 
         if (normalizedAOrder !== normalizedBOrder) return normalizedAOrder - normalizedBOrder;
-        return a.label.localeCompare(b.label, 'ko');
+        return a.label.localeCompare(b.label, lang);
       });
-  }, [sourceLocations]);
+  }, [sourceLocations, lang]);
 
   useEffect(() => {
     const availableTypes = new Set(availableTypeFilters.map(filter => filter.type));
@@ -226,7 +232,7 @@ export function MapContainer({
     return (
       <div className={`map-container map-loading ${className}`}>
         <div className="map-placeholder">
-          🗺️ 지도 로딩 중...
+          🗺️ {text('지도 로딩 중...', 'Loading map...')}
         </div>
       </div>
     );
@@ -294,7 +300,7 @@ export function MapContainer({
   return (
     <div className={`map-container ${className}`}>
       {availableTypeFilters.length > 1 && (
-        <div className="map-type-filters" aria-label="장소 타입 필터">
+        <div className="map-type-filters" aria-label={text('장소 타입 필터', 'Filter places by type')}>
           <div className="map-type-filter-scroll">
             {availableTypeFilters.map(filter => {
               const isActive = activeTypeSet.has(filter.type);
@@ -305,7 +311,7 @@ export function MapContainer({
                   type="button"
                   className={`map-type-filter ${isActive ? 'is-active' : ''}`}
                   aria-pressed={isActive}
-                  title={`${filter.label} 장소만 보기`}
+                  title={lang === 'ja' ? `${filter.label}のみ表示` : lang === 'zh' ? `仅显示${filter.label}` : text(`${filter.label} 장소만 보기`, `Show ${filter.label.toLowerCase()} places only`)}
                   onClick={() => toggleTypeFilter(filter.type)}
                 >
                   <span className="map-type-filter-icon" aria-hidden="true">{filter.icon}</span>
@@ -320,7 +326,7 @@ export function MapContainer({
                 className="map-type-filter map-type-filter-clear"
                 onClick={clearTypeFilters}
               >
-                전체
+                {text('전체', 'All')}
               </button>
             )}
           </div>
@@ -328,7 +334,7 @@ export function MapContainer({
       )}
 
       {hasTypeFilter && visibleLocations.length === 0 && (
-        <div className="map-empty-filter">선택한 타입의 장소가 없어요</div>
+        <div className="map-empty-filter">{text('선택한 타입의 장소가 없어요', 'No places match the selected types')}</div>
       )}
 
       <LeafletMap 
@@ -389,11 +395,11 @@ export function MapContainer({
                 {location.note && <p className="popup-note">{location.note}</p>}
                 {location.link && (
                   <a href={location.link} target="_blank" rel="noopener noreferrer">
-                    📍 지도에서 보기 →
+                    📍 {text('지도에서 보기 →', 'View on map →')}
                   </a>
                 )}
                 {location.slug && (
-                  <a href={`/posts/${location.slug}/`}>자세히 보기 →</a>
+                  <a href={`/posts/${location.slug}/${lang !== 'ko' ? `${lang}/` : ''}`}>{text('자세히 보기 →', 'View trip →')}</a>
                 )}
               </div>
             </Popup>
@@ -422,11 +428,11 @@ export function MapContainer({
                 {location.excerpt && <p>{location.excerpt}</p>}
                 {location.link && (
                   <a href={location.link} target="_blank" rel="noopener noreferrer">
-                    📍 지도에서 보기 →
+                    📍 {text('지도에서 보기 →', 'View on map →')}
                   </a>
                 )}
                 {location.slug && (
-                  <a href={`/posts/${location.slug}/`}>자세히 보기 →</a>
+                  <a href={`/posts/${location.slug}/${lang !== 'ko' ? `${lang}/` : ''}`}>{text('자세히 보기 →', 'View trip →')}</a>
                 )}
               </div>
             </Popup>
