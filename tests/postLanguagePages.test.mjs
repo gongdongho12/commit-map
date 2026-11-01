@@ -159,9 +159,12 @@ test('Japanese and Chinese home and article pages use real translations and pres
       assert.match(article, new RegExp(`data-language-choice="${code}"`));
       assert.match(home, new RegExp(`data-language-choice="${code}"`));
     }
-    assert.match(home, /role="tooltip"/);
-    assert.match(home, /日本語 · Japanese/);
-    assert.match(home, /简体中文 · Chinese/);
+    // Collapsed switcher: the current language is the active (first) option; native names stay available as titles
+    const switcher = (home.match(/<nav class="language-switcher"[\s\S]*?<\/nav>/) || [''])[0];
+    assert.match(switcher, new RegExp(`class="language-option active"[^>]*data-language-choice="${lang}"`));
+    assert.ok(switcher.indexOf(`data-language-choice="${lang}"`) < switcher.indexOf('data-language-choice="ko"'));
+    assert.match(switcher, /title="日本語"/);
+    assert.match(switcher, /title="简体中文"/);
     const visible = value => value.replace(/<span class="lang-ko"[^>]*>[\s\S]*?<\/span>/g,'');
     for (const part of [content(article),section(article,'trip-flights'),section(article,'trip-expenses'),section(article,'trip-locations')]) {
       assert.doesNotMatch(visible(part), /[가-힣]/);
