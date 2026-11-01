@@ -188,7 +188,7 @@ locations:
     type: bar
     order: 16
     link: "https://maps.app.goo.gl/jDVJSrb8dTbATRVZA"
-    note: "축제 후 규카츠와 둘 중 선택. 그랜드프런트 오사카 북관 나리지 캐피털 2F. Whisky Dining WWW.W 저녁 17:30~23시, 같은 시설 Bottle Bar 17:30~23:30·일/공휴일 휴무. 주문 마감·빈자리 당일 확인, 이후 타치노미·이자카야 투어"
+    note: "축제 후 규카츠와 둘 중 선택. 그랜드프런트 오사카 북관 날리지 캐피털 2F. Whisky Dining WWW.W 저녁 17:30~23시, 같은 시설 Bottle Bar 17:30~23:30·일/공휴일 휴무. 주문 마감·빈자리 당일 확인, 이후 타치노미·이자카야 투어"
   - name: "우메다·덴마 타치노미·이자카야 투어"
     lat: 34.7049
     lng: 135.5122
@@ -445,7 +445,7 @@ MIO 쇼핑층은 **10:30∼20:30**, 본관 식당가는 대체로 **11시부터*
 | 후보 | 위치 | 공식 영업시간·판단 기준 |
 |---|---|---|
 | **[규카츠 모토무라 루쿠아점](https://maps.app.goo.gl/88WVgymoDCCvrof98)** | 大阪市北区梅田3-1-3, **LUCUA 10F** | 매장 공식 **11:00~22:00·주문 마감 21:30**. 도착 시 줄과 입장 가능 여부부터 확인 |
-| **[산토리 위스키 하우스](https://maps.app.goo.gl/jDVJSrb8dTbATRVZA)** | 大阪市北区大深町3-1, **그랜드프런트 오사카 북관 나리지 캐피털 2F** | **Whisky Dining WWW.W 저녁 17:30~23:00**. 같은 시설 **Whisky Bottle Bar 17:30~23:30·일/공휴일 휴무**. 10/17 토요일 방문 계획, 주문 마감·빈자리 확인 |
+| **[산토리 위스키 하우스](https://maps.app.goo.gl/jDVJSrb8dTbATRVZA)** | 大阪市北区大深町3-1, **그랜드프런트 오사카 북관 날리지 캐피털 2F** | **Whisky Dining WWW.W 저녁 17:30~23:00**. 같은 시설 **Whisky Bottle Bar 17:30~23:30·일/공휴일 휴무**. 10/17 토요일 방문 계획, 주문 마감·빈자리 확인 |
 
 규카츠는 LUCUA 시설 안내에 23시 폐점도 표시되어 있지만 **매장 자체 공식 안내의 더 이른 21:30 주문 마감·22시 폐점 기준**으로 계획한다. 축제 퇴장 후 우메다 도착이 21:30 이후라면 규카츠 입장을 전제로 잡지 않는다. 산토리도 다이닝·보틀바가 나뉘므로 이용할 공간의 주문 마감을 확인한다. [규카츠 매장 공식](https://www.gyukatsu-motomura.com/store/LUCUA), [LUCUA 시설 안내](https://www.lucua.jp/shopguide/id791.html), [산토리 다이닝](https://www.suntory.co.jp/whisky/whiskyhouse/dining/), [보틀바](https://www.suntory.co.jp/whisky/whiskyhouse/bottlebar/index.html).
 

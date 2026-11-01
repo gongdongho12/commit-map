@@ -1,0 +1,23 @@
+---
+import { homePaths } from '../lib/homeLanguages';
+interface Props { postSlug?: string; section?: 'home' | 'timeline'; }
+const { postSlug, section = 'home' } = Astro.props;
+const paths = postSlug
+  ? Object.fromEntries(['ko', 'en', 'ja', 'zh'].map(lang => [lang, `/posts/${postSlug}/${lang}/`]))
+  : section === 'timeline' ? Object.fromEntries(['ko','en','ja','zh'].map(lang => [lang, lang === 'ko' ? '/timeline/' : `/${lang}/timeline/`])) : homePaths;
+const entryPath = postSlug ? `/posts/${postSlug}/` : section === 'timeline' ? '/timeline/' : '/';
+---
+<script is:inline data-language-preference define:vars={{ paths, entryPath }}>
+  (() => {
+    if (window.location.pathname !== entryPath) return;
+    const supported = value => typeof value === 'string' && Object.hasOwn(paths, value);
+    const requested = new URLSearchParams(window.location.search).get('lang');
+    let saved;
+    try { saved = localStorage.getItem('commit-map-lang'); } catch {}
+    const browser = (navigator.languages?.length ? navigator.languages : [navigator.language || 'en'])
+      .map(value => value.toLowerCase().split(/[-_]/)[0]).find(supported);
+    const selected = supported(requested) ? requested : supported(saved) ? saved : browser || 'en';
+    const target = paths[selected];
+    if (target !== entryPath) window.location.replace(target + window.location.search + window.location.hash);
+  })();
+</script>

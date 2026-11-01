@@ -1,0 +1,131 @@
+---
+import { HOME_LANGUAGES, homePaths, homeText, type HomeLanguage } from '../lib/homeLanguages';
+interface Props {
+  postSlug?: string;
+  section?: 'home' | 'timeline';
+  currentLang: HomeLanguage | 'all';
+  hasEnglish: boolean;
+  hasTranslation: boolean;
+  availableLanguages?: HomeLanguage[];
+}
+
+const { postSlug, currentLang, hasEnglish, hasTranslation, availableLanguages, section = 'home' } = Astro.props;
+const lang = currentLang === 'all' ? 'ko' : currentLang;
+const names: Record<HomeLanguage | 'all', string> = { ko: '한국어', en: 'English', ja: '日本語', zh: '简体中文', all: '한국어 + English' };
+const labels: Record<HomeLanguage | 'all', string> = { ko: 'KO', en: 'EN', ja: 'JP', zh: 'CN', all: 'DUAL' };
+const supported: readonly HomeLanguage[] = availableLanguages || (postSlug ? (hasEnglish ? ['ko', 'en'] : ['ko']) : HOME_LANGUAGES);
+const options: { code: HomeLanguage | 'all'; label: string; href: string }[] = supported.map(code => ({
+  code, label: labels[code],
+  href: postSlug ? `/posts/${postSlug}/${code}/` : section === 'timeline' ? (code === 'ko' ? '/timeline/?lang=ko' : `/${code}/timeline/`) : code === 'ko' ? '/?lang=ko' : homePaths[code],
+}));
+if (postSlug && !hasTranslation && hasEnglish) options.push({code: 'all', label: 'DUAL', href: `/posts/${postSlug}/`});
+// Current language first; the rest slide out to its right
+const ordered = [...options.filter(o => o.code === currentLang), ...options.filter(o => o.code !== currentLang)];
+---
+
+<!-- Rounded pill that shows only the current language and expands sideways on hover, focus or tap -->
+<nav class="language-switcher" data-language-switcher aria-label={homeText(lang, '언어 선택', 'Language')}>
+  <span class="globe" aria-hidden="true">🌐</span>
+  {ordered.map(option => (
+    <a href={option.href}
+       class:list={['language-option', { active: currentLang === option.code }]}
+       data-language-choice={option.code}
+       title={names[option.code]}
+       aria-current={currentLang === option.code ? 'page' : undefined}
+       hreflang={option.code === 'all' ? undefined : option.code}
+       lang={option.code === 'all' ? undefined : option.code}>
+      {option.label}
+    </a>
+  ))}
+</nav>
+
+<script>
+  import { isHomeLanguage } from '../lib/homeLanguages';
+  document.querySelectorAll<HTMLAnchorElement>('[data-language-choice]').forEach(link => {
+    link.addEventListener('click', () => {
+      const lang = link.dataset.languageChoice;
+      if (isHomeLanguage(lang)) {
+        try { localStorage.setItem('commit-map-lang', lang); } catch {}
+      }
+    });
+  });
+
+  // Touch screens have no hover: tapping the current language toggles the row instead of reloading the page
+  document.querySelectorAll<HTMLElement>('[data-language-switcher]').forEach(root => {
+    const current = root.querySelector<HTMLAnchorElement>('.language-option.active');
+    current?.addEventListener('click', event => {
+      event.preventDefault();
+      root.classList.toggle('is-open');
+    });
+    document.addEventListener('click', event => {
+      if (!root.contains(event.target as Node)) root.classList.remove('is-open');
+    });
+    root.addEventListener('keydown', event => {
+      if (event.key === 'Escape') { root.classList.remove('is-open'); current?.blur(); }
+    });
+  });
+</script>
+
+<style>
+  .language-switcher {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 0.2rem 0.3rem 0.2rem 0.55rem;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .globe { margin-right: 0.15rem; font-size: 0.8rem; line-height: 1; }
+
+  .language-option {
+    display: inline-block;
+    overflow: hidden;
+    max-width: 0;
+    padding: 0.3rem 0;
+    border-radius: 6px;
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    line-height: 1.25;
+    white-space: nowrap;
+    opacity: 0;
+    transition: max-width 0.25s ease, padding 0.25s ease, opacity 0.2s ease;
+  }
+
+  .language-option.active {
+    max-width: 4rem;
+    padding: 0.3rem 0.4rem;
+    color: var(--color-text);
+    font-weight: 700;
+    opacity: 1;
+  }
+
+  .language-switcher:hover,
+  .language-switcher:focus-within,
+  .language-switcher.is-open {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 14px rgb(67 97 238 / 14%);
+  }
+
+  .language-switcher:hover .language-option,
+  .language-switcher:focus-within .language-option,
+  .language-switcher.is-open .language-option {
+    max-width: 4rem;
+    padding: 0.3rem 0.4rem;
+    opacity: 1;
+  }
+
+  .language-switcher:hover .language-option.active,
+  .language-switcher:focus-within .language-option.active,
+  .language-switcher.is-open .language-option.active {
+    background: var(--color-bg);
+    color: var(--color-primary);
+  }
+
+  .language-option:not(.active):hover { background: var(--color-bg); color: var(--color-primary); }
+  .language-option:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+</style>

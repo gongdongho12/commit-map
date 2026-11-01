@@ -116,4 +116,33 @@ const postsCollection = defineCollection({
 
 export const collections = {
   posts: postsCollection,
+  postTranslations: defineCollection({
+    type: 'content',
+    schema: z.object({
+      postSlug: z.string(),
+      lang: z.enum(['en', 'ja', 'zh']).default('en'),
+      title: z.string(),
+      excerpt: z.string(),
+      country: z.string(),
+      countries: z.record(z.string()).optional(), // 원본 countries 의 한국어 나라명 → 영어
+      tags: z.array(z.string()),
+      locations: z.record(z.object({
+        name: z.string(),
+        note: z.string().optional(),
+        country: z.string().optional(),
+        contents: z.array(contentSectionSchema).optional(),
+        images: z.array(z.object({ alt: z.string().optional(), caption: z.string().optional() })).optional(),
+      })),
+      flights: z.record(z.object({ note: z.string().optional(), airline: z.string().optional() })).default({}),
+      expenses: z.record(z.object({
+        title: z.string(),
+        unit: z.string().optional(),
+        note: z.string().optional(),
+        payment: z.string().optional(),
+        bookingSource: z.string().optional(),
+        linkedLocation: z.string().optional(),
+        items: z.array(z.object({ name: z.string(), note: z.string().optional() })).optional(),
+      })).default({}),
+    }),
+  }),
 };

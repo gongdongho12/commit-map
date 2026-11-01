@@ -52,7 +52,7 @@ locations:
     visitDate: "1/1"
     type: hotel
     order: 5
-    note: "이세 시내 숨박, 이세신궁 근처"
+    note: "이세 시내 숙박, 이세신궁 근처"
 
   # Day 3-4: 나라현 (1/3-4)
   - name: "나라공원"

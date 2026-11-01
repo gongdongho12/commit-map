@@ -1,3 +1,10 @@
+---
+import type { HomeLanguage } from '../lib/homeLanguages';
+// term: one discussion per post shared by every language URL (/posts/<slug>/, /ko/, /en/, /ja/, /zh/).
+// Matches the title the old pathname mapping created, so existing threads keep showing.
+interface Props { lang?: HomeLanguage; term: string; }
+const { lang = 'ko', term } = Astro.props;
+---
 <section class="giscus mx-auto mt-10 w-full"></section>
 
 <script src="https://giscus.app/client.js"
@@ -5,13 +12,14 @@
         data-repo-id="R_kgDOQ8BZ5g"
         data-category="General"
         data-category-id="DIC_kwDOQ8BZ5s4C1G3a"
-        data-mapping="pathname"
+        data-mapping="specific"
+        data-term={term}
         data-strict="0"
         data-reactions-enabled="1"
         data-emit-metadata="0"
         data-input-position="top"
         data-theme="light"
-        data-lang="ko"
+        data-lang={lang === 'zh' ? 'zh-CN' : lang}
         data-loading="lazy"
         crossorigin="anonymous"
         async>

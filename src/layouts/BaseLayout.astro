@@ -1,11 +1,13 @@
 ---
+import { homePaths, homeText, type HomeLanguage } from '../lib/homeLanguages';
 interface Props {
   title: string;
   description?: string;
   noindex?: boolean;
+  lang?: HomeLanguage;
 }
 
-const { title, description = '여행의 발자취를 지도 위에', noindex = false } = Astro.props;
+const { title, description = '여행의 발자취를 지도 위에', noindex = false, lang = 'ko' } = Astro.props;
 const appVersion = import.meta.env.PUBLIC_APP_VERSION || '0.0.0';
 const buildCommit = import.meta.env.PUBLIC_BUILD_COMMIT || 'dev';
 const buildDate = import.meta.env.PUBLIC_BUILD_DATE || '';
@@ -19,9 +21,10 @@ const formattedBuildDate = buildDate
 ---
 
 <!doctype html>
-<html lang="ko">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
+    <slot name="head" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
@@ -52,13 +55,16 @@ const formattedBuildDate = buildDate
   <body>
     <header class="header">
       <nav class="nav">
-        <a href="/" class="logo">
-          <span class="logo-icon">🗺️</span>
-          <span class="logo-text">Commit Map</span>
-        </a>
+        <div class="brand-group">
+          <a href={homePaths[lang]} class="logo">
+            <span class="logo-icon">🗺️</span>
+            <span class="logo-text">Commit Map</span>
+          </a>
+          <slot name="header-actions" />
+        </div>
         <div class="nav-links">
-          <a href="/timeline/">타임라인</a>
-          <a href="https://forms.gle/24Fnaegyp5ydZ1ze9" target="_blank" rel="noopener noreferrer" class="btn btn-primary">여행 계획 신청하기</a>
+          <a href={lang === 'ko' ? '/timeline/' : `/${lang}/timeline/`}>{homeText(lang, '타임라인', 'Timeline')}</a>
+          <a href="https://forms.gle/24Fnaegyp5ydZ1ze9" target="_blank" rel="noopener noreferrer" class="btn btn-primary">{homeText(lang, '여행 계획 신청하기', 'Request a trip plan')}</a>
         </div>
       </nav>
     </header>
@@ -91,6 +97,19 @@ const formattedBuildDate = buildDate
     --color-primary-hover: #3a56d4;
     --color-accent: #7b2cbf;
     --font-sans: 'Noto Sans KR', system-ui, sans-serif;
+  }
+
+  /* Noto Sans KR draws Han characters in Korean glyph forms; use native Japanese/Chinese fonts there */
+  :root:lang(ja) {
+    --font-sans: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', 'Meiryo', 'Noto Sans JP', system-ui, sans-serif;
+  }
+
+  :root:lang(zh) {
+    --font-sans: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', system-ui, sans-serif;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
   }
 
   html {
@@ -150,6 +169,15 @@ const formattedBuildDate = buildDate
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 1.25rem;
+  }
+
+  .brand-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-right: auto;
+    flex-shrink: 0;
   }
 
   .logo {
@@ -209,6 +237,8 @@ const formattedBuildDate = buildDate
   @media (max-width: 768px) {
     .nav {
       padding: 0.75rem 1rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
     }
 
     .logo {
@@ -221,6 +251,9 @@ const formattedBuildDate = buildDate
 
     .nav-links {
       gap: 1rem;
+      order: 3;
+      width: 100%;
+      justify-content: space-between;
     }
 
     .nav-links a {
