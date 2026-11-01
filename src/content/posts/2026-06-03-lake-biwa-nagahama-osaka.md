@@ -144,7 +144,7 @@ locations:
     note: "AZAI FACTORY TOUR 집합 지점, 14:30 예약"
     contents:
       - heading: "AZAI FACTORY TOUR"
-        text: "장하마 증류소에서 시작해 AZAI Factory 숙성고를 둘러보는 약 2.5시간 투어. 참가비 5,000엔, 1명 예약."
+        text: "나가하마 증류소에서 시작해 AZAI Factory 숙성고를 둘러보는 약 2.5시간 투어. 참가비 5,000엔, 1명 예약."
 
   - name: "HOPETREE TENNOJI"
     lat: 34.6448

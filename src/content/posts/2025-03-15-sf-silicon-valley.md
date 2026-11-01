@@ -62,7 +62,7 @@ locations:
       - heading: "안개"
         text: "오후에 안개가 많이 끼므로 오전 방문 추천"
 
-  - name: "게리 거리 (Ghirardelli Square)"
+  - name: "기라델리 스퀘어 (Ghirardelli Square)"
     lat: 37.8059
     lng: -122.4228
     visitDate: "3/16"
